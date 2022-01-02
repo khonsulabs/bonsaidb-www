@@ -22,12 +22,20 @@ nav .navbar-brand h1 {
 }
 
 $orange:       hsl(14,  100%, 53%) !default;
-$yellow:       hsl(44,  100%, 77%) !default;
+$yellow:       hsl(48,  100%, 74%) !default;
 $green:        hsl(153, 53%,  53%) !default;
 $turquoise:    hsl(35, 100%, 41%) !default;
 $cyan:         hsl(207, 61%,  53%) !default;
 $blue:         hsl(200, 53%,  53%) !default;
 $purple:       hsl(271, 100%, 71%) !default;
-$red:          hsl(348, 86%, 61%) !default;
+$red:          hsl(319, 86%, 81%) !default;
+
+.font-icon {
+    padding: 0px 0.5em;
+}
 
 @import "../ext/bulma/bulma.sass";
+
+.content pre.highlight {
+    padding: 0;
+}

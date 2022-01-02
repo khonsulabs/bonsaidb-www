@@ -8,6 +8,8 @@
     <title>BonsaiDb</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
 </head>
 
 <body>
@@ -26,20 +28,45 @@
 
         <div class="navbar-menu" id="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item" href="/what">
+                <!-- <a class="navbar-item" href="/what">
                     What is BonsaiDb?
-                </a>
+                </a> -->
             </div>
             <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/main/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
                 <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
-                    Code
-                </a>
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
             </div>
         </div>
     </nav>
 
     {% block content %}
     {% endblock content %}
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                website content
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
 
     <script src="/site.js" />
 </body>
