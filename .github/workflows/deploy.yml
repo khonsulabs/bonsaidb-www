@@ -1,0 +1,30 @@
+on:
+  push:
+    branches:
+      - main 
+  pull_request:
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: actions/checkout@master
+        with:
+          submodules: recursive
+
+      - name: "Build"
+        run: |
+          wget https://github.com/getzola/zola/releases/download/v0.15.2/zola-v0.15.2-x86_64-unknown-linux-gnu.tar.gz
+          tar -xzf zola-v0.15.2-x86_64-unknown-linux-gnu.tar.gz
+          ./zola build
+        
+      - name: Deploy Docs
+        if: github.ref == 'refs/heads/main'
+        uses: JamesIves/github-pages-deploy-action@releases/v4
+        with:
+          branch: gh-pages
+          folder: public/
+          git-config-name: kl-botsu
+          git-config-email: botsu@khonsulabs.com
+          target-folder: /
+          clean: true

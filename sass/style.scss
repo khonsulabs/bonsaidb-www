@@ -1,0 +1,33 @@
+@charset "utf-8";
+
+$black:        hsl(120, 20%, 96%) !default;
+$black-bis:    hsl(120, 20%, 93%) !default;
+$black-ter:    hsl(120, 20%, 86%) !default;
+
+$grey-darker:  hsl(120, 30%, 79%) !default;
+$grey-dark:    hsl(120, 30%, 71%) !default;
+$grey:         hsl(120, 30%, 52%) !default;
+$grey-light:   hsl(120, 30%, 29%) !default;
+$grey-lighter: hsl(120, 30%, 14%) !default;
+$grey-lightest: hsl(120, 30%, 7%) !default;
+
+$white-ter:    hsl(120, 100%, 10%) !default;
+$white-bis:    hsl(120, 100%, 6%) !default;
+$white:        hsl(120, 100%, 2%) !default;
+
+nav .navbar-brand h1 {
+    font-size: large;
+    padding-left: 0.25em;
+    color: #CC7700;
+}
+
+$orange:       hsl(14,  100%, 53%) !default;
+$yellow:       hsl(44,  100%, 77%) !default;
+$green:        hsl(153, 53%,  53%) !default;
+$turquoise:    hsl(35, 100%, 41%) !default;
+$cyan:         hsl(207, 61%,  53%) !default;
+$blue:         hsl(200, 53%,  53%) !default;
+$purple:       hsl(271, 100%, 71%) !default;
+$red:          hsl(348, 86%, 61%) !default;
+
+@import "../ext/bulma/bulma.sass";

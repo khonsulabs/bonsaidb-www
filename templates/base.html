@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BonsaiDb</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="https://bonsaidb.io">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item" href="/what">
+                    What is BonsaiDb?
+                </a>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    Code
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    {% block content %}
+    {% endblock content %}
+
+    <script src="/site.js" />
+</body>
+
+</html>
