@@ -8,6 +8,8 @@
     <title>BonsaiDb</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
 </head>
 
 <body>
@@ -26,53 +28,186 @@
 
         <div class="navbar-menu" id="navbar-menu">
             <div class="navbar-start">
-                <a class="navbar-item" href="/what">
+                <!-- <a class="navbar-item" href="/what">
                     What is BonsaiDb?
-                </a>
+                </a> -->
             </div>
             <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/main/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
                 <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
-                    Code
-                </a>
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
             </div>
         </div>
     </nav>
 
     
-
-<div class="container is-centered">
-    <div class="columns is-centered">
-        <div class="column is-two-thirds menu">
-            <ul class="menu-list">
-                <li>
-                    <a class="button is-primary" href="https://dev.bonsaidb.io/guide/">
-                        <i class="bi-book"></i> User's Guide</a>
-                </li>
-                <li>
-                    <a class="button is-primary" href="https://dev.bonsaidb.io/main/bonsaidb">
-                        <i class="bi-journal-code"></i>
-                        Documentation</a>
-                </li>
-                <li>
-                    <a class="button is-primary" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
-                        <i class="bi-chat"></i>
-                        Discussion Forums</a>
-                </li>
-                <li>
-                    <a class="button is-primary" href="https://discord.khonsulabs.com">
-                        <i class="bi-discord"></i> Khonsu Labs
-                        Discord</a>
-                </li>
-                <li>
-                    <a class="button is-primary" href="https://github.com/khonsulabs/bonsaidb">
-                        <i class="bi-github"></i> Source
-                        Code</a>
-                </li>
-            </ul>
-        </div>
-    </div>
+<div class="container" style="text-align: center">
+    <img src="/bonsaidb-512.png" width="256" />
+    <h1 class="title is-1">
+        BonsaiDb
+    </h1>
+    <h2 class="subtitle is-3">
+        A <a href="https://rust-lang.org/">Rust</a> database that grows with you.
+    </h2>
 </div>
 
+<br />
+
+<div class="container content">
+
+    <div class="notification is-warning">
+        BonsaiDb is currently pre-alpha. We are <a
+            href="https://community.khonsulabs.com/t/bonsaidb-december-update-finishing-up-alpha-1/88">nearing
+            the first alpha release</a>. While there has been significant testing
+        behind BonsaiDb already, all users are recommended to restrict BonsaiDb
+        to experiments or ensure you test your backups.
+    </div>
+
+    <h1 class="title is-3">
+        Getting Started with Local-only Databases 
+<a href="#local" name="local"><i class="bi bi-link-45deg"></i></a>
+
+    </h1>
+    <p>Add BonsaiDb to your Cargo.toml:</p>
+
+    <pre class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "main", features = ["local"] }</code></pre>
+
+    <h3 class="title is-5">Local-only Examples 
+<a href="#local-examples" name="local-examples"><i class="bi bi-link-45deg"></i></a>
+</h3>
+
+    <p>Each of these examples can be run within the BonsaiDb repository by executing
+        <code>cargo run --example EXAMPLE-NAME</code>.
+    </p>
+
+    <ul>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-local/examples/basic-local.rs">basic-local</a>:
+            Shows using one database with one collection.
+        </li>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-local/examples/basic-local-multidb.rs">basic-local-multidb</a>:
+            Shows using one collection with multiple databases.
+        </li>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-local/examples/view-examples.rs">view-examples</a>:
+            Shows basic Map/Reduce views usage for collections.
+        </li>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/view-histogram/examples/view-histogram.rs">view-histogram</a>:
+            Demonstrates using a histogram as a value type within a
+            Map/Reduce view, enabling automatic aggregation of
+            histograms through queries.
+        </li>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-local/examples/pubsub.rs">pubsub</a>:
+            Demonstrates publishing and subscribing to
+            events published to topics. While PubSub is arguably
+            more useful in the client/server model, it works offline
+            as well.
+        </li>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-local/examples/key-value-store.rs">key-value-store</a>:
+            Shows basic usage of the atomic key-value store.
+        </li>
+    </ul>
+
+    <h1 class="title is-3">
+        Getting Started with Client/Server Databases 
+<a href="#server" name="server"><i class="bi bi-link-45deg"></i></a>
+
+    </h1>
+    <p>Add BonsaiDb to your server's Cargo.toml:</p>
+
+    <pre class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "main", features = ["server"] }</code></pre>
+
+    <p>And to your client's Cargo.toml:</p>
+
+    <pre class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "main", features = ["client"] }</code></pre>
+
+    <h3 class="title is-5">Client/Server Examples 
+<a href="#server-examples" name="server-examples"><i class="bi bi-link-45deg"></i></a>
+</h3>
+
+    <p>Each of these examples can be run within the BonsaiDb repository by executing
+        <code>cargo run --example EXAMPLE-NAME</code>.
+    </p>
+
+    <p>The examples for local-only databases are focused on teaching the basics on BonsaiDb and apply to all
+        forms of accessing BonsaiDb, including Client/Server. If you're new to BonsaiDb, it might be best to
+        start with the local-only examples while learning the fundamentals.</p>
+
+    <ul>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-server/examples/basic-server.rs">basic-server</a>:
+            Shows basic server setup and access. Example includes
+            both QUIC and WebSocket based connections.
+        </li>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-server/examples/users.rs">users</a>:
+            Shows basic user and permission group management.
+        </li>
+        <li>
+            <a
+                href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-server/examples/custom-api.rs">custom-api</a>:
+            Shows how to extend the BonsaiDb network protocol with a
+            custom API. See also <a href="https://dev.bonsaidb.io/guide/about/access-models/custom-api-server.html">the
+                user's guide section</a> covering this example.
+        </li>
+        <li>
+            <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/basic-server/examples/cli.rs">cli</a>:
+            Shows how to use and extend the BonsaiDb command line interface.
+        </li>
+        <li>
+            <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs">axum</a>:
+            Shows how to expose an <a href="https://crates.io/crates/axum">Axum webserver</a>
+            that supports upgrading BonsaiDb websockets on a
+            specified route.
+        </li>
+        <li>
+            <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/acme/examples/acme.rs">acme</a>:
+            Shows how to configure BonsaiDb to use LetsEncrypt to
+            automatically issue TLS certificates.
+        </li>
+    </ul>
+</div>
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                website content
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
 
     <script src="/site.js" />
 </body>
