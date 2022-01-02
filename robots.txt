@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://bonsaidb.io/sitemap.xml
