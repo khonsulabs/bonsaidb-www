@@ -74,21 +74,19 @@ applications.</p>
 <h3 id="it-grows-with-you">It grows with you</h3>
 <p>BonsaiDb's features are designed to work when using it as a local-only database,
 as a networked database server, and eventually <a href="https://github.com/khonsulabs/bonsaidb/issues/104">as a distributed
-cluster</a>. This design makes
-it easy to test and develop apps with BonsaiDb, as there are is additional
-software for developers to set up when working on a BonsaiDb powered app.</p>
+cluster</a>. This design makes it easy to test and develop apps with
+BonsaiDb, as there are is additional software for developers to set up when
+working on a BonsaiDb powered app.</p>
 <h3 id="schema-as-rust-code">Schema as Rust Code</h3>
 <p>BonsaiDb leverages the Rust type system to allow defining schema as code,
 enabling the Rust compiler to help you ensure your database code is correct.
 This helps keep the likelihood of unexpected runtime errors to a minimum, and it
 also helps developers understand the entire flow of their code and data.</p>
 <h3 id="acid-compliant-transactional-storage">ACID-compliant Transactional Storage</h3>
-<p>BonsaiDb's
-<a href="https://dev.bonsaidb.io/guide/about/concepts/collection.html">collections</a> are
-<a href="https://en.wikipedia.org/wiki/ACID">ACID</a>-compliant, giving you the peace of
-mind that your data is safe in the event of an unexpected failure of the server.
-For most developers, this mode of storage should be the default, yet many
-popular NoSQL database choices do not offer ACID-compliant storage.</p>
+<p>BonsaiDb's <a href="https://dev.bonsaidb.io/guide/about/concepts/collection.html">collections</a> are <a href="https://en.wikipedia.org/wiki/ACID">ACID</a>-compliant, giving you the
+peace of mind that your data is safe in the event of an unexpected failure of
+the server. For most developers, this mode of storage should be the default, yet
+many popular NoSQL database choices do not offer ACID-compliant storage.</p>
 <p>An example of where ACID-compliance matters: Storing a customer's order in a web
 store. If the method of writing the customer's order to the database is not
 ACID-compliant, a power failure could occur between saving the customer's order
@@ -96,12 +94,23 @@ and the bytes being persisted to disk. This could result in a user being
 notified that their order was successfully submitted (and worse, their credit
 card charged), yet after the power is restored, your database has no record of
 the transaction.</p>
+<h3 id="at-rest-encryption">At-Rest Encryption</h3>
+<p>BonsaiDb optionally supports <a href="https://dev.bonsaidb.io/guide/administration/encryption.html">encrypting data at-rest</a>,
+which prevents data from being leaked if a hard drive is stolen or wasn't wiped
+before being removed from a data center. This is an important feature to have
+when storing Personally Identifiable Information (PII) if your hosting
+environment does not offer ways of encrypting the filesystem itself.</p>
 <h3 id="backup-restore">Backup / Restore</h3>
+<p>BonsaiDb offers <a href="https://dev.bonsaidb.io/main/bonsaidb/local/struct.Storage.html#method.backup">backup</a> and <a href="https://dev.bonsaidb.io/main/bonsaidb/local/struct.Storage.html#method.restore">restore</a> from a backup location,
+which is a trait that can be implemented for custom backup solutions. BonsaiDb
+provides built-in support for using a filesystem directory as a backup location,
+and there is planned support for any <a href="https://github.com/khonsulabs/bonsaidb/issues/122">S3-compatible storage service</a>.
+Currently backups are always complete backups, but <a href="https://github.com/khonsulabs/bonsaidb/issues/121">incremental backups are
+planned</a>.</p>
 <h3 id="extensible-role-based-access-control">Extensible Role-based Access Control</h3>
-<p>BonsaiDb offers a robust <a href="https://dev.bonsaidb.io/guide/administration/permissions.html">permission
-system</a> which
-allows for &quot;actions&quot; to be allowed or denied on &quot;resources&quot;. BonsaiDb uses this
-access control system internally, but it is written to be able to be extended by
+<p>BonsaiDb offers a robust <a href="https://dev.bonsaidb.io/guide/administration/permissions.html">permission system</a> which allows for
+&quot;actions&quot; to be allowed or denied on &quot;resources&quot;. BonsaiDb uses this access
+control system internally, but it is written to be able to be extended by
 actions and resources defined in your application.</p>
 <p>With BonsaiDb, you can choose to utilize the multi-user support as your account
 system for your application. By doing this, you can use roles and groups to
@@ -112,80 +121,68 @@ evaluated offline as well</a>.</p>
 <h3 id="atomic-key-value-storage">Atomic Key-Value Storage</h3>
 <p>Sometimes ACID-compliance is overkill, such as in situations where a value is
 being updated hundreds or thousands of times per second. BonsaiDb offers a
-namespaced, atomic <a href="https://dev.bonsaidb.io/guide/traits/key-value.html">key-value
-store</a>. It currently offers
-basic atomic operations as well as some atomic arithmetic operations.</p>
+namespaced, atomic [key-value store][leu=value]. It currently offers basic
+atomic operations as well as some atomic arithmetic operations.</p>
 <p>This feature is still early in development, and currently is fully
 transactional. This means it is currently not very &quot;lightweight&quot;, but there are
 <a href="https://github.com/khonsulabs/bonsaidb/issues/120">plans to address this</a>.</p>
 <h3 id="publish-subscribe-pubsub">Publish/Subscribe (PubSub)</h3>
 <p>BonsaiDb offers the ability to subscribe to topics and receive published
-messages. <a href="https://dev.bonsaidb.io/guide/about/concepts/pubsub.html">PubSub</a> can
-be used to power features like private messaging but can also be used as a way
-to separate services within an application's architecture.</p>
+messages. <a href="https://dev.bonsaidb.io/guide/about/concepts/pubsub.html">PubSub</a> can be used to power features like private messaging
+but can also be used as a way to separate services within an application's
+architecture.</p>
 <h3 id="secure-networked-access">Secure Networked Access</h3>
 <p>BonsaiDb offers two wire protocol implementations, one that utilizes
-<a href="https://en.wikipedia.org/wiki/QUIC">QUIC</a> and one that utilizes
-<a href="https://en.wikipedia.org/wiki/WebSocket">WebSockets</a>. The QUIC-based protocol
-is more efficient, but to enable access in the web browser, WebSockets are also
-offered. WebSockets may eventually be replaced or supplemented with a WebRTC
-offering.</p>
+<a href="https://en.wikipedia.org/wiki/QUIC">QUIC</a> and one that utilizes <a href="https://en.wikipedia.org/wiki/WebSocket">WebSockets</a>. The QUIC-based
+protocol is more efficient, but to enable access in the web browser, WebSockets
+are also offered. WebSockets may eventually be replaced or supplemented with a
+WebRTC offering.</p>
 <h4 id="extensible-wire-protocol">Extensible Wire Protocol</h4>
 <p>BonsaiDb offers an ability to extend the wire protocol with a request/response
 style API. This provides an easy way to provide authenticated, permission-aware
 access to server-side functionality.</p>
-<p>The user's guide has <a href="https://dev.bonsaidb.io/guide/about/access-models/custom-api-server.html">a page dedicated to an example of this
-setup</a>.</p>
+<p>The user's guide has <a href="https://dev.bonsaidb.io/guide/about/access-models/custom-api-server.html">a page dedicated to an example of this setup</a>.</p>
 <h4 id="extensible-tcp-layer">Extensible TCP Layer</h4>
 <p>Suppose you're designing an app that exposes an HTTP layer and wish to connect
 to your database server over WebSockets. BonsaiDb allows upgrading TCP
-connections <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.upgrade_websocket">using a
-<code>hyper::Request</code></a>
-or <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.handle_websocket">manually after performing the
-negotation</a>.</p>
-<p>An example of this configuration is <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs">included in the
-repository</a>.
-It shows how to use the <a href="https://crates.io/crates/axum">Axum</a> framework
-alongside BonsaiDb's WebSockets.</p>
+connections <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.upgrade_websocket">using a <code>hyper::Request</code></a> or <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.handle_websocket">manually after
+performing the negotation</a>.</p>
+<p>An example of this configuration is <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs">included in the repository</a>.
+It shows how to use the <a href="https://crates.io/crates/axum">Axum</a> framework alongside BonsaiDb's WebSockets.</p>
 <h4 id="tls-certificates-via-letsencrypt">TLS Certificates via LetsEncrypt</h4>
 <p>BonsaiDb requires TLS for its connections. You can use any valid TLS
 certificate. If you would like BonsaiDb to automatically acquire one using ACME,
 it's as simple as enabling a feature flag and <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.listen_for_secure_tcp_on">listening for TCP connections on
-port
-443</a>.
-An example showing how this is configured is available <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/acme/examples/acme.rs">in the
-repository</a>.</p>
+port 443</a>. An example showing how this is configured is available
+<a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/acme/examples/acme.rs">in the repository</a>.</p>
 <h2 id="bonsaidb-s-planned-features">BonsaiDb's Planned Features</h2>
 <ul>
 <li>
-<p><a href="https://github.com/khonsulabs/bonsaidb/issues/78">Persistent Job Queue</a>:
-BonsaiDb needs to run some tasks on a scheduled basis, and this schedule
-should be able to be adjusted by end users. Additionally, it's not uncommon
-for developers to need to run jobs on a periodic basis. By hosting these jobs
-in the database, it enables a centralized location for monitoring these jobs.
-The goal of this system is to be similar to <a href="https://aws.amazon.com/sqs/">Amazon
-SQS</a> or
-<a href="https://github.com/mperham/sidekiq">Sidekiq</a>.</p>
+<p><a href="https://github.com/khonsulabs/bonsaidb/issues/78">Persistent Job Queue</a>: BonsaiDb needs to run some tasks on a
+scheduled basis, and this schedule should be able to be adjusted by end users.
+Additionally, it's not uncommon for developers to need to run jobs on a
+periodic basis. By hosting these jobs in the database, it enables a
+centralized location for monitoring these jobs. The goal of this system is to
+be similar to <a href="https://aws.amazon.com/sqs/">Amazon SQS</a> or <a href="https://github.com/mperham/sidekiq">Sidekiq</a>.</p>
 </li>
 <li>
-<p><a href="https://github.com/khonsulabs/bonsaidb/issues/90">Replication</a>: Stand up a
-backup server that replicates some or all of your databases. If your primary
-server fails, start using the backup server as the primary server. Or,
-replicate a production database into a local environment to test.</p>
+<p><a href="https://github.com/khonsulabs/bonsaidb/issues/90">Replication</a>: Stand up a backup server that replicates some or
+all of your databases. If your primary server fails, start using the backup
+server as the primary server. Or, replicate a production database into a local
+environment to test.</p>
 <p>Replication will catch issues when conflicts arise and provide methods to
 resolve those conflicts.</p>
 </li>
 <li>
-<p><a href="https://github.com/khonsulabs/bonsaidb/issues/104">Clustering</a>: Once your
-application has grown enough to worry about high availability, clustering will
-allow you to share the load and reliability across a minimum of three servers.
-We plan to support being able to control clustering on a per-database level,
-and envision the ability to deploy a globally distributed cluster with fine
-control over where your databases are placed.</p>
+<p><a href="https://github.com/khonsulabs/bonsaidb/issues/104">Clustering</a>: Once your application has grown enough to worry
+about high availability, clustering will allow you to share the load and
+reliability across a minimum of three servers. We plan to support being able
+to control clustering on a per-database level, and envision the ability to
+deploy a globally distributed cluster with fine control over where your
+databases are placed.</p>
 </li>
 </ul>
-<p>And <a href="https://github.com/khonsulabs/bonsaidb/labels/enhancement">more</a>. We
-welcome feedback and suggestions.</p>
+<p>And <a href="https://github.com/khonsulabs/bonsaidb/labels/enhancement">more</a>. We welcome feedback and suggestions.</p>
 
 </div>
 
