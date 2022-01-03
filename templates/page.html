@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% import "macros.html" as macros %}
+
+{% block title %}{{ page.title }}{% endblock title %}
+
+{% block content %}
+<div class="container content">
+    <h1>{{ page.title }}</h1>
+    {% if page.date %}
+    <p>
+        Published {{ page.date }}.
+        {% if page.updated %}
+        Last updated {{ page.updated }}.
+        {% endif %}
+    </p>
+    {% endif %}
+    {{ page.content | safe }}
+</div>
+{% endblock content %}

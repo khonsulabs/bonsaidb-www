@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% import "macros.html" as macros %}
+
+{% block title %}{{ section.title }}{% endblock title %}
+
+{% block content %}
+<div class="container content">
+    {{ section.content | safe }}
+
+    {% for page in section.pages %}
+    <div>
+        <h3 class="title is-4"><a href="{{ get_url(path = page.path) }}">{{ page.title }}</a></h3>
+        <p>{{ page.summary }}</p>
+        <p class="subtitle is-6">Published {{ page.date }}</p>
+    </div>
+    {% else %}
+    <div class="notification is-info">
+        No posts found.
+    </div>
+    {% endfor %}
+</div>
+</div>
+{% endblock content %}
