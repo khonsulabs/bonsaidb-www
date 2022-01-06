@@ -95,15 +95,16 @@ evaluated offline as well][permissions-refactor].
 
 Sometimes ACID-compliance is overkill, such as in situations where a value is
 being updated hundreds or thousands of times per second. BonsaiDb offers a
-namespaced, atomic [key-value store][leu=value]. It currently offers basic
+namespaced, atomic [key-value store][key-value]. It currently offers basic
 atomic operations as well as some atomic arithmetic operations.
 
-This feature is still early in development, and currently is fully
-transactional. This means it is currently not very "lightweight", but there are
-[plans to address this][key-value-refactor].
+The default configuration of the Key-Value store prefers data integrity, but
+[can be
+configured][key-value-configuration]
+to allow better throughput.
 
 [key-value]: https://dev.bonsaidb.io/guide/traits/key-value.html
-[key-value-refactor]: https://github.com/khonsulabs/bonsaidb/issues/120
+[key-value-configuration]: https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence
 
 ### Publish/Subscribe (PubSub)
 
