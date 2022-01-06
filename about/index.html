@@ -121,11 +121,12 @@ evaluated offline as well</a>.</p>
 <h3 id="atomic-key-value-storage">Atomic Key-Value Storage</h3>
 <p>Sometimes ACID-compliance is overkill, such as in situations where a value is
 being updated hundreds or thousands of times per second. BonsaiDb offers a
-namespaced, atomic [key-value store][leu=value]. It currently offers basic
+namespaced, atomic <a href="https://dev.bonsaidb.io/guide/traits/key-value.html">key-value store</a>. It currently offers basic
 atomic operations as well as some atomic arithmetic operations.</p>
-<p>This feature is still early in development, and currently is fully
-transactional. This means it is currently not very &quot;lightweight&quot;, but there are
-<a href="https://github.com/khonsulabs/bonsaidb/issues/120">plans to address this</a>.</p>
+<p>The default configuration of the Key-Value store prefers data integrity, but
+<a href="https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence">can be
+configured</a>
+to allow better throughput.</p>
 <h3 id="publish-subscribe-pubsub">Publish/Subscribe (PubSub)</h3>
 <p>BonsaiDb offers the ability to subscribe to topics and receive published
 messages. <a href="https://dev.bonsaidb.io/guide/about/concepts/pubsub.html">PubSub</a> can be used to power features like private messaging
