@@ -99,9 +99,7 @@ namespaced, atomic [key-value store][key-value]. It currently offers basic
 atomic operations as well as some atomic arithmetic operations.
 
 The default configuration of the Key-Value store prefers data integrity, but
-[can be
-configured][key-value-configuration]
-to allow better throughput.
+[can be configured][key-value-configuration] to allow better throughput.
 
 [key-value]: https://dev.bonsaidb.io/guide/traits/key-value.html
 [key-value-configuration]: https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence
