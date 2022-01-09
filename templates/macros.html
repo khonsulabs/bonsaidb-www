@@ -1,3 +1,7 @@
 {% macro anchor(name) %}
 <a href="#{{ name }}" name="{{ name }}"><i class="bi bi-link-45deg"></i></a>
 {% endmacro anchor %}
+
+{% macro active_class(path) %}
+{% if current_path == path %}is-active{% endif %}
+{% endmacro %}
