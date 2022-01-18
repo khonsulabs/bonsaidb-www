@@ -5,13 +5,18 @@
 {% block title %}{{ page.title }}{% endblock title %}
 
 {% block content %}
-<div class="container content">
+<div class="container content mx-4">
     <h1>{{ page.title }}</h1>
-    {% if page.date %}
+    {% if page.date or page.extra.author %}
     <p>
+        {% if page.extra.author %}
+        Written by <a href="{{ page.extra.author_url }}">{{ page.extra.author }}</a>.
+        {% endif %}
+        {% if page.date %}
         Published {{ page.date }}.
         {% if page.updated %}
         Last updated {{ page.updated }}.
+        {% endif %}
         {% endif %}
     </p>
     {% endif %}
