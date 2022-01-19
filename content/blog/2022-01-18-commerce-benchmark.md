@@ -64,7 +64,7 @@ README][commerce-bench].
 [![postgresql find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/postgresql-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#postgresql-FindProduct)
 
 This set of graphs is from the "large, write-heavy, 2 agents per core"
-benchmark, run on a [Scaleway](https://scaleway.com) on a GP1-XS instance
+benchmark, run on a [Scaleway](https://scaleway.com) GP1-XS instance
 running Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The
 [entire suite's results][commerce-results] can be viewed as well. To summarize,
 if you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
@@ -86,13 +86,13 @@ lower priority to me than replication and clustering.
 ## Trying out BonsaiDb
 
 BonsaiDb is currently labeled experimental. We are working to stabilize
-[custodian-password][custodian]'s storage format in preparation for providing
-cross-version support. After that is done, we are going to label BonsaiDb as
-alpha. It hasn't been used by many people yet, so we expect that there will be
-bugs and some of those bugs might even cause loss of data. That being said,
-we've been using it ourselves with [KhonsuLabs.com](https://khonsulabs.com/)
-since early November with no issues, in addition to a couple other small test
-projects.
+[custodian-password][custodian], which has involved updating many existing
+crates to improve the OPAQUE-KE ecosystem in Rust. After that is done, we are
+going to label BonsaiDb as alpha. It hasn't been used by many people yet, so we
+expect that there will be bugs and some of those bugs might even cause loss of
+data. That being said, we've been using it ourselves with
+[KhonsuLabs.com](https://khonsulabs.com/) since early November with no issues,
+in addition to a couple other small test projects.
 
 We encourage most users to wait another week or two until we have the alpha on
 Crates.io, but for those looking to play with something new, we'd love any
@@ -103,13 +103,13 @@ If you're interested in BonsaiDb but want to wait until we've released a stable 
 
 [bonsaidb-guide]: https://dev.bonsaidb.io/guide/
 [bonsaidb-docs]: https://dev.bonsaidb.io/main/bonsaidb/
-[bonsaidb-examples]: https://github.com/khonsulabs/bonsaidb/tree/main/examples
+[bonsaidb-examples]: https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/examples
 [bonsaidb-releases]: https://github.com/khonsulabs/bonsaidb/releases
 [nebari]: https://github.com/khonsulabs/nebari
 [custodian]: https://github.com/khonsulabs/custodian
 [nosql]: https://en.wikipedia.org/wiki/NoSQL
-[nebari-benches]: https://github.com/khonsulabs/nebari/tree/main/benchmarks
-[commerce-bench]: https://github.com/khonsulabs/bonsaidb/tree/main/benchmarks/benches/commerce#benchmark-notes
+[nebari-benches]: https://github.com/khonsulabs/nebari/tree/192b6d34c6ad1350c2e469359f51423f69b1e2d4/benchmarks
+[commerce-bench]: https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/benchmarks/benches/commerce#user-content-benchmark-notes
 [commerce-results]: https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/index.html
 [couchdb]: https://couchdb.apache.org/
 [sled]: https://sled.rs/
