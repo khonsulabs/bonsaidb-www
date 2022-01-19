@@ -11,8 +11,8 @@ author_url = "https://github.com/ecton"
 While we're working towards our first alpha, I've been trying to anticipate
 questions potential users might have when looking at BonsaiDb for the first
 time. While we are keeping the alpha label, we are hoping to find some
-adventurous users who are excited at our vision of a ["programmable
-database"](#programmable-database) written in Rust.
+adventurous users who are excited at our vision of a database designed for and
+written in Rust.
 
 One obvious question that almost everyone will ask at some point when hearing
 about a new database: **how does it perform?**
@@ -82,8 +82,7 @@ operations as BonsaiDb gains more features.
 
 One potential advantage that PostgreSQL has is that it has its own query
 language. Currently, the only way to get a customized result back is to create a
-[View][view]. This is why I often refer to BonsaiDb as a <a
-name="#programmable-database"></a>*programmable database*. The interface for
+[View][view]. This is why I often refer to BonsaiDb as a *programmable database*. The interface for
 accessing your data is how you design it. For example, here's the implementation
 of this operation:
 
