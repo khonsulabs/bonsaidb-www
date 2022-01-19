@@ -48,8 +48,23 @@ $red:          hsl(319, 86%, 81%);
     margin-bottom: 1em;
 }
 
+.content h1 a, .content h2 a, .content h3 a, .content h4 a, .content h5 a, .content h6 a {
+    color: $text-strong;
+}
+
 @media (min-width: 2000) {
     .content p {
         font-size: 1.25em;
     }
+}
+
+.hoverable:hover::before {
+    text-decoration: underline;
+}
+
+.block-image {
+    max-width: 100%;
+    display: block;
+    margin: 0 auto;
+    padding: 0.25em 1em
 }
