@@ -6,11 +6,13 @@ author = "Ecton"
 author_url = "https://github.com/ecton"
 +++
 
+> If you aren't familiar with BonsaiDb, check out our [What is BonsaiDb?](/about/) page.
+
 While we're working towards our first alpha, I've been trying to anticipate
 questions potential users might have when looking at BonsaiDb for the first
 time. While we are keeping the alpha label, we are hoping to find some
-adventurous users who are excited at the vision of a programmable database
-written in Rust.
+adventurous users who are excited at our vision of a ["programmable
+database"](#programmable-database) written in Rust.
 
 One obvious question that almost everyone will ask at some point when hearing
 about a new database: **how does it perform?**
@@ -33,10 +35,10 @@ I had three different parameters I wanted to measure:
 - Amount of concurrent workers
 - Read-heavy vs Write-heavy workloads
 
-I came up with the idea to make a benchmark inspired by the types of operations
-a database for a commerce website. The basic idea is to generate an initial data
-set, a list of plans for agents to execute, and test the dataset and plans using
-different amounts of concurrency. The operations currently supported are:
+I decided to create a benchmark suite inspired by the needs of an ecommerce
+website. The basic idea is to generate an initial data set, a list of plans for
+workers to execute, and test the dataset and plans using different quantities of
+workers. The operations being benchmarked are:
 
 - Lookup product by id
 - Find product by name (exact match)
@@ -58,12 +60,14 @@ README][commerce-bench].
 
 ## BonsaiDb is faster than I had hoped
 
+Let's take a look at the "find product by name" operation's results. These graphs show a histogram
+
 [![bonsaidb-local find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-local-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-local-FindProduct)
 [![bonsaidb-quic find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-quic-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-quic-FindProduct)
 [![bonsaidb-websockets find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-ws-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-ws-FindProduct)
 [![postgresql find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/postgresql-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#postgresql-FindProduct)
 
-This set of graphs is from the "large, write-heavy, 2 agents per core"
+This set of graphs is from the "large, write-heavy, 2 workers per core"
 benchmark, run on a [Scaleway](https://scaleway.com) GP1-XS instance
 running Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The
 [entire suite's results][commerce-results] can be viewed as well. To summarize,
@@ -76,12 +80,27 @@ as possible][commerce-bench] in writing this benchmark. Over time I plan on
 adding additional database backends for comparison, as well as additional
 operations as BonsaiDb gains more features.
 
-One benefit that PostgreSQL has is that it has its own query language.
-Currently, the only way to get a customized result back is to create a
-[View][view]. This is why I often refer to BonsaiDb as a *programmable
-database*. The interface for accessing your data is how you design it. I've been
-dreaming up ideas on how to approach a query language, but to me it's a much
-lower priority to me than replication and clustering.
+One potential advantage that PostgreSQL has is that it has its own query
+language. Currently, the only way to get a customized result back is to create a
+[View][view]. This is why I often refer to BonsaiDb as a <a
+name="#programmable-database"></a>*programmable database*. The interface for
+accessing your data is how you design it. For example, here's the implementation
+of this operation:
+
+```rust
+let product = Product::load(&operation.name, &self.database)
+    .await
+    .unwrap() // Result
+    .unwrap(); // Option<CollectionDocument<Product>>
+let rating = self
+    .database
+    .view::<ProductReviewsByProduct>()
+    .with_key(product.id as u32)
+    .with_access_policy(AccessPolicy::NoUpdate)
+    .reduce()
+    .await
+    .unwrap();
+```
 
 ## Trying out BonsaiDb
 
@@ -97,10 +116,14 @@ in addition to a couple other small test projects.
 We encourage most users to wait another week or two until we have the alpha on
 Crates.io, but for those looking to play with something new, we'd love any
 feedback from early users. We've already made countless improvements to the API,
-[documentation][bonsaidb-docs], [user's guide][bonsaidb-guide] and [examples][bonsaidb-examples] as a result of questions from early adopters.
+[documentation][bonsaidb-docs], [user's guide][bonsaidb-guide] and
+[examples][bonsaidb-examples] as a result of questions from early adopters.
 
-If you're interested in BonsaiDb but want to wait until we've released a stable version, we invite you to subscribe to [this site's feed](/blog/atom.xml) or watch the [repository's releases section][bonsaidb-releases].
+If you're interested in BonsaiDb but want to wait until we've released a stable
+version, we invite you to subscribe to [this site's feed](/blog/atom.xml) or
+watch the [repository's releases section][bonsaidb-releases].
 
+[bonsaidb]: https://github.com/khonsulabs/bonsaidb
 [bonsaidb-guide]: https://dev.bonsaidb.io/guide/
 [bonsaidb-docs]: https://dev.bonsaidb.io/main/bonsaidb/
 [bonsaidb-examples]: https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/examples
