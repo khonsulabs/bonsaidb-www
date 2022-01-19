@@ -72,12 +72,13 @@ These graphs show that BonsaiDb averages `FindProduct` in less than 1ms, while
 PostgreSQL's fastest time is 1.6ms.
 
 This set of graphs is from the "large, write-heavy, 2 workers per core"
-benchmark, run on a [Scaleway](https://scaleway.com) GP1-XS instance
-running Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The
-entire suite's results can be [viewed here][commerce-results] as well. To summarize,
-if you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
+benchmark, run on a [Scaleway](https://scaleway.com) GP1-XS instance running
+Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The entire
+suite's results can be [viewed here][commerce-results] as well. To summarize, if
+you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
 version, you'll see that BonsaiDb took 2 minutes and 36 seconds to complete, and
-PostgreSQL took 24 minutes and 48 seconds, ranging between 46% and 94% faster.
+PostgreSQL took 24 minutes and 48 seconds, ranging between 46% and 94% faster
+(exact numbers will change over time as the benchmarks are run on-demand).
 
 As I started seeing these results, I was simply blown away. I've tried to be [as
 fair as possible][commerce-bench] in writing this benchmark suite. Over time I
@@ -101,7 +102,7 @@ let rating = self
     .with_access_policy(AccessPolicy::NoUpdate)
     .reduce()
     .await
-    .unwrap();
+    .unwrap(); // Returns a f32
 ```
 
 ## {{ anchor(text = "Trying out BonsaiDb") }}
