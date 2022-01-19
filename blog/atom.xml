@@ -25,7 +25,7 @@ and speed over ACID compliance. When starting this project, I specifically
 wanted to have all the guarantees PostgreSQL makes, but easier to use and deploy
 than PostgreSQL.&lt;&#x2F;p&gt;
 &lt;p&gt;Until this past week, I knew from previous benchmarks that &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt;, our
-underlying storage layer, was &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;tree&#x2F;main&#x2F;benchmarks&quot;&gt;pretty fast&lt;&#x2F;a&gt;, but I had no real
+underlying storage layer, was &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;tree&#x2F;192b6d34c6ad1350c2e469359f51423f69b1e2d4&#x2F;benchmarks&quot;&gt;pretty fast&lt;&#x2F;a&gt;, but I had no real
 indicator of how BonsaiDb would perform relative to PostgreSQL.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;designing-a-benchmark-suite&quot;&gt;Designing a Benchmark Suite&lt;&#x2F;h2&gt;
 &lt;p&gt;I had three different parameters I wanted to measure:&lt;&#x2F;p&gt;
@@ -53,7 +53,7 @@ product, but also write a review. By adjusting the probabilities of each action
 occurring, we create a funnel that allows us to adjust the ratio of reads and
 writes.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;ve written some more notes on the implementation of the benchmark itself, such
-as how ratings aggregation is handled, in the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;main&#x2F;benchmarks&#x2F;benches&#x2F;commerce#benchmark-notes&quot;&gt;benchmark&#x27;s
+as how ratings aggregation is handled, in the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e&#x2F;benchmarks&#x2F;benches&#x2F;commerce#user-content-benchmark-notes&quot;&gt;benchmark&#x27;s
 README&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;bonsaidb-is-faster-than-i-had-hoped&quot;&gt;BonsaiDb is faster than I had hoped&lt;&#x2F;h2&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;4&#x2F;index.html#bonsaidb-local-FindProduct&quot;&gt;&lt;img src=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;4&#x2F;bonsaidb-local-FindProduct.png&quot; alt=&quot;bonsaidb-local find product by name&quot; &#x2F;&gt;&lt;&#x2F;a&gt;
@@ -61,13 +61,13 @@ README&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;4&#x2F;index.html#bonsaidb-ws-FindProduct&quot;&gt;&lt;img src=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;4&#x2F;bonsaidb-ws-FindProduct.png&quot; alt=&quot;bonsaidb-websockets find product by name&quot; &#x2F;&gt;&lt;&#x2F;a&gt;
 &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;4&#x2F;index.html#postgresql-FindProduct&quot;&gt;&lt;img src=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;4&#x2F;postgresql-FindProduct.png&quot; alt=&quot;postgresql find product by name&quot; &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;This set of graphs is from the &amp;quot;large, write-heavy, 2 agents per core&amp;quot;
-benchmark, run on a &lt;a href=&quot;https:&#x2F;&#x2F;scaleway.com&quot;&gt;Scaleway&lt;&#x2F;a&gt; on a GP1-XS instance
+benchmark, run on a &lt;a href=&quot;https:&#x2F;&#x2F;scaleway.com&quot;&gt;Scaleway&lt;&#x2F;a&gt; GP1-XS instance
 running Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The
 &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;index.html&quot;&gt;entire suite&#x27;s results&lt;&#x2F;a&gt; can be viewed as well. To summarize,
 if you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
 version, you&#x27;ll see that BonsaiDb took 2 minutes 36 seconds to complete, and
 PostgreSQL took 24 minutes 48 seconds, ranging between 46% and 94% faster.&lt;&#x2F;p&gt;
-&lt;p&gt;As I started seeing results, I was simply blown away. I&#x27;ve tried to be &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;main&#x2F;benchmarks&#x2F;benches&#x2F;commerce#benchmark-notes&quot;&gt;as fair
+&lt;p&gt;As I started seeing results, I was simply blown away. I&#x27;ve tried to be &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e&#x2F;benchmarks&#x2F;benches&#x2F;commerce#user-content-benchmark-notes&quot;&gt;as fair
 as possible&lt;&#x2F;a&gt; in writing this benchmark. Over time I plan on
 adding additional database backends for comparison, as well as additional
 operations as BonsaiDb gains more features.&lt;&#x2F;p&gt;
@@ -79,17 +79,17 @@ dreaming up ideas on how to approach a query language, but to me it&#x27;s a muc
 lower priority to me than replication and clustering.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;trying-out-bonsaidb&quot;&gt;Trying out BonsaiDb&lt;&#x2F;h2&gt;
 &lt;p&gt;BonsaiDb is currently labeled experimental. We are working to stabilize
-&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;custodian&quot;&gt;custodian-password&lt;&#x2F;a&gt;&#x27;s storage format in preparation for providing
-cross-version support. After that is done, we are going to label BonsaiDb as
-alpha. It hasn&#x27;t been used by many people yet, so we expect that there will be
-bugs and some of those bugs might even cause loss of data. That being said,
-we&#x27;ve been using it ourselves with &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs.com&#x2F;&quot;&gt;KhonsuLabs.com&lt;&#x2F;a&gt;
-since early November with no issues, in addition to a couple other small test
-projects.&lt;&#x2F;p&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;custodian&quot;&gt;custodian-password&lt;&#x2F;a&gt;, which has involved updating many existing
+crates to improve the OPAQUE-KE ecosystem in Rust. After that is done, we are
+going to label BonsaiDb as alpha. It hasn&#x27;t been used by many people yet, so we
+expect that there will be bugs and some of those bugs might even cause loss of
+data. That being said, we&#x27;ve been using it ourselves with
+&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs.com&#x2F;&quot;&gt;KhonsuLabs.com&lt;&#x2F;a&gt; since early November with no issues,
+in addition to a couple other small test projects.&lt;&#x2F;p&gt;
 &lt;p&gt;We encourage most users to wait another week or two until we have the alpha on
 Crates.io, but for those looking to play with something new, we&#x27;d love any
 feedback from early users. We&#x27;ve already made countless improvements to the API,
-&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;bonsaidb&#x2F;&quot;&gt;documentation&lt;&#x2F;a&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;guide&#x2F;&quot;&gt;user&#x27;s guide&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;main&#x2F;examples&quot;&gt;examples&lt;&#x2F;a&gt; as a result of questions from early adopters.&lt;&#x2F;p&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;bonsaidb&#x2F;&quot;&gt;documentation&lt;&#x2F;a&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;guide&#x2F;&quot;&gt;user&#x27;s guide&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e&#x2F;examples&quot;&gt;examples&lt;&#x2F;a&gt; as a result of questions from early adopters.&lt;&#x2F;p&gt;
 &lt;p&gt;If you&#x27;re interested in BonsaiDb but want to wait until we&#x27;ve released a stable version, we invite you to subscribe to &lt;a href=&quot;&#x2F;blog&#x2F;atom.xml&quot;&gt;this site&#x27;s feed&lt;&#x2F;a&gt; or watch the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&quot;&gt;repository&#x27;s releases section&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 </content>
 	</entry>
