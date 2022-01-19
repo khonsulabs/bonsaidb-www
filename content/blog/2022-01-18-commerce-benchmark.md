@@ -6,7 +6,8 @@ author = "Ecton"
 author_url = "https://github.com/ecton"
 +++
 
-> If you aren't familiar with BonsaiDb, check out our [What is BonsaiDb?](/about/) page.
+> If you aren't familiar with [BonsaiDb][bonsaidb], check out our [What is
+> BonsaiDb?](/about/) page.
 
 While we're working towards our first alpha, I've been trying to anticipate
 questions potential users might have when looking at BonsaiDb for the first
