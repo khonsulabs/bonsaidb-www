@@ -152,12 +152,13 @@ README</a>.</p>
 <p>These graphs show that BonsaiDb averages <code>FindProduct</code> in less than 1ms, while
 PostgreSQL's fastest time is 1.6ms.</p>
 <p>This set of graphs is from the &quot;large, write-heavy, 2 workers per core&quot;
-benchmark, run on a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance
-running Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The
-entire suite's results can be <a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/index.html">viewed here</a> as well. To summarize,
-if you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
+benchmark, run on a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance running
+Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The entire
+suite's results can be <a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/index.html">viewed here</a> as well. To summarize, if
+you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
 version, you'll see that BonsaiDb took 2 minutes and 36 seconds to complete, and
-PostgreSQL took 24 minutes and 48 seconds, ranging between 46% and 94% faster.</p>
+PostgreSQL took 24 minutes and 48 seconds, ranging between 46% and 94% faster
+(exact numbers will change over time as the benchmarks are run on-demand).</p>
 <p>As I started seeing these results, I was simply blown away. I've tried to be <a href="https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/benchmarks/benches/commerce#user-content-benchmark-notes">as
 fair as possible</a> in writing this benchmark suite. Over time I
 plan on adding additional database backends for comparison, as well as
@@ -177,7 +178,7 @@ how <a href="https://dev.bonsaidb.io/guide/about/concepts/view.html">you design 
 </span><span>    .</span><span style="color:#96b5b4;">with_access_policy</span><span>(AccessPolicy::NoUpdate)
 </span><span>    .</span><span style="color:#96b5b4;">reduce</span><span>()
 </span><span>    .await
-</span><span>    .</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>    .</span><span style="color:#96b5b4;">unwrap</span><span>(); </span><span style="color:#65737e;">// Returns a f32
 </span></code></pre>
 <h2 id="-2"><a href="#Trying%20out%20BonsaiDb" name="Trying%20out%20BonsaiDb">
     Trying out BonsaiDb

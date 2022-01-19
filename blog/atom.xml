@@ -74,12 +74,13 @@ README&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;These graphs show that BonsaiDb averages &lt;code&gt;FindProduct&lt;&#x2F;code&gt; in less than 1ms, while
 PostgreSQL&#x27;s fastest time is 1.6ms.&lt;&#x2F;p&gt;
 &lt;p&gt;This set of graphs is from the &amp;quot;large, write-heavy, 2 workers per core&amp;quot;
-benchmark, run on a &lt;a href=&quot;https:&#x2F;&#x2F;scaleway.com&quot;&gt;Scaleway&lt;&#x2F;a&gt; GP1-XS instance
-running Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The
-entire suite&#x27;s results can be &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;index.html&quot;&gt;viewed here&lt;&#x2F;a&gt; as well. To summarize,
-if you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
+benchmark, run on a &lt;a href=&quot;https:&#x2F;&#x2F;scaleway.com&quot;&gt;Scaleway&lt;&#x2F;a&gt; GP1-XS instance running
+Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The entire
+suite&#x27;s results can be &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;index.html&quot;&gt;viewed here&lt;&#x2F;a&gt; as well. To summarize, if
+you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
 version, you&#x27;ll see that BonsaiDb took 2 minutes and 36 seconds to complete, and
-PostgreSQL took 24 minutes and 48 seconds, ranging between 46% and 94% faster.&lt;&#x2F;p&gt;
+PostgreSQL took 24 minutes and 48 seconds, ranging between 46% and 94% faster
+(exact numbers will change over time as the benchmarks are run on-demand).&lt;&#x2F;p&gt;
 &lt;p&gt;As I started seeing these results, I was simply blown away. I&#x27;ve tried to be &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e&#x2F;benchmarks&#x2F;benches&#x2F;commerce#user-content-benchmark-notes&quot;&gt;as
 fair as possible&lt;&#x2F;a&gt; in writing this benchmark suite. Over time I
 plan on adding additional database backends for comparison, as well as
@@ -99,7 +100,7 @@ how &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;guide&#x2F;about&#x2
 &lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;with_access_policy&lt;&#x2F;span&gt;&lt;span&gt;(AccessPolicy::NoUpdate)
 &lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;reduce&lt;&#x2F;span&gt;&lt;span&gt;()
 &lt;&#x2F;span&gt;&lt;span&gt;    .await
-&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(); &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Returns a f32
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;h2 id=&quot;-2&quot;&gt;&lt;a href=&quot;#Trying%20out%20BonsaiDb&quot; name=&quot;Trying%20out%20BonsaiDb&quot;&gt;
     Trying out BonsaiDb
