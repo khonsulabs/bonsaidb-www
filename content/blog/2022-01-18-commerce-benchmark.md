@@ -59,14 +59,15 @@ README][commerce-bench].
 
 ## BonsaiDb is faster than I had hoped!
 
-Let's take a look at the "find product by name" operation's results. Each time FindProduct is executed, the amount of time it took is plotted on the graph.
+Let's take a look at the "find product by name" operation's results. Each time
+`FindProduct` is executed, the amount of time it took is plotted on the graph.
 
 [![bonsaidb-local find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-local-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-local-FindProduct)
 [![bonsaidb-quic find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-quic-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-quic-FindProduct)
 [![bonsaidb-websockets find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-ws-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-ws-FindProduct)
 [![postgresql find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/postgresql-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#postgresql-FindProduct)
 
-These graphs show that BonsaiDb averages FindProduct in less than 1ms, while
+These graphs show that BonsaiDb averages `FindProduct` in less than 1ms, while
 PostgreSQL's fastest time is 1.6ms.
 
 This set of graphs is from the "large, write-heavy, 2 workers per core"
