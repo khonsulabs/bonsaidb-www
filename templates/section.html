@@ -5,7 +5,7 @@
 {% block title %}{{ section.title }}{% endblock title %}
 
 {% block content %}
-<div class="container content">
+<div class="container content mx-4">
     {{ section.content | safe }}
 
     {% for page in section.pages %}

@@ -3,5 +3,7 @@
 {% endmacro anchor %}
 
 {% macro active_class(path) %}
-{% if current_path == path %}is-active{% endif %}
+{% set path_is_root = current_path == "/" and path == "/" %}
+{% set path_matches = path != "/" and current_path is starting_with(path) %}
+{% if path_is_root or path_matches %}is-active{% endif %}
 {% endmacro %}
