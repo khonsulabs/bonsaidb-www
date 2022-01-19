@@ -66,7 +66,7 @@ Let's take a look at the "find product by name" operation's results. These graph
 [![bonsaidb-websockets find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-ws-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-ws-FindProduct)
 [![postgresql find product by name](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/postgresql-FindProduct.png)](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#postgresql-FindProduct)
 
-These graphs show that BonsaiDb consistently performs FindProduct in less than
+These graphs show that BonsaiDb averages FindProduct in less than
 1ms while PostgreSQL regularly has response times while PostgreSQL has no
 response times less than 1.6ms.
 
