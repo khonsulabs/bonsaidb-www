@@ -13,7 +13,8 @@
 		<link href="https://bonsaidb.io/blog/commerce-benchmark/" type="text/html"/>
 		<id>https://bonsaidb.io/blog/commerce-benchmark/</id>
 		<content type="html">&lt;blockquote&gt;
-&lt;p&gt;If you aren&#x27;t familiar with BonsaiDb, check out our &lt;a href=&quot;&#x2F;about&#x2F;&quot;&gt;What is BonsaiDb?&lt;&#x2F;a&gt; page.&lt;&#x2F;p&gt;
+&lt;p&gt;If you aren&#x27;t familiar with &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;, check out our &lt;a href=&quot;&#x2F;about&#x2F;&quot;&gt;What is
+BonsaiDb?&lt;&#x2F;a&gt; page.&lt;&#x2F;p&gt;
 &lt;&#x2F;blockquote&gt;
 &lt;p&gt;While we&#x27;re working towards our first alpha, I&#x27;ve been trying to anticipate
 questions potential users might have when looking at BonsaiDb for the first
