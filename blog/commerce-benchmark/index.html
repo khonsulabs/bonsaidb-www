@@ -136,14 +136,13 @@ writes.</p>
 as how aggregation of ratings is handled, in the <a href="https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/benchmarks/benches/commerce#user-content-benchmark-notes">benchmark's
 README</a>.</p>
 <h2 id="bonsaidb-is-faster-than-i-had-hoped">BonsaiDb is faster than I had hoped!</h2>
-<p>Let's take a look at the &quot;find product by name&quot; operation's results. These graphs show a histogram where each time FindProduct is executed is plotted based on how long it took.</p>
+<p>Let's take a look at the &quot;find product by name&quot; operation's results. Each time FindProduct is executed, the amount of time it took is plotted on the graph.</p>
 <p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-local-FindProduct"><img src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-local-FindProduct.png" alt="bonsaidb-local find product by name" /></a>
 <a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-quic-FindProduct"><img src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-quic-FindProduct.png" alt="bonsaidb-quic find product by name" /></a>
 <a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-ws-FindProduct"><img src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-ws-FindProduct.png" alt="bonsaidb-websockets find product by name" /></a>
 <a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#postgresql-FindProduct"><img src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/postgresql-FindProduct.png" alt="postgresql find product by name" /></a></p>
-<p>These graphs show that BonsaiDb averages FindProduct in less than
-1ms while PostgreSQL regularly has response times while PostgreSQL has no
-response times less than 1.6ms.</p>
+<p>These graphs show that BonsaiDb averages FindProduct in less than 1ms, while
+PostgreSQL's fastest time is 1.6ms.</p>
 <p>This set of graphs is from the &quot;large, write-heavy, 2 workers per core&quot;
 benchmark, run on a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance
 running Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The
