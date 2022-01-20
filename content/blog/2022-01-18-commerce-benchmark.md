@@ -62,9 +62,9 @@ README][commerce-bench].
 
 These graphs show the accumulated execution time of each operation:
 
-[{{ blockimage(alt="lookup product by id", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/LookupProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/index.html#LookupProduct)
-[{{ blockimage(alt="find product by name", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/FindProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/index.html#FindProduct)
-[{{ blockimage(alt="add product to cart", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/AddProductToCart.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/index.html#AddProductToCart)
+[{{ blockimage(alt="lookup product by id", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/LookupProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/index.html#LookupProduct)
+[{{ blockimage(alt="find product by name", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/FindProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/index.html#FindProduct)
+[{{ blockimage(alt="add product to cart", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/AddProductToCart.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/index.html#AddProductToCart)
 
 This set of graphs is from the "large, write-heavy, 2 workers per core"
 benchmark, run on a [Scaleway](https://scaleway.com) GP1-XS instance running
