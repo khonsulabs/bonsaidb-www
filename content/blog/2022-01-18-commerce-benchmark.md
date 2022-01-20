@@ -60,25 +60,16 @@ README][commerce-bench].
 
 ## {{ anchor(text = "BonsaiDb is faster than I had hoped!") }}
 
-Let's take a look at the "find product by name" operation's results. Each time
-`FindProduct` is executed, the amount of time it took is plotted on the graph.
+These graphs show the accumulated execution time of each operation:
 
-[{{ blockimage(alt="bonsaidb-local find product by name", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-local-FindProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-local-FindProduct)
-[{{ blockimage(alt="bonsaidb-quic find product by name", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-quic-FindProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-quic-FindProduct)
-[{{ blockimage(alt="bonsaidb-websockets find product by name", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/bonsaidb-ws-FindProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#bonsaidb-ws-FindProduct)
-[{{ blockimage(alt="postgresql find product by name", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/postgresql-FindProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/4/index.html#postgresql-FindProduct)
-
-These graphs show that BonsaiDb averages `FindProduct` in less than 1ms, while
-PostgreSQL's fastest time is 1.6ms.
+[{{ blockimage(alt="lookup product by id", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/LookupProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/index.html#LookupProduct)
+[{{ blockimage(alt="find product by name", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/FindProduct.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/index.html#FindProduct)
+[{{ blockimage(alt="add product to cart", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/AddProductToCart.png" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/medium-writeheavy/8/index.html#AddProductToCart)
 
 This set of graphs is from the "large, write-heavy, 2 workers per core"
 benchmark, run on a [Scaleway](https://scaleway.com) GP1-XS instance running
 Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The entire
-suite's results can be [viewed here][commerce-results] as well. To summarize, if
-you sum the total wall time of BonsaiDb via WebSockets and the PosgreSQL
-version, you'll see that BonsaiDb took 2 minutes and 36 seconds to complete, and
-PostgreSQL took 24 minutes and 48 seconds, ranging between 46% and 94% faster
-(exact numbers will change over time as the benchmarks are run on-demand).
+suite's results can be [viewed here][commerce-results] as well.
 
 As I started seeing these results, I was simply blown away. I've tried to be [as
 fair as possible][commerce-bench] in writing this benchmark suite. Over time I
