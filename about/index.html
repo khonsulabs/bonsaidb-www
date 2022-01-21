@@ -91,17 +91,17 @@ applications.</p>
 <p>BonsaiDb's features are designed to work when using it as a local-only database,
 as a networked database server, and eventually <a href="https://github.com/khonsulabs/bonsaidb/issues/104">as a distributed
 cluster</a>. This design makes it easy to test and develop apps with
-BonsaiDb, as there are is additional software for developers to set up when
+BonsaiDb, as there is no additional software for developers to set up when
 working on a BonsaiDb powered app.</p>
 <h3 id="schema-as-rust-code">Schema as Rust Code</h3>
-<p>BonsaiDb leverages the Rust type system to allow defining schema as code,
-enabling the Rust compiler to help you ensure your database code is correct.
-This helps keep the likelihood of unexpected runtime errors to a minimum, and it
-also helps developers understand the entire flow of their code and data.</p>
+<p>BonsaiDb leverages the Rust type system to define schema as code, enabling the
+Rust compiler to help you ensure your database code is correct. This helps keep
+the likelihood of unexpected runtime errors to a minimum, and it also helps
+developers understand the entire flow of their code and data.</p>
 <h3 id="acid-compliant-transactional-storage">ACID-compliant Transactional Storage</h3>
 <p>BonsaiDb's <a href="https://dev.bonsaidb.io/guide/about/concepts/collection.html">collections</a> are <a href="https://en.wikipedia.org/wiki/ACID">ACID</a>-compliant, giving you the
 peace of mind that your data is safe in the event of an unexpected failure of
-the server. For most developers, this mode of storage should be the default, yet
+the server. This mode of storage should be the default for most developers, yet
 many popular NoSQL database choices do not offer ACID-compliant storage.</p>
 <p>An example of where ACID-compliance matters: Storing a customer's order in a web
 store. If the method of writing the customer's order to the database is not
@@ -121,21 +121,21 @@ environment does not offer ways of encrypting the filesystem itself.</p>
 which is a trait that can be implemented for custom backup solutions. BonsaiDb
 provides built-in support for using a filesystem directory as a backup location,
 and there is planned support for any <a href="https://github.com/khonsulabs/bonsaidb/issues/122">S3-compatible storage service</a>.
-Currently backups are always complete backups, but <a href="https://github.com/khonsulabs/bonsaidb/issues/121">incremental backups are
+Currently, backups are always complete backups, but <a href="https://github.com/khonsulabs/bonsaidb/issues/121">incremental backups are
 planned</a>.</p>
 <h3 id="extensible-role-based-access-control">Extensible Role-based Access Control</h3>
 <p>BonsaiDb offers a robust <a href="https://dev.bonsaidb.io/guide/administration/permissions.html">permission system</a> which allows for
-&quot;actions&quot; to be allowed or denied on &quot;resources&quot;. BonsaiDb uses this access
+&quot;actions&quot; to be allowed or denied on &quot;resources.&quot; BonsaiDb uses this access
 control system internally, but it is written to be able to be extended by
 actions and resources defined in your application.</p>
 <p>With BonsaiDb, you can choose to utilize the multi-user support as your account
 system for your application. By doing this, you can use roles and groups to
 manage your application's permissions, not just the database's permissions.</p>
-<p>This feature is still under development, and currently permissions are only
+<p>This feature is still under development, and currently, permissions are only
 enforced at the network level. There are <a href="https://github.com/khonsulabs/bonsaidb/issues/68">plans to allow permissions to be
 evaluated offline as well</a>.</p>
 <h3 id="atomic-key-value-storage">Atomic Key-Value Storage</h3>
-<p>Sometimes ACID-compliance is overkill, such as in situations where a value is
+<p>Sometimes ACID compliance is overkill, such as in situations where a value is
 being updated hundreds or thousands of times per second. BonsaiDb offers a
 namespaced, atomic <a href="https://dev.bonsaidb.io/guide/traits/key-value.html">key-value store</a>. It currently offers basic
 atomic operations as well as some atomic arithmetic operations.</p>
