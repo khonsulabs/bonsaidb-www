@@ -19,23 +19,23 @@ applications.
 BonsaiDb's features are designed to work when using it as a local-only database,
 as a networked database server, and eventually [as a distributed
 cluster][clustering]. This design makes it easy to test and develop apps with
-BonsaiDb, as there are is additional software for developers to set up when
+BonsaiDb, as there is no additional software for developers to set up when
 working on a BonsaiDb powered app.
 
 [clustering]: https://github.com/khonsulabs/bonsaidb/issues/104
 
 ### Schema as Rust Code
 
-BonsaiDb leverages the Rust type system to allow defining schema as code,
-enabling the Rust compiler to help you ensure your database code is correct.
-This helps keep the likelihood of unexpected runtime errors to a minimum, and it
-also helps developers understand the entire flow of their code and data.
+BonsaiDb leverages the Rust type system to define schema as code, enabling the
+Rust compiler to help you ensure your database code is correct. This helps keep
+the likelihood of unexpected runtime errors to a minimum, and it also helps
+developers understand the entire flow of their code and data.
 
 ### ACID-compliant Transactional Storage
 
 BonsaiDb's [collections][collection] are [ACID][acid]-compliant, giving you the
 peace of mind that your data is safe in the event of an unexpected failure of
-the server. For most developers, this mode of storage should be the default, yet
+the server. This mode of storage should be the default for most developers, yet
 many popular NoSQL database choices do not offer ACID-compliant storage.
 
 An example of where ACID-compliance matters: Storing a customer's order in a web
@@ -65,7 +65,7 @@ BonsaiDb offers [backup][backup] and [restore][restore] from a backup location,
 which is a trait that can be implemented for custom backup solutions. BonsaiDb
 provides built-in support for using a filesystem directory as a backup location,
 and there is planned support for any [S3-compatible storage service][s3-backup].
-Currently backups are always complete backups, but [incremental backups are
+Currently, backups are always complete backups, but [incremental backups are
 planned][incremental-backups].
 
 [backup]: https://dev.bonsaidb.io/main/bonsaidb/local/struct.Storage.html#method.backup
@@ -76,7 +76,7 @@ planned][incremental-backups].
 ### Extensible Role-based Access Control
 
 BonsaiDb offers a robust [permission system][permissions] which allows for
-"actions" to be allowed or denied on "resources". BonsaiDb uses this access
+"actions" to be allowed or denied on "resources." BonsaiDb uses this access
 control system internally, but it is written to be able to be extended by
 actions and resources defined in your application.
 
@@ -84,7 +84,7 @@ With BonsaiDb, you can choose to utilize the multi-user support as your account
 system for your application. By doing this, you can use roles and groups to
 manage your application's permissions, not just the database's permissions.
 
-This feature is still under development, and currently permissions are only
+This feature is still under development, and currently, permissions are only
 enforced at the network level. There are [plans to allow permissions to be
 evaluated offline as well][permissions-refactor].
 
@@ -93,7 +93,7 @@ evaluated offline as well][permissions-refactor].
 
 ### Atomic Key-Value Storage
 
-Sometimes ACID-compliance is overkill, such as in situations where a value is
+Sometimes ACID compliance is overkill, such as in situations where a value is
 being updated hundreds or thousands of times per second. BonsaiDb offers a
 namespaced, atomic [key-value store][key-value]. It currently offers basic
 atomic operations as well as some atomic arithmetic operations.
