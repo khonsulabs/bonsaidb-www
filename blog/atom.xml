@@ -109,9 +109,7 @@
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;This example shows how using &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;transmog&quot;&gt;Transmog&lt;&#x2F;a&gt; we&#x27;re able to use the custom serialization functions built into the &lt;a href=&quot;https:&#x2F;&#x2F;crates.io&#x2F;crates&#x2F;hdrhistogram&quot;&gt;hdrhistogram&lt;&#x2F;a&gt; crate. Querying the view returns a &lt;code&gt;Histogram&amp;lt;u64&amp;gt;&lt;&#x2F;code&gt; directly:&lt;&#x2F;p&gt;
-&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; total_histogram = db
-&lt;&#x2F;span&gt;&lt;span&gt;	.reduce::&amp;lt;AsHistogram&amp;gt;(None, AccessPolicy::UpdateBefore)
-&lt;&#x2F;span&gt;&lt;span&gt;	.await?;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; total_histogram = db.view::&amp;lt;AsHistogram&amp;gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;reduce&lt;&#x2F;span&gt;&lt;span&gt;().await?;
 &lt;&#x2F;span&gt;&lt;span&gt;println!(
 &lt;&#x2F;span&gt;&lt;span&gt;	&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;99th Percentile overall: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt; (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt; samples)&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;,
 &lt;&#x2F;span&gt;&lt;span&gt;	total_histogram.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;value_at_quantile&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0.99&lt;&#x2F;span&gt;&lt;span&gt;),

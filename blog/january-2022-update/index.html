@@ -187,9 +187,7 @@ is-active
 </span><span>}
 </span></code></pre>
 <p>This example shows how using <a href="https://github.com/khonsulabs/transmog">Transmog</a> we're able to use the custom serialization functions built into the <a href="https://crates.io/crates/hdrhistogram">hdrhistogram</a> crate. Querying the view returns a <code>Histogram&lt;u64&gt;</code> directly:</p>
-<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> total_histogram = db
-</span><span>	.reduce::&lt;AsHistogram&gt;(None, AccessPolicy::UpdateBefore)
-</span><span>	.await?;
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> total_histogram = db.view::&lt;AsHistogram&gt;().</span><span style="color:#96b5b4;">reduce</span><span>().await?;
 </span><span>println!(
 </span><span>	&quot;</span><span style="color:#a3be8c;">99th Percentile overall: </span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> (</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> samples)</span><span>&quot;,
 </span><span>	total_histogram.</span><span style="color:#96b5b4;">value_at_quantile</span><span>(</span><span style="color:#d08770;">0.99</span><span>),
