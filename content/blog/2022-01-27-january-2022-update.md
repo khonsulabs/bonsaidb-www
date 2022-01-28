@@ -111,9 +111,7 @@ impl OwnedDeserializer<SyncHistogram<u64>> for AsHistogram {
 This example shows how using [Transmog][transmog] we're able to use the custom serialization functions built into the [hdrhistogram][hdrhistogram] crate. Querying the view returns a `Histogram<u64>` directly:
 
 ```rust
-let total_histogram = db
-	.reduce::<AsHistogram>(None, AccessPolicy::UpdateBefore)
-	.await?;
+let total_histogram = db.view::<AsHistogram>().reduce().await?;
 println!(
 	"99th Percentile overall: {} ({} samples)",
 	total_histogram.value_at_quantile(0.99),
