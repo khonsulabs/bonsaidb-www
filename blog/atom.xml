@@ -15,11 +15,14 @@
 		<content type="html">&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a pure Rust database that grows with you. It already is &lt;a href=&quot;&#x2F;about&quot;&gt;feature-rich&lt;&#x2F;a&gt;, but we are still working towards our initial alpha. This month&#x27;s update will highlight the changes since the last update and cover what&#x27;s remaining before our alpha release.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;highlighted-updates&quot;&gt;Highlighted updates&lt;&#x2F;h2&gt;
 &lt;p&gt;I have made &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;compare&#x2F;355c7904dd9b64874d99721941d2b0c0002f26b4...c1bc3ca6ce488fe8c26d265a3b1e9b8fb62d1347&quot;&gt;90 commits (+8,406&#x2F;-3,097)&lt;&#x2F;a&gt; since &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;t&#x2F;bonsaidb-december-update-finishing-up-alpha-1&#x2F;88&quot;&gt;last month&#x27;s update&lt;&#x2F;a&gt;. Many improvements have been made based on feedback from early adopters. Thank you to everyone who has asked a question, reported an issue, or provided any feedback!&lt;&#x2F;p&gt;
-&lt;h3 id=&quot;&quot;&gt;&lt;a href=&quot;#Key-Value%20Store%20Optimization&quot; name=&quot;Key-Value%20Store%20Optimization&quot;&gt;
+&lt;h3 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Key-Value%20Store%20Optimization&quot; name=&quot;Key-Value%20Store%20Optimization&quot;&gt;
     Key-Value Store Optimization
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
-&lt;p&gt;I firmly believe in under-promising and over-delivering. So when I was writing the &lt;a href=&quot;&#x2F;about&quot;&gt;about page&lt;&#x2F;a&gt; originally, I had to clarify in the Key-Value section that the performance was limited by &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;120&quot;&gt;the current design&lt;&#x2F;a&gt;. As such, I decided I would prefer to go ahead and implement the design proposed in that issue.&lt;&#x2F;p&gt;
+&lt;p&gt;I firmly believe in under-promising and over-delivering. So when I was writing the &lt;a href=&quot;&#x2F;about&quot;&gt;about page&lt;&#x2F;a&gt; originally, I had to clarify in the &lt;a href=&quot;&#x2F;about&#x2F;#key-value&quot;&gt;Key-Value section&lt;&#x2F;a&gt; that the performance was limited by &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;120&quot;&gt;the current design&lt;&#x2F;a&gt;. As such, I decided I would prefer to go ahead and implement the design proposed in that issue.&lt;&#x2F;p&gt;
 &lt;p&gt;The Key-Value store is meant to perform atomic operations with reasonable durability. This is the primary difference between the goals of the Key-Value store and &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;guide&#x2F;about&#x2F;concepts&#x2F;collection.html&quot;&gt;Collection&lt;&#x2F;a&gt; storage. The Key-Value store is meant to be a good alternative to running &lt;a href=&quot;https:&#x2F;&#x2F;redis.io&#x2F;&quot;&gt;Redis&lt;&#x2F;a&gt;, and Redis uses a delayed persistence design.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;ve copied the general design of how persistence works, except that with BonsaiDb the database isn&#x27;t kept in memory constantly. This means that BonsaiDb&#x27;s Key-Value store can contain more data than the RAM on your machine, something that is possible but not recommended with Redis.&lt;&#x2F;p&gt;
 &lt;p&gt;By default, BonsaiDb will persist each operation after it&#x27;s performed. This can cause a lot of extra disk IO if thousands of operations are being performed per second. Additionally, it can cause file bloat due to the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;append-only file format&lt;&#x2F;a&gt; utilized. Instead, it&#x27;s recommended to &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;guide&#x2F;administration&#x2F;configuration.html#key-value-persistence&quot;&gt;configure persistence&lt;&#x2F;a&gt; such that writes are delayed based on what you feel is a good balance for your use case. For example:&lt;&#x2F;p&gt;
@@ -32,19 +35,25 @@
 &lt;&#x2F;span&gt;&lt;span&gt;		])
 &lt;&#x2F;span&gt;&lt;span&gt;)
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;This configuration has two rules: persist after 5 seconds if there is at least 1 change, and perist if there is at least 200 changes. This means if BonsaiDb unexpectedly is killed, at most the most recent 5 seconds of changes would be lost. However, if a batch of changes is written, they will be persisted immediately.&lt;&#x2F;p&gt;
+&lt;p&gt;This configuration has two rules: persist after 5 seconds if there is at least 1 change, and perist if there are at least 200 changes. This means if BonsaiDb unexpectedly is killed, at most the most recent 5 seconds of changes would be lost. However, if a batch of changes is written, they will be persisted immediately.&lt;&#x2F;p&gt;
 &lt;p&gt;So, how does the key-value store perform compared to Redis?&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;get-bytes&#x2F;1KiB&#x2F;report&#x2F;index.html&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;suite&amp;#x2F;get-bytes&amp;#x2F;1KiB&amp;#x2F;report&amp;#x2F;violin.svg&quot; class=&quot;block-image&quot; alt=&quot;get-key 1kb&quot; &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;get-bytes&#x2F;1KiB&#x2F;report&#x2F;index.html&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;suite&amp;#x2F;get-bytes&amp;#x2F;1KiB&amp;#x2F;report&amp;#x2F;violin.svg&quot; class=&quot;block-image&quot; alt=&quot;get-key 1kb&quot; style=&quot;background-color: #DDD&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;Well, as you might expect, if you don&#x27;t have network access, things go very fast -- measured in nanoseconds on my personal computer. However, the networking performance leaves something to be desired. After doing a lot of profiling, I could see that the TLS for the QUIC connection accounts for roughly 30% of the time spent. However, that still is a little slower than the WebSocket implementation, which in turn is significantly slower than Redis.&lt;&#x2F;p&gt;
 &lt;p&gt;My profiling has led me to believe that &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;129&quot;&gt;switching to Socketto&lt;&#x2F;a&gt; will bring the WebSocket implementation closer by reducing the number of allocations. Only time will tell if that will match Redis&#x27;s performance, but I&#x27;m hopeful it will be close enough to not care. For the QUIC connection, our &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;daxpedda&quot;&gt;other major contributor&lt;&#x2F;a&gt; has plans to dig in and see what can be done to reduce some of the allocations we saw in the profiling we did.&lt;&#x2F;p&gt;
-&lt;h3 id=&quot;-1&quot;&gt;&lt;a href=&quot;#Collection%20Benchmarks&quot; name=&quot;Collection%20Benchmarks&quot;&gt;
+&lt;h3 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#Collection%20Benchmarks&quot; name=&quot;Collection%20Benchmarks&quot;&gt;
     Collection Benchmarks
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
 &lt;p&gt;My last &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;blog post&lt;&#x2F;a&gt; goes into detail about a new benchmark I wrote to attempt to simulate a simple relational database workload. The results were staggering to me.&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;&lt;img src=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;LookupProduct.png&quot; alt=&quot;find prodcut by id graph&quot; &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find prodcut by id graph&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;Nearly every operation across every workload showed all ways of accessing BonsaiDb outperforming PostgreSQL significantly.&lt;&#x2F;p&gt;
-&lt;h3 id=&quot;-2&quot;&gt;&lt;a href=&quot;#Rethinking%20Serialization&quot; name=&quot;Rethinking%20Serialization&quot;&gt;
+&lt;h3 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Rethinking%20Serialization&quot; name=&quot;Rethinking%20Serialization&quot;&gt;
     Rethinking Serialization
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
@@ -110,7 +119,10 @@
 &lt;&#x2F;span&gt;&lt;span&gt;);
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;I think this example shows the inredible power of our &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;guide&#x2F;about&#x2F;concepts&#x2F;view.html&quot;&gt;map&#x2F;reduce views&lt;&#x2F;a&gt; and the Rust type system.&lt;&#x2F;p&gt;
-&lt;h2 id=&quot;-3&quot;&gt;&lt;a href=&quot;#Alpha%20coming%20next%20week&quot; name=&quot;Alpha%20coming%20next%20week&quot;&gt;
+&lt;h2 id=&quot;-3&quot;&gt;
+
+
+&lt;a href=&quot;#Alpha%20coming%20next%20week&quot; name=&quot;Alpha%20coming%20next%20week&quot;&gt;
     Alpha coming next week
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
@@ -119,6 +131,9 @@
 &lt;p&gt;Once I swap out this implementation, I&#x27;m going to be creating a 0.1 branch &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;in the repository&lt;&#x2F;a&gt;. We will be using the 0.x version range for our alpha and beta phases and eventually &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;137&quot;&gt;release 1.0&lt;&#x2F;a&gt; as the first stable version.&lt;&#x2F;p&gt;
 &lt;p&gt;I will ask early adopters to check it out ahead of releasing to crates.io at the end of next week. I&#x27;ll send out a message on &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&#x2F;&quot;&gt;our Discord&lt;&#x2F;a&gt; as well as update &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;87&quot;&gt;this issue&lt;&#x2F;a&gt; once the branch is available.&lt;&#x2F;p&gt;
 &lt;p&gt;In the meantime, our &lt;a href=&quot;&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic getting started information including a full list of examples. I look forward to hearing what people build with BonsaiDb!&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Have questions or comments? Discuss this post on &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;t&#x2F;bonsaidb-january-update-alpha-next-week&#x2F;93&quot;&gt;our forums&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
 </content>
 	</entry>
 	<entry xml:lang="en">
@@ -145,7 +160,10 @@ wanted to have all the guarantees PostgreSQL makes, but easier to use and deploy
 &lt;p&gt;Until this past week, I knew from previous benchmarks that &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt; (our
 underlying storage layer) was &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;tree&#x2F;192b6d34c6ad1350c2e469359f51423f69b1e2d4&#x2F;benchmarks&quot;&gt;pretty fast&lt;&#x2F;a&gt;, but I had no real
 indicator of how BonsaiDb would perform relative to PostgreSQL.&lt;&#x2F;p&gt;
-&lt;h2 id=&quot;&quot;&gt;&lt;a href=&quot;#Designing%20a%20Benchmark%20Suite&quot; name=&quot;Designing%20a%20Benchmark%20Suite&quot;&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Designing%20a%20Benchmark%20Suite&quot; name=&quot;Designing%20a%20Benchmark%20Suite&quot;&gt;
     Designing a Benchmark Suite
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
@@ -176,14 +194,17 @@ writes.&lt;&#x2F;p&gt;
 &lt;p&gt;I&#x27;ve written some more notes on the implementation of the benchmark itself, such
 as how aggregation of ratings is handled, in the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e&#x2F;benchmarks&#x2F;benches&#x2F;commerce#user-content-benchmark-notes&quot;&gt;benchmark&#x27;s
 README&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
-&lt;h2 id=&quot;-1&quot;&gt;&lt;a href=&quot;#BonsaiDb%20is%20faster%20than%20I%20had%20hoped%21&quot; name=&quot;BonsaiDb%20is%20faster%20than%20I%20had%20hoped%21&quot;&gt;
+&lt;h2 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#BonsaiDb%20is%20faster%20than%20I%20had%20hoped%21&quot; name=&quot;BonsaiDb%20is%20faster%20than%20I%20had%20hoped%21&quot;&gt;
     BonsaiDb is faster than I had hoped!
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;These graphs show the accumulated execution time of each operation:&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#LookupProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot; &#x2F;&gt;&lt;&#x2F;a&gt;
-&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find product by name&quot; &#x2F;&gt;&lt;&#x2F;a&gt;
-&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#AddProductToCart&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;AddProductToCart.png&quot; class=&quot;block-image&quot; alt=&quot;add product to cart&quot; &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#LookupProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find product by name&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#AddProductToCart&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;AddProductToCart.png&quot; class=&quot;block-image&quot; alt=&quot;add product to cart&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;This set of graphs is from the &amp;quot;large, write-heavy, 2 workers per core&amp;quot;
 benchmark, run on a &lt;a href=&quot;https:&#x2F;&#x2F;scaleway.com&quot;&gt;Scaleway&lt;&#x2F;a&gt; GP1-XS instance running
 Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The entire
@@ -209,7 +230,10 @@ how &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;guide&#x2F;about&#x2
 &lt;&#x2F;span&gt;&lt;span&gt;    .await
 &lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;(); &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;&#x2F; Returns a f32
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;h2 id=&quot;-2&quot;&gt;&lt;a href=&quot;#Trying%20out%20BonsaiDb&quot; name=&quot;Trying%20out%20BonsaiDb&quot;&gt;
+&lt;h2 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Trying%20out%20BonsaiDb&quot; name=&quot;Trying%20out%20BonsaiDb&quot;&gt;
     Trying out BonsaiDb
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
@@ -230,6 +254,9 @@ feedback from early users. We&#x27;ve already made countless improvements to the
 version, we invite you to subscribe to &lt;a href=&quot;&#x2F;blog&#x2F;atom.xml&quot;&gt;this site&#x27;s feed&lt;&#x2F;a&gt; or
 watch the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&quot;&gt;repository&#x27;s releases section&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;We are looking forward to seeing what types of applications BonsaiDb will power someday!&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Have questions or comments? Discuss this post on &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;t&#x2F;benchmarking-relational-data-in-bonsaidb&#x2F;91&quot;&gt;our forums&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
 </content>
 	</entry>
 </feed>
