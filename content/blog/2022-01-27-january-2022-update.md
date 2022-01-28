@@ -108,7 +108,7 @@ impl OwnedDeserializer<SyncHistogram<u64>> for AsHistogram {
 }
 ```
 
-This example shows how using [Transmog][transmog] we're able to use the custom serialization functions built into the [hdrhistogram][hdrhistogram] crate. Querying the view returns a `Histogram<u64>` directly:
+This example shows how using [Transmog][transmog] we're able to use the custom serialization functions built into the [hdrhistogram][hdrhistogram] crate. Querying the view returns a `SyncHistogram<u64>` directly:
 
 ```rust
 let total_histogram = db.view::<AsHistogram>().reduce().await?;
