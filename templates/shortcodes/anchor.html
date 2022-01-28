@@ -1,4 +1,7 @@
-<a href="#{{ text | urlencode }}" name="{{ text | urlencode }}">
+{% if not slug %}
+{% set slug = text | urlencode %}
+{% endif %}
+<a href="#{{ slug }}" name="{{ slug }}">
     {{ text }}
     <i class="bi bi-link-45deg hoverable"></i>
 </a>

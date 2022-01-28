@@ -119,6 +119,8 @@ watch the [repository's releases section][bonsaidb-releases].
 
 We are looking forward to seeing what types of applications BonsaiDb will power someday!
 
+> Have questions or comments? Discuss this post on [our forums](https://community.khonsulabs.com/t/benchmarking-relational-data-in-bonsaidb/91).
+
 [bonsaidb]: https://github.com/khonsulabs/bonsaidb
 [bonsaidb-guide]: https://dev.bonsaidb.io/guide/
 [bonsaidb-docs]: https://dev.bonsaidb.io/main/bonsaidb/

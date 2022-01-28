@@ -14,7 +14,7 @@ I have made [90 commits (+8,406/-3,097)][changes] since [last month's update][la
 
 ### {{ anchor(text = "Key-Value Store Optimization") }}
 
-I firmly believe in under-promising and over-delivering. So when I was writing the [about page](/about) originally, I had to clarify in the Key-Value section that the performance was limited by [the current design][key-value-issue]. As such, I decided I would prefer to go ahead and implement the design proposed in that issue.
+I firmly believe in under-promising and over-delivering. So when I was writing the [about page](/about) originally, I had to clarify in the [Key-Value section](/about/#key-value) that the performance was limited by [the current design][key-value-issue]. As such, I decided I would prefer to go ahead and implement the design proposed in that issue.
 
 The Key-Value store is meant to perform atomic operations with reasonable durability. This is the primary difference between the goals of the Key-Value store and [Collection][collection] storage. The Key-Value store is meant to be a good alternative to running [Redis][redis], and Redis uses a delayed persistence design.
 
@@ -33,11 +33,11 @@ Storage::open(
 )
 ```
 
-This configuration has two rules: persist after 5 seconds if there is at least 1 change, and perist if there is at least 200 changes. This means if BonsaiDb unexpectedly is killed, at most the most recent 5 seconds of changes would be lost. However, if a batch of changes is written, they will be persisted immediately.
+This configuration has two rules: persist after 5 seconds if there is at least 1 change, and perist if there are at least 200 changes. This means if BonsaiDb unexpectedly is killed, at most the most recent 5 seconds of changes would be lost. However, if a batch of changes is written, they will be persisted immediately.
 
 So, how does the key-value store perform compared to Redis?
 
-[{{ blockimage(alt="get-key 1kb", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/get-bytes/1KiB/report/violin.svg" )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/get-bytes/1KiB/report/index.html)
+[{{ blockimage(alt="get-key 1kb", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/get-bytes/1KiB/report/violin.svg", bg = true )}}](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/get-bytes/1KiB/report/index.html)
 
 Well, as you might expect, if you don't have network access, things go very fast -- measured in nanoseconds on my personal computer. However, the networking performance leaves something to be desired. After doing a lot of profiling, I could see that the TLS for the QUIC connection accounts for roughly 30% of the time spent. However, that still is a little slower than the WebSocket implementation, which in turn is significantly slower than Redis.
 
@@ -47,7 +47,7 @@ My profiling has led me to believe that [switching to Socketto][soketto] will br
 
 My last [blog post][commerce-blog] goes into detail about a new benchmark I wrote to attempt to simulate a simple relational database workload. The results were staggering to me.
 
-[![find prodcut by id graph](https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/LookupProduct.png)][commerce-blog]
+[{{ blockimage(alt="find prodcut by id graph", src="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/large-writeheavy/8/LookupProduct.png" )}}][commerce-blog]
 
 Nearly every operation across every workload showed all ways of accessing BonsaiDb outperforming PostgreSQL significantly.
 
@@ -134,6 +134,8 @@ Once I swap out this implementation, I'm going to be creating a 0.1 branch [in t
 I will ask early adopters to check it out ahead of releasing to crates.io at the end of next week. I'll send out a message on [our Discord][discord] as well as update [this issue][alpha-issue] once the branch is available.
 
 In the meantime, our [homepage](/) has basic getting started information including a full list of examples. I look forward to hearing what people build with BonsaiDb!
+
+> Have questions or comments? Discuss this post on [our forums](https://community.khonsulabs.com/t/bonsaidb-january-update-alpha-next-week/93).
 
 [changes]: https://github.com/khonsulabs/bonsaidb/compare/355c7904dd9b64874d99721941d2b0c0002f26b4...c1bc3ca6ce488fe8c26d265a3b1e9b8fb62d1347
 [bonsaidb]: https://github.com/khonsulabs/bonsaidb

@@ -14,7 +14,7 @@ applications.
 
 ## BonsaiDb's Features
 
-### It grows with you
+### {{ anchor(text = "It grows with you", slug = "grows-with-you") }}
 
 BonsaiDb's features are designed to work when using it as a local-only database,
 as a networked database server, and eventually [as a distributed
@@ -24,14 +24,14 @@ working on a BonsaiDb powered app.
 
 [clustering]: https://github.com/khonsulabs/bonsaidb/issues/104
 
-### Schema as Rust Code
+### {{ anchor(text = "Schema as Rust Code", slug = "schema") }}
 
 BonsaiDb leverages the Rust type system to define schema as code, enabling the
 Rust compiler to help you ensure your database code is correct. This helps keep
 the likelihood of unexpected runtime errors to a minimum, and it also helps
 developers understand the entire flow of their code and data.
 
-### ACID-compliant Transactional Storage
+### {{ anchor(text = "ACID-compliant Transactional Storage", slug = "acid") }}
 
 BonsaiDb's [collections][collection] are [ACID][acid]-compliant, giving you the
 peace of mind that your data is safe in the event of an unexpected failure of
@@ -49,7 +49,7 @@ the transaction.
 [collection]: https://dev.bonsaidb.io/guide/about/concepts/collection.html
 [acid]: https://en.wikipedia.org/wiki/ACID
 
-### At-Rest Encryption
+### {{ anchor(text = "At-Rest Encryption", slug = "encryption") }}
 
 BonsaiDb optionally supports [encrypting data at-rest][at-rest-encryption],
 which prevents data from being leaked if a hard drive is stolen or wasn't wiped
@@ -59,7 +59,7 @@ environment does not offer ways of encrypting the filesystem itself.
 
 [at-rest-encryption]: https://dev.bonsaidb.io/guide/administration/encryption.html
 
-### Backup / Restore
+### {{ anchor(text = "Backup / Restore", slug = "backup-restore") }}
 
 BonsaiDb offers [backup][backup] and [restore][restore] from a backup location,
 which is a trait that can be implemented for custom backup solutions. BonsaiDb
@@ -73,7 +73,7 @@ planned][incremental-backups].
 [s3-backup]: https://github.com/khonsulabs/bonsaidb/issues/122
 [incremental-backups]: https://github.com/khonsulabs/bonsaidb/issues/121
 
-### Extensible Role-based Access Control
+### {{ anchor(text = "Extensible Role-based Access Control", slug = "rbac") }}
 
 BonsaiDb offers a robust [permission system][permissions] which allows for
 "actions" to be allowed or denied on "resources." BonsaiDb uses this access
@@ -91,7 +91,7 @@ evaluated offline as well][permissions-refactor].
 [permissions]: https://dev.bonsaidb.io/guide/administration/permissions.html
 [permissions-refactor]: https://github.com/khonsulabs/bonsaidb/issues/68
 
-### Atomic Key-Value Storage
+### {{ anchor(text = "Atomic Key-Value Storage", slug = "key-value") }}
 
 Sometimes ACID compliance is overkill, such as in situations where a value is
 being updated hundreds or thousands of times per second. BonsaiDb offers a
@@ -104,7 +104,7 @@ The default configuration of the Key-Value store prefers data integrity, but
 [key-value]: https://dev.bonsaidb.io/guide/traits/key-value.html
 [key-value-configuration]: https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence
 
-### Publish/Subscribe (PubSub)
+### {{ anchor(text = "Publish/Subscribe (PubSub)", slug = "pubsub") }}
 
 BonsaiDb offers the ability to subscribe to topics and receive published
 messages. [PubSub][pubsub] can be used to power features like private messaging
@@ -113,7 +113,7 @@ architecture.
 
 [pubsub]: https://dev.bonsaidb.io/guide/about/concepts/pubsub.html
 
-### Secure Networked Access
+### {{ anchor(text = "Secure Networked Access", slug = "networked") }}
 
 BonsaiDb offers two wire protocol implementations, one that utilizes
 [QUIC][quic] and one that utilizes [WebSockets][websockets]. The QUIC-based
@@ -124,7 +124,7 @@ WebRTC offering.
 [quic]: https://en.wikipedia.org/wiki/QUIC
 [websockets]: https://en.wikipedia.org/wiki/WebSocket
 
-#### Extensible Wire Protocol
+#### {{ anchor(text = "Extensible Wire Protocol", slug = "custom-api") }}
 
 BonsaiDb offers an ability to extend the wire protocol with a request/response
 style API. This provides an easy way to provide authenticated, permission-aware
@@ -134,7 +134,7 @@ The user's guide has [a page dedicated to an example of this setup][custom-api].
 
 [custom-api]: https://dev.bonsaidb.io/guide/about/access-models/custom-api-server.html
 
-#### Extensible TCP Layer
+#### {{ anchor(text = "Extensible TCP Layer", slug = "tcp-service") }}
 
 Suppose you're designing an app that exposes an HTTP layer and wish to connect
 to your database server over WebSockets. BonsaiDb allows upgrading TCP
@@ -149,7 +149,7 @@ It shows how to use the [Axum][axum] framework alongside BonsaiDb's WebSockets.
 [axum-example]: https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs
 [axum]: https://crates.io/crates/axum
 
-#### TLS Certificates via LetsEncrypt
+#### {{ anchor(text = "TLS Certificates via LetsEncrypt", slug = "acme") }}
 
 BonsaiDb requires TLS for its connections. You can use any valid TLS
 certificate. If you would like BonsaiDb to automatically acquire one using ACME,
@@ -160,7 +160,7 @@ port 443][server-listen]. An example showing how this is configured is available
 [server-listen]: https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.listen_for_secure_tcp_on
 [acme-example]: https://github.com/khonsulabs/bonsaidb/blob/main/examples/acme/examples/acme.rs
 
-## BonsaiDb's Planned Features
+## {{ anchor(text = "BonsaiDb's Planned Features", slug = "roadmap") }}
 
 - [Persistent Job Queue][job-queue]: BonsaiDb needs to run some tasks on a
   scheduled basis, and this schedule should be able to be adjusted by end users.
