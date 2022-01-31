@@ -146,7 +146,7 @@ In the meantime, our [homepage](/) has basic getting started information includi
 [soketto]: https://github.com/khonsulabs/bonsaidb/issues/129
 [pot]: https://github.com/khonsulabs/pot
 [transmog]: https://github.com/khonsulabs/transmog
-[serializedcollection]: https://dev.bonsaidb.io/main/bonsaidb/core/schema/trait.SerializedCollection.html
+[serializedcollection]: https://dev.bonsaidb.io/release/docs/bonsaidb/core/schema/trait.SerializedCollection.html
 [hdrhistogram-example]: https://github.com/khonsulabs/bonsaidb/blob/main/examples/view-histogram/examples/view-histogram.rs
 [hdrhistogram]:  https://crates.io/crates/hdrhistogram
 [views]: https://dev.bonsaidb.io/release/guide/about/concepts/view.html

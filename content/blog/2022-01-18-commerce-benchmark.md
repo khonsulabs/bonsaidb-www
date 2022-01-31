@@ -123,7 +123,7 @@ We are looking forward to seeing what types of applications BonsaiDb will power 
 
 [bonsaidb]: https://github.com/khonsulabs/bonsaidb
 [bonsaidb-guide]: https://dev.bonsaidb.io/release/guide/
-[bonsaidb-docs]: https://dev.bonsaidb.io/main/bonsaidb/
+[bonsaidb-docs]: https://dev.bonsaidb.io/release/docs/bonsaidb/
 [bonsaidb-examples]: https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/examples
 [bonsaidb-releases]: https://github.com/khonsulabs/bonsaidb/releases
 [nebari]: https://github.com/khonsulabs/nebari

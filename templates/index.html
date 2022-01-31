@@ -18,11 +18,11 @@
 <div class="container content px-4">
 
     <div class="notification is-warning">
-        BonsaiDb is currently pre-alpha. We are <a
-            href="https://community.khonsulabs.com/t/bonsaidb-december-update-finishing-up-alpha-1/88">nearing
-            the first alpha release</a>. While there has been significant testing
-        behind BonsaiDb already, all users are recommended to restrict BonsaiDb
-        to experiments or ensure you test your backups.
+        BonsaiDb is considered alpha software. It is under active development (<img alt="GitHub commit activity"
+            src="https://img.shields.io/github/commit-activity/m/khonsulabs/bonsaidb"
+            style="vertical-align: text-bottom" />). There may still be bugs that
+        result in data loss. All users should regularly back up their data and test that restoring from backup works
+        correctly.
     </div>
 
     <h1 class="title is-3">
@@ -30,8 +30,9 @@
     </h1>
     <p>Add BonsaiDb to your Cargo.toml:</p>
 
-    <pre class="highlight"><code class="language-toml">[dependencies]
-bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "main", features = ["local"] }</code></pre>
+    <pre
+        class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "release", features = ["local"] }</code></pre>
 
     <h3 class="title is-5">Local-only Examples {{ macros::anchor(name = "local-examples") }}</h3>
 
@@ -85,13 +86,15 @@ bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "main"
     </h1>
     <p>Add BonsaiDb to your server's Cargo.toml:</p>
 
-    <pre class="highlight"><code class="language-toml">[dependencies]
-bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "main", features = ["server"] }</code></pre>
+    <pre
+        class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "release", features = ["server"] }</code></pre>
 
     <p>And to your client's Cargo.toml:</p>
 
-    <pre class="highlight"><code class="language-toml">[dependencies]
-bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "main", features = ["client"] }</code></pre>
+    <pre
+        class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "release", features = ["client"] }</code></pre>
 
     <h3 class="title is-5">Client/Server Examples {{ macros::anchor(name = "server-examples") }}</h3>
 

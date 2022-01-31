@@ -68,8 +68,8 @@ and there is planned support for any [S3-compatible storage service][s3-backup].
 Currently, backups are always complete backups, but [incremental backups are
 planned][incremental-backups].
 
-[backup]: https://dev.bonsaidb.io/main/bonsaidb/local/struct.Storage.html#method.backup
-[restore]: https://dev.bonsaidb.io/main/bonsaidb/local/struct.Storage.html#method.restore
+[backup]: https://dev.bonsaidb.io/release/docs/bonsaidb/local/struct.Storage.html#method.backup
+[restore]: https://dev.bonsaidb.io/release/docs/bonsaidb/local/struct.Storage.html#method.restore
 [s3-backup]: https://github.com/khonsulabs/bonsaidb/issues/122
 [incremental-backups]: https://github.com/khonsulabs/bonsaidb/issues/121
 
@@ -144,8 +144,8 @@ performing the negotation][websocket-handle].
 An example of this configuration is [included in the repository][axum-example].
 It shows how to use the [Axum][axum] framework alongside BonsaiDb's WebSockets.
 
-[websocket-upgrade]: https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.upgrade_websocket
-[websocket-handle]: https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.handle_websocket
+[websocket-upgrade]: https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct.CustomServer.html#method.upgrade_websocket
+[websocket-handle]: https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct.CustomServer.html#method.handle_websocket
 [axum-example]: https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs
 [axum]: https://crates.io/crates/axum
 
@@ -157,7 +157,7 @@ it's as simple as enabling a feature flag and [listening for TCP connections on
 port 443][server-listen]. An example showing how this is configured is available
 [in the repository][acme-example].
 
-[server-listen]: https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.listen_for_secure_tcp_on
+[server-listen]: https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct.CustomServer.html#method.listen_for_secure_tcp_on
 [acme-example]: https://github.com/khonsulabs/bonsaidb/blob/main/examples/acme/examples/acme.rs
 
 ## {{ anchor(text = "BonsaiDb's Planned Features", slug = "roadmap") }}
