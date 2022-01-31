@@ -27,9 +27,9 @@ Storage::open(
     StorageConfiguration::new(&database_directory)
         .key_value_persistence(KeyValuePersistence::lazy([
             PersistenceThreshold::after_changes(1)
-				.and_duration(Duration::from_secs(5)),
+    .and_duration(Duration::from_secs(5)),
             PersistenceThreshold::after_changes(10),
-		])
+  ])
 )
 ```
 
@@ -113,9 +113,9 @@ This example shows how using [Transmog][transmog] we're able to use the custom s
 ```rust
 let total_histogram = db.view::<AsHistogram>().reduce().await?;
 println!(
-	"99th Percentile overall: {} ({} samples)",
-	total_histogram.value_at_quantile(0.99),
-	total_histogram.len()
+ "99th Percentile overall: {} ({} samples)",
+ total_histogram.value_at_quantile(0.99),
+ total_histogram.len()
 );
 ```
 
@@ -141,15 +141,15 @@ In the meantime, our [homepage](/) has basic getting started information includi
 [last-update]: https://community.khonsulabs.com/t/bonsaidb-december-update-finishing-up-alpha-1/88
 [commerce-blog]: https://bonsaidb.io/blog/commerce-benchmark/
 [key-value-issue]: https://github.com/khonsulabs/bonsaidb/issues/120
-[collection]: https://dev.bonsaidb.io/guide/about/concepts/collection.html
-[kv-configuration]: https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence
+[collection]: https://dev.bonsaidb.io/release/guide/about/concepts/collection.html
+[kv-configuration]: https://dev.bonsaidb.io/release/guide/administration/configuration.html#key-value-persistence
 [soketto]: https://github.com/khonsulabs/bonsaidb/issues/129
 [pot]: https://github.com/khonsulabs/pot
 [transmog]: https://github.com/khonsulabs/transmog
 [serializedcollection]: https://dev.bonsaidb.io/main/bonsaidb/core/schema/trait.SerializedCollection.html
 [hdrhistogram-example]: https://github.com/khonsulabs/bonsaidb/blob/main/examples/view-histogram/examples/view-histogram.rs
 [hdrhistogram]:  https://crates.io/crates/hdrhistogram
-[views]: https://dev.bonsaidb.io/guide/about/concepts/view.html
+[views]: https://dev.bonsaidb.io/release/guide/about/concepts/view.html
 [opaque-ke]: https://github.com/novifinancial/opaque-ke
 [password-hashing]: https://github.com/khonsulabs/bonsaidb/issues/158
 [daxpedda]: https://github.com/daxpedda

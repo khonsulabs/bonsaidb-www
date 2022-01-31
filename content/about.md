@@ -46,7 +46,7 @@ notified that their order was successfully submitted (and worse, their credit
 card charged), yet after the power is restored, your database has no record of
 the transaction.
 
-[collection]: https://dev.bonsaidb.io/guide/about/concepts/collection.html
+[collection]: https://dev.bonsaidb.io/release/guide/about/concepts/collection.html
 [acid]: https://en.wikipedia.org/wiki/ACID
 
 ### {{ anchor(text = "At-Rest Encryption", slug = "encryption") }}
@@ -57,7 +57,7 @@ before being removed from a data center. This is an important feature to have
 when storing Personally Identifiable Information (PII) if your hosting
 environment does not offer ways of encrypting the filesystem itself.
 
-[at-rest-encryption]: https://dev.bonsaidb.io/guide/administration/encryption.html
+[at-rest-encryption]: https://dev.bonsaidb.io/release/guide/administration/encryption.html
 
 ### {{ anchor(text = "Backup / Restore", slug = "backup-restore") }}
 
@@ -88,7 +88,7 @@ This feature is still under development, and currently, permissions are only
 enforced at the network level. There are [plans to allow permissions to be
 evaluated offline as well][permissions-refactor].
 
-[permissions]: https://dev.bonsaidb.io/guide/administration/permissions.html
+[permissions]: https://dev.bonsaidb.io/release/guide/administration/permissions.html
 [permissions-refactor]: https://github.com/khonsulabs/bonsaidb/issues/68
 
 ### {{ anchor(text = "Atomic Key-Value Storage", slug = "key-value") }}
@@ -101,8 +101,8 @@ atomic operations as well as some atomic arithmetic operations.
 The default configuration of the Key-Value store prefers data integrity, but
 [can be configured][key-value-configuration] to allow better throughput.
 
-[key-value]: https://dev.bonsaidb.io/guide/traits/key-value.html
-[key-value-configuration]: https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence
+[key-value]: https://dev.bonsaidb.io/release/guide/traits/key-value.html
+[key-value-configuration]: https://dev.bonsaidb.io/release/guide/administration/configuration.html#key-value-persistence
 
 ### {{ anchor(text = "Publish/Subscribe (PubSub)", slug = "pubsub") }}
 
@@ -111,7 +111,7 @@ messages. [PubSub][pubsub] can be used to power features like private messaging
 but can also be used as a way to separate services within an application's
 architecture.
 
-[pubsub]: https://dev.bonsaidb.io/guide/about/concepts/pubsub.html
+[pubsub]: https://dev.bonsaidb.io/release/guide/about/concepts/pubsub.html
 
 ### {{ anchor(text = "Secure Networked Access", slug = "networked") }}
 
@@ -132,7 +132,7 @@ access to server-side functionality.
 
 The user's guide has [a page dedicated to an example of this setup][custom-api].
 
-[custom-api]: https://dev.bonsaidb.io/guide/about/access-models/custom-api-server.html
+[custom-api]: https://dev.bonsaidb.io/release/guide/about/access-models/custom-api-server.html
 
 #### {{ anchor(text = "Extensible TCP Layer", slug = "tcp-service") }}
 

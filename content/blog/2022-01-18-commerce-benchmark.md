@@ -122,7 +122,7 @@ We are looking forward to seeing what types of applications BonsaiDb will power 
 > Have questions or comments? Discuss this post on [our forums](https://community.khonsulabs.com/t/benchmarking-relational-data-in-bonsaidb/91).
 
 [bonsaidb]: https://github.com/khonsulabs/bonsaidb
-[bonsaidb-guide]: https://dev.bonsaidb.io/guide/
+[bonsaidb-guide]: https://dev.bonsaidb.io/release/guide/
 [bonsaidb-docs]: https://dev.bonsaidb.io/main/bonsaidb/
 [bonsaidb-examples]: https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/examples
 [bonsaidb-releases]: https://github.com/khonsulabs/bonsaidb/releases
@@ -134,4 +134,4 @@ We are looking forward to seeing what types of applications BonsaiDb will power 
 [commerce-results]: https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/index.html
 [couchdb]: https://couchdb.apache.org/
 [sled]: https://sled.rs/
-[view]: https://dev.bonsaidb.io/guide/about/concepts/view.html
+[view]: https://dev.bonsaidb.io/release/guide/about/concepts/view.html
