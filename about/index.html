@@ -60,7 +60,7 @@ is-active
             <div class="navbar-end">
                 <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
                     <i class="font-icon bi-book"></i> User's Guide</a>
-                <a class="navbar-item" href="https://dev.bonsaidb.io/main/bonsaidb">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
                     <i class="font-icon bi-journal-code"></i>
                     Documentation</a>
                 <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
@@ -137,7 +137,7 @@ environment does not offer ways of encrypting the filesystem itself.</p>
     Backup &#x2F; Restore
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h3>
-<p>BonsaiDb offers <a href="https://dev.bonsaidb.io/main/bonsaidb/local/struct.Storage.html#method.backup">backup</a> and <a href="https://dev.bonsaidb.io/main/bonsaidb/local/struct.Storage.html#method.restore">restore</a> from a backup location,
+<p>BonsaiDb offers <a href="https://dev.bonsaidb.io/release/docs/bonsaidb/local/struct.Storage.html#method.backup">backup</a> and <a href="https://dev.bonsaidb.io/release/docs/bonsaidb/local/struct.Storage.html#method.restore">restore</a> from a backup location,
 which is a trait that can be implemented for custom backup solutions. BonsaiDb
 provides built-in support for using a filesystem directory as a backup location,
 and there is planned support for any <a href="https://github.com/khonsulabs/bonsaidb/issues/122">S3-compatible storage service</a>.
@@ -204,7 +204,7 @@ access to server-side functionality.</p>
 </a></h4>
 <p>Suppose you're designing an app that exposes an HTTP layer and wish to connect
 to your database server over WebSockets. BonsaiDb allows upgrading TCP
-connections <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.upgrade_websocket">using a <code>hyper::Request</code></a> or <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.handle_websocket">manually after
+connections <a href="https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct.CustomServer.html#method.upgrade_websocket">using a <code>hyper::Request</code></a> or <a href="https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct.CustomServer.html#method.handle_websocket">manually after
 performing the negotation</a>.</p>
 <p>An example of this configuration is <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs">included in the repository</a>.
 It shows how to use the <a href="https://crates.io/crates/axum">Axum</a> framework alongside BonsaiDb's WebSockets.</p>
@@ -215,7 +215,7 @@ It shows how to use the <a href="https://crates.io/crates/axum">Axum</a> framewo
 </a></h4>
 <p>BonsaiDb requires TLS for its connections. You can use any valid TLS
 certificate. If you would like BonsaiDb to automatically acquire one using ACME,
-it's as simple as enabling a feature flag and <a href="https://dev.bonsaidb.io/main/bonsaidb/server/struct.CustomServer.html#method.listen_for_secure_tcp_on">listening for TCP connections on
+it's as simple as enabling a feature flag and <a href="https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct.CustomServer.html#method.listen_for_secure_tcp_on">listening for TCP connections on
 port 443</a>. An example showing how this is configured is available
 <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/acme/examples/acme.rs">in the repository</a>.</p>
 <h2 id="-12">
