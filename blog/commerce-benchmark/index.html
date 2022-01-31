@@ -58,7 +58,7 @@ is-active
                 </a>
             </div>
             <div class="navbar-end">
-                <a class="navbar-item" href="https://dev.bonsaidb.io/guide/">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
                     <i class="font-icon bi-book"></i> User's Guide</a>
                 <a class="navbar-item" href="https://dev.bonsaidb.io/main/bonsaidb">
                     <i class="font-icon bi-journal-code"></i>
@@ -164,7 +164,7 @@ additional operations as BonsaiDb gains more features.</p>
 <p>One major difference between PostgreSQL and BonsaiDb is the lack of SQL. With
 BonsaiDb, the query language is Rust itself. This is why I often refer to
 BonsaiDb as a <em>programmable database</em>. The interface for accessing your data is
-how <a href="https://dev.bonsaidb.io/guide/about/concepts/view.html">you design it</a>. For example, here's the implementation of find product:</p>
+how <a href="https://dev.bonsaidb.io/release/guide/about/concepts/view.html">you design it</a>. For example, here's the implementation of find product:</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> product = Product::load(&amp;operation.name, &amp;</span><span style="color:#bf616a;">self</span><span>.database)
 </span><span>    .await
 </span><span>    .</span><span style="color:#96b5b4;">unwrap</span><span>() </span><span style="color:#65737e;">// Result
@@ -196,7 +196,7 @@ November 2021 with no issues, in addition to a couple other small test projects.
 <p>We encourage most users to wait another week or two until we have the alpha on
 Crates.io, but for those looking to play with something new, we'd love any
 feedback from early users. We've already made countless improvements to the API,
-<a href="https://dev.bonsaidb.io/main/bonsaidb/">documentation</a>, <a href="https://dev.bonsaidb.io/guide/">user's guide</a> and
+<a href="https://dev.bonsaidb.io/main/bonsaidb/">documentation</a>, <a href="https://dev.bonsaidb.io/release/guide/">user's guide</a> and
 <a href="https://github.com/khonsulabs/bonsaidb/tree/73aa1b1e8086c23bee10cd3024bf5fcaff8ea13e/examples">examples</a> as a result of questions from early adopters.</p>
 <p>If you're interested in BonsaiDb but want to wait until we've released a stable
 version, we invite you to subscribe to <a href="/blog/atom.xml">this site's feed</a> or

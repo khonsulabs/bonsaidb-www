@@ -58,7 +58,7 @@ is-active
                 </a>
             </div>
             <div class="navbar-end">
-                <a class="navbar-item" href="https://dev.bonsaidb.io/guide/">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
                     <i class="font-icon bi-book"></i> User's Guide</a>
                 <a class="navbar-item" href="https://dev.bonsaidb.io/main/bonsaidb">
                     <i class="font-icon bi-journal-code"></i>
@@ -111,7 +111,7 @@ developers understand the entire flow of their code and data.</p>
     ACID-compliant Transactional Storage
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h3>
-<p>BonsaiDb's <a href="https://dev.bonsaidb.io/guide/about/concepts/collection.html">collections</a> are <a href="https://en.wikipedia.org/wiki/ACID">ACID</a>-compliant, giving you the
+<p>BonsaiDb's <a href="https://dev.bonsaidb.io/release/guide/about/concepts/collection.html">collections</a> are <a href="https://en.wikipedia.org/wiki/ACID">ACID</a>-compliant, giving you the
 peace of mind that your data is safe in the event of an unexpected failure of
 the server. This mode of storage should be the default for most developers, yet
 many popular NoSQL database choices do not offer ACID-compliant storage.</p>
@@ -127,7 +127,7 @@ the transaction.</p>
     At-Rest Encryption
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h3>
-<p>BonsaiDb optionally supports <a href="https://dev.bonsaidb.io/guide/administration/encryption.html">encrypting data at-rest</a>,
+<p>BonsaiDb optionally supports <a href="https://dev.bonsaidb.io/release/guide/administration/encryption.html">encrypting data at-rest</a>,
 which prevents data from being leaked if a hard drive is stolen or wasn't wiped
 before being removed from a data center. This is an important feature to have
 when storing Personally Identifiable Information (PII) if your hosting
@@ -148,7 +148,7 @@ planned</a>.</p>
     Extensible Role-based Access Control
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h3>
-<p>BonsaiDb offers a robust <a href="https://dev.bonsaidb.io/guide/administration/permissions.html">permission system</a> which allows for
+<p>BonsaiDb offers a robust <a href="https://dev.bonsaidb.io/release/guide/administration/permissions.html">permission system</a> which allows for
 &quot;actions&quot; to be allowed or denied on &quot;resources.&quot; BonsaiDb uses this access
 control system internally, but it is written to be able to be extended by
 actions and resources defined in your application.</p>
@@ -165,17 +165,17 @@ evaluated offline as well</a>.</p>
 </a></h3>
 <p>Sometimes ACID compliance is overkill, such as in situations where a value is
 being updated hundreds or thousands of times per second. BonsaiDb offers a
-namespaced, atomic <a href="https://dev.bonsaidb.io/guide/traits/key-value.html">key-value store</a>. It currently offers basic
+namespaced, atomic <a href="https://dev.bonsaidb.io/release/guide/traits/key-value.html">key-value store</a>. It currently offers basic
 atomic operations as well as some atomic arithmetic operations.</p>
 <p>The default configuration of the Key-Value store prefers data integrity, but
-<a href="https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence">can be configured</a> to allow better throughput.</p>
+<a href="https://dev.bonsaidb.io/release/guide/administration/configuration.html#key-value-persistence">can be configured</a> to allow better throughput.</p>
 <h3 id="-7">
 <a href="#pubsub" name="pubsub">
     Publish&#x2F;Subscribe (PubSub)
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h3>
 <p>BonsaiDb offers the ability to subscribe to topics and receive published
-messages. <a href="https://dev.bonsaidb.io/guide/about/concepts/pubsub.html">PubSub</a> can be used to power features like private messaging
+messages. <a href="https://dev.bonsaidb.io/release/guide/about/concepts/pubsub.html">PubSub</a> can be used to power features like private messaging
 but can also be used as a way to separate services within an application's
 architecture.</p>
 <h3 id="-8">
@@ -196,7 +196,7 @@ WebRTC offering.</p>
 <p>BonsaiDb offers an ability to extend the wire protocol with a request/response
 style API. This provides an easy way to provide authenticated, permission-aware
 access to server-side functionality.</p>
-<p>The user's guide has <a href="https://dev.bonsaidb.io/guide/about/access-models/custom-api-server.html">a page dedicated to an example of this setup</a>.</p>
+<p>The user's guide has <a href="https://dev.bonsaidb.io/release/guide/about/access-models/custom-api-server.html">a page dedicated to an example of this setup</a>.</p>
 <h4 id="-10">
 <a href="#tcp-service" name="tcp-service">
     Extensible TCP Layer

@@ -58,7 +58,7 @@ is-active
                 </a>
             </div>
             <div class="navbar-end">
-                <a class="navbar-item" href="https://dev.bonsaidb.io/guide/">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
                     <i class="font-icon bi-book"></i> User's Guide</a>
                 <a class="navbar-item" href="https://dev.bonsaidb.io/main/bonsaidb">
                     <i class="font-icon bi-journal-code"></i>
@@ -101,16 +101,16 @@ is-active
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h3>
 <p>I firmly believe in under-promising and over-delivering. So when I was writing the <a href="/about">about page</a> originally, I had to clarify in the <a href="/about/#key-value">Key-Value section</a> that the performance was limited by <a href="https://github.com/khonsulabs/bonsaidb/issues/120">the current design</a>. As such, I decided I would prefer to go ahead and implement the design proposed in that issue.</p>
-<p>The Key-Value store is meant to perform atomic operations with reasonable durability. This is the primary difference between the goals of the Key-Value store and <a href="https://dev.bonsaidb.io/guide/about/concepts/collection.html">Collection</a> storage. The Key-Value store is meant to be a good alternative to running <a href="https://redis.io/">Redis</a>, and Redis uses a delayed persistence design.</p>
+<p>The Key-Value store is meant to perform atomic operations with reasonable durability. This is the primary difference between the goals of the Key-Value store and <a href="https://dev.bonsaidb.io/release/guide/about/concepts/collection.html">Collection</a> storage. The Key-Value store is meant to be a good alternative to running <a href="https://redis.io/">Redis</a>, and Redis uses a delayed persistence design.</p>
 <p>I've copied the general design of how persistence works, except that with BonsaiDb the database isn't kept in memory constantly. This means that BonsaiDb's Key-Value store can contain more data than the RAM on your machine, something that is possible but not recommended with Redis.</p>
-<p>By default, BonsaiDb will persist each operation after it's performed. This can cause a lot of extra disk IO if thousands of operations are being performed per second. Additionally, it can cause file bloat due to the <a href="https://github.com/khonsulabs/nebari">append-only file format</a> utilized. Instead, it's recommended to <a href="https://dev.bonsaidb.io/guide/administration/configuration.html#key-value-persistence">configure persistence</a> such that writes are delayed based on what you feel is a good balance for your use case. For example:</p>
+<p>By default, BonsaiDb will persist each operation after it's performed. This can cause a lot of extra disk IO if thousands of operations are being performed per second. Additionally, it can cause file bloat due to the <a href="https://github.com/khonsulabs/nebari">append-only file format</a> utilized. Instead, it's recommended to <a href="https://dev.bonsaidb.io/release/guide/administration/configuration.html#key-value-persistence">configure persistence</a> such that writes are delayed based on what you feel is a good balance for your use case. For example:</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>Storage::open(
 </span><span>    StorageConfiguration::new(&amp;database_directory)
 </span><span>        .</span><span style="color:#96b5b4;">key_value_persistence</span><span>(KeyValuePersistence::lazy([
 </span><span>            PersistenceThreshold::after_changes(</span><span style="color:#d08770;">1</span><span>)
-</span><span>				.</span><span style="color:#96b5b4;">and_duration</span><span>(Duration::from_secs(</span><span style="color:#d08770;">5</span><span>)),
+</span><span>    .</span><span style="color:#96b5b4;">and_duration</span><span>(Duration::from_secs(</span><span style="color:#d08770;">5</span><span>)),
 </span><span>            PersistenceThreshold::after_changes(</span><span style="color:#d08770;">10</span><span>),
-</span><span>		])
+</span><span>  ])
 </span><span>)
 </span></code></pre>
 <p>This configuration has two rules: persist after 5 seconds if there is at least 1 change, and perist if there are at least 200 changes. This means if BonsaiDb unexpectedly is killed, at most the most recent 5 seconds of changes would be lost. However, if a batch of changes is written, they will be persisted immediately.</p>
@@ -189,12 +189,12 @@ is-active
 <p>This example shows how using <a href="https://github.com/khonsulabs/transmog">Transmog</a> we're able to use the custom serialization functions built into the <a href="https://crates.io/crates/hdrhistogram">hdrhistogram</a> crate. Querying the view returns a <code>SyncHistogram&lt;u64&gt;</code> directly:</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> total_histogram = db.view::&lt;AsHistogram&gt;().</span><span style="color:#96b5b4;">reduce</span><span>().await?;
 </span><span>println!(
-</span><span>	&quot;</span><span style="color:#a3be8c;">99th Percentile overall: </span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> (</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> samples)</span><span>&quot;,
-</span><span>	total_histogram.</span><span style="color:#96b5b4;">value_at_quantile</span><span>(</span><span style="color:#d08770;">0.99</span><span>),
-</span><span>	total_histogram.</span><span style="color:#96b5b4;">len</span><span>()
+</span><span> &quot;</span><span style="color:#a3be8c;">99th Percentile overall: </span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> (</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> samples)</span><span>&quot;,
+</span><span> total_histogram.</span><span style="color:#96b5b4;">value_at_quantile</span><span>(</span><span style="color:#d08770;">0.99</span><span>),
+</span><span> total_histogram.</span><span style="color:#96b5b4;">len</span><span>()
 </span><span>);
 </span></code></pre>
-<p>I think this example shows the inredible power of our <a href="https://dev.bonsaidb.io/guide/about/concepts/view.html">map/reduce views</a> and the Rust type system.</p>
+<p>I think this example shows the inredible power of our <a href="https://dev.bonsaidb.io/release/guide/about/concepts/view.html">map/reduce views</a> and the Rust type system.</p>
 <h2 id="-3">
 
 
