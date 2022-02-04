@@ -25,14 +25,27 @@
         correctly.
     </div>
 
+    <div class="is-flex is-flex-direction-row is-justify-content-center">
+        <a class="has-text-primary" href="https://dev.bonsaidb.io/release/guide/">
+            <i class="font-icon bi-book"></i> User's Guide</a>
+        <a class="has-text-primary" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+            <i class="font-icon bi-journal-code"></i>
+            Documentation</a>
+        <a class="has-text-primary" href="https://discord.khonsulabs.com">
+            <i class="font-icon bi-discord"></i>
+            Discord</a>
+        <a class="has-text-primary" href="https://github.com/khonsulabs/bonsaidb">
+            <i class="font-icon bi-github"></i> Source
+            Code</a>
+    </div>
+
     <h1 class="title is-3">
         Getting Started with Local-only Databases {{ macros::anchor(name = "local") }}
     </h1>
     <p>Add BonsaiDb to your Cargo.toml:</p>
 
-    <pre
-        class="highlight"><code class="language-toml">[dependencies]
-bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "release", features = ["local"] }</code></pre>
+    <pre class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { version = "0.1", features = ["local"] }</code></pre>
 
     <h3 class="title is-5">Local-only Examples {{ macros::anchor(name = "local-examples") }}</h3>
 
@@ -86,15 +99,13 @@ bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "relea
     </h1>
     <p>Add BonsaiDb to your server's Cargo.toml:</p>
 
-    <pre
-        class="highlight"><code class="language-toml">[dependencies]
-bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "release", features = ["server"] }</code></pre>
+    <pre class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { version = "0.1", features = ["server"] }</code></pre>
 
     <p>And to your client's Cargo.toml:</p>
 
-    <pre
-        class="highlight"><code class="language-toml">[dependencies]
-bonsaidb = { git = "https://github.com/khonsulabs/bonsaidb.git", branch = "release", features = ["client"] }</code></pre>
+    <pre class="highlight"><code class="language-toml">[dependencies]
+bonsaidb = { version = "0.1", features = ["client"] }</code></pre>
 
     <h3 class="title is-5">Client/Server Examples {{ macros::anchor(name = "server-examples") }}</h3>
 
