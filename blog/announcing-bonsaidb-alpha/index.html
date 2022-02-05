@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Announcing BonsaiDb 0.1.0: A Rust NoSQL database that grows with you</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="/nodarkreader.min.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/bonsaidb-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item 
+
+
+
+" href="/">
+                    Getting Started
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/about/">
+                    What is BonsaiDb?
+                </a>
+                <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                    Blog
+                </a>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
+            </div>
+        </div>
+    </nav>
+
+    
+<div class="container content px-4">
+    <h1>Announcing BonsaiDb 0.1.0: A Rust NoSQL database that grows with you</h1>
+    
+    <p>
+        
+        
+        Published 2022-02-05.
+        
+        
+    </p>
+    
+    <blockquote>
+<p><strong>What is BonsaiDb?</strong></p>
+<p><a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a> is new database aiming to be the most developer-friendly Rust database. BonsaiDb has a unique feature set geared at solving many common data problems. We have a page dedicated to answering the question: <a href="https://bonsaidb.io/about">What is BonsaiDb?</a>.</p>
+</blockquote>
+<p>It's been over six months since <a href="https://community.khonsulabs.com/t/pliantdb-v0-1-0-dev-4-released-custom-apis-unique-views-webassembly/69">we announced PliantDb 0.1.0-dev.4</a>. Beyond the name change, a lot has changed. We've been focusing our efforts on stabilizing BonsaiDb's core architecture so that we can start building applications with BonsaiDb. Today, we're excited to announce our first alpha release: <a href="https://github.com/khonsulabs/bonsaidb/releases/tag/v0.1.0">version 0.1.0</a>.</p>
+<h2 id="">
+
+
+<a href="#Upgrading%20existing%20databases" name="Upgrading%20existing%20databases">
+    Upgrading existing databases
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>There is no upgrade path from 0.1.0-dev.4. We have warned against using this project outside of experimentation, so we hope this is not an issue for anyone. However, if this is devastating news to anyone, please reach out to us, and we can try to help.</p>
+<h2 id="-1">
+
+
+<a href="#What%20does%20alpha%20mean%3F" name="What%20does%20alpha%20mean%3F">
+    What does alpha mean?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>We only released the first alpha once we felt reasonably confident we had a solid foundation. We expect bugs will be found, and we are certain that at least one user will lose data. It's just a fact of life. The alpha phase enables adventurous users to begin using BonsaiDb to help us find these issues before we label BonsaiDb stable.</p>
+<p>We encourage users that attempt to use this in an environment where data loss would be detrimental to utilize and test the <a href="https://bonsaidb.io/about/#backup-restore">backup and restore</a> functionality regularly.</p>
+<p>We are still planning to add features during the alpha phase, but those features will focus on the higher-level database functionality. Changes to how data is stored will be minimal or non-existent unless bugs or performance issues are uncovered.</p>
+<h2 id="-2">
+
+
+<a href="#What%27s%20new%3F" name="What%27s%20new%3F">
+    What&#x27;s new?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>In many ways, BonsaiDb v0.1.0 is an entirely different database than PliantDb v0.1.0-dev.4. And yet, in other ways, it hasn't changed much. The <a href="https://github.com/khonsulabs/bonsaidb/blob/main/CHANGELOG.md">CHANGELOG</a> covers all of the changes, but we wanted to draw attention to a few notable entries.</p>
+<h3 id="-3">
+
+
+<a href="#New%20Storage%20Layer" name="New%20Storage%20Layer">
+    New Storage Layer
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>Under the hood, this alpha unveils a new storage engine: <a href="https://github.com/khonsulabs/nebari">Nebari</a>. While the storage layer we were using before (<a href="https://sled.rs">Sled</a>) is incredibly fast, it also is quite complex and didn't quite fit BonsaiDb's needs perfectly.</p>
+<p>Nebari maintains a fairly straightforward design while still achieving fairly competitive benchmarks for being such a new library. Additionally, its implementation can be custom-tailored to the workloads we need to support BonsaiDb. Nebari <a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/nebari-scaleway-gp1-xs/index.html">performs quite well</a> in our initial testing.</p>
+<h3 id="-4">
+
+
+<a href="#New%20Serialization%20Ecosystem" name="New%20Serialization%20Ecosystem">
+    New Serialization Ecosystem
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>Part of our design from the beginning was to allow users to store arbitrary chunks of data as a <a href="https://dev.bonsaidb.io/v0.1.0/guide/about/concepts/document.html">document</a>. In other words, users shouldn't be forced into a specific serialization or encoding format for their data. Unfortunately, a side effect of this was the API's usability suffered.</p>
+<p>This alpha addresses the API shortcomings with functionality designed around <a href="https://github.com/khonsulabs/transmog">Transmog</a>. Transmog is a fairly simple concept: a universal set of traits to describe a basic serialization and deserialization interface. An example of Transmog in cation can be found in our new example: <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/view-histogram/examples/view-histogram.rs">view-histogram.rs</a>. It demonstrates storing a <a href="https://docs.rs/hdrhistogram/latest/hdrhistogram/struct.Histogram.html">hdrhistogram::Histogram</a> as a view's value by implementing the needed Transmog traits, allowing these types of fluid queries:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// Retrieve an `hdrhistogram::Histogram` with all samples recorded.
+</span><span style="color:#b48ead;">let</span><span> total_histogram = db.view::&lt;AsHistogram&gt;().</span><span style="color:#96b5b4;">reduce</span><span>().await?;
+</span><span>println!(
+</span><span>    &quot;</span><span style="color:#a3be8c;">99th Percentile overall: </span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> (</span><span style="color:#d08770;">{}</span><span style="color:#a3be8c;"> samples)</span><span>&quot;,
+</span><span>    total_histogram.</span><span style="color:#96b5b4;">value_at_quantile</span><span>(</span><span style="color:#d08770;">0.99</span><span>),
+</span><span>    total_histogram.</span><span style="color:#96b5b4;">len</span><span>()
+</span><span>);
+</span></code></pre>
+<p>Using Transmog as a foundation, BonsaiDb provides streamlined APIs for interacting with <a href="https://dev.bonsaidb.io/v0.1.0/guide/about/concepts/document.html#serializable-collections">serialized collections</a>.</p>
+<h3 id="-5">
+
+
+<a href="#Extensible%20TCP%20Handling" name="Extensible%20TCP%20Handling">
+    Extensible TCP Handling
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>We have a vision that BonsaiDb will be a complete application development platform, including building web applications. Therefore, we have created a way to theoretically use any HTTP framework and mount the BonsaiDb WebSockets at a specific route.</p>
+<p>We have a new example (<a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs">axum.rs</a>) which demonstrates how to accomplish this using the <a href="https://crates.io/crates/axum">Axum</a> framework.</p>
+<h3 id="-6">
+
+
+<a href="#At-Rest%20Encryption" name="At-Rest%20Encryption">
+    At-Rest Encryption
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>Not all hosting environments offer encrypted filesystems, and almost all applications store some Personally Identifiable Information (PII). Therefore, it is a good practice (and often a legal requirement) to ensure that all sensitive information is stored encrypted on the disk.</p>
+<p>BonsaiDb now optionally supports transparent <a href="https://dev.bonsaidb.io/v0.1.0/guide/administration/encryption.html">at-rest encryption using externally stored keys</a>.</p>
+<h2 id="-7">
+
+
+<a href="#Improving%20the%20Ecosystem" name="Improving%20the%20Ecosystem">
+    Improving the Ecosystem
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>New and updated crates in the Rust ecosystem power this release:</p>
+<h3 id="-8">
+
+
+<a href="#New%20Crates" name="New%20Crates">
+    New Crates
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<ul>
+<li><a href="https://github.com/ModProg/derive-where/">derive-where</a>: Derive standard traits more easily when generic type bounds are involved</li>
+<li><a href="https://github.com/khonsulabs/nebari">Nebari</a>: Low-level, transactional key-value storage</li>
+<li><a href="https://github.com/khonsulabs/ordered-varint">ordered-varint</a>: Variable-length signed and unsigned integer encoding that retains sortable at the byte-level</li>
+<li><a href="https://github.com/khonsulabs/pot">Pot</a>: A concise, self-describing binary serialization format.</li>
+<li><a href="https://github.com/khonsulabs/rustme">RustMe</a>: Tool and library for managing READMEs for Rust projects</li>
+<li><a href="https://github.com/khonsulabs/transmog">Transmog</a>: Universal serialization traits and utilities.</li>
+</ul>
+<h3 id="-9">
+
+
+<a href="#Updated%20Crates" name="Updated%20Crates">
+    Updated Crates
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>These are existing crates we've worked on as part of developing this release of BonsaiDb:</p>
+<ul>
+<li><a href="https://github.com/User65k/async-acme/">async-acme</a>: Async ACME client for the TLS-ALPN-01 challenge type</li>
+<li><a href="https://github.com/RustCrypto/password-hashes">password-hashes</a>: Password hashing functions and KDFs.</li>
+<li><a href="https://crates.io/crates/zeroize">Zeroize</a>: Utilities for zeroing buffers before deallocating.</li>
+</ul>
+<h3 id="-10">
+
+
+<a href="#In-progress%20Crates" name="In-progress%20Crates">
+    In-progress Crates
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>We removed OPAQUE support for now, but will be reintroducing it <a href="https://github.com/khonsulabs/bonsaidb/issues/161">in the
+future</a>.
+<a href="https://github.com/daxpedda">@daxpedda</a> has been hard at work helping bring the
+ecosystem up to the current draft spec:</p>
+<ul>
+<li><a href="https://github.com/khonsulabs/custodian">custodian-password</a>: High-level implementation of the OPAQUE password-authenticated key exchange protocol.</li>
+<li><a href="https://github.com/novifinancial/opaque-ke">opaque-ke</a>: An implementation of the OPAQUE password-authenticated key exchange protocol. Used by custodian-password.</li>
+<li><a href="https://github.com/novifinancial/voprf/">voprf</a>: An implementation of a verifiable oblivious pseudorandom function. Used by <code>opaque-ke</code>.</li>
+</ul>
+<h2 id="-11">
+
+
+<a href="#Getting%20Started" name="Getting%20Started">
+    Getting Started
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Our <a href="https://bonsaidb.io/">new homepage</a> has basic setup instructions and a list of examples. We have started writing a <a href="https://dev.bonsaidb.io/v0.1.0/guide/">user's guide</a>, and we have tried to write <a href="https://docs.rs/bonsaidb/">good documentation</a>.</p>
+<p>We would love to hear from you if you have questions or feedback. We have <a href="https://community.khonsulabs.com/">community Discourse forums</a> and a <a href="https://discord.khonsulabs.com">Discord server</a>, but also welcome anyone to <a href="https://github.com/khonsulabs/bonsaidb/issues/new">open an issue</a> with any questions or feedback.</p>
+<p>We dream big with <a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a>, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love <a href="https://github.com/khonsulabs/bonsaidb/labels/good%20first%20issue">additional contributors</a> who have similar passions and ambitions.</p>
+<p>Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!</p>
+
+</div>
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                website content
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/site.js"></script>
+</body>
+
+</html>
