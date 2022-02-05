@@ -24,7 +24,7 @@
     Upgrading existing databases
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
-&lt;p&gt;There is no upgrade path from 0.1.0-dev.4. We have warned against using this project outside of experimentation, so we hope this is not an issue for anyone. However, if this is devastating news to anyone, please reach out to us, and we can try to help.&lt;&#x2F;p&gt;
+&lt;p&gt;There is no upgrade path from 0.1.0-dev.4. Prior to this release, we warned against using this project outside of experimentation, so we hope this is not an issue for anyone. However, if this is devastating news to anyone, please reach out to us, and we can try to help.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;-1&quot;&gt;
 
 
@@ -32,7 +32,7 @@
     What does alpha mean?
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
-&lt;p&gt;We only released the first alpha once we felt reasonably confident we had a solid foundation. We expect bugs will be found, and we are certain that at least one user will lose data. It&#x27;s just a fact of life. The alpha phase enables adventurous users to begin using BonsaiDb to help us find these issues before we label BonsaiDb stable.&lt;&#x2F;p&gt;
+&lt;p&gt;The biggest barrier to adoption was our own making: our README actively discouraged early-adopters except out of experimentation. We held off releasing this first alpha until after we were confident in the foundation we&#x27;ve laid. We expect bugs will be found, and we are certain that at least one user will lose data. It&#x27;s just a fact of life. The alpha phase enables adventurous users to begin using BonsaiDb to help us find these issues before we label BonsaiDb &amp;quot;stable.&amp;quot;&lt;&#x2F;p&gt;
 &lt;p&gt;We encourage users that attempt to use this in an environment where data loss would be detrimental to utilize and test the &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;about&#x2F;#backup-restore&quot;&gt;backup and restore&lt;&#x2F;a&gt; functionality regularly.&lt;&#x2F;p&gt;
 &lt;p&gt;We are still planning to add features during the alpha phase, but those features will focus on the higher-level database functionality. Changes to how data is stored will be minimal or non-existent unless bugs or performance issues are uncovered.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;-2&quot;&gt;
@@ -42,7 +42,7 @@
     What&amp;#x27;s new?
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
-&lt;p&gt;In many ways, BonsaiDb v0.1.0 is an entirely different database than PliantDb v0.1.0-dev.4. And yet, in other ways, it hasn&#x27;t changed much. The &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;blob&#x2F;main&#x2F;CHANGELOG.md&quot;&gt;CHANGELOG&lt;&#x2F;a&gt; covers all of the changes, but we wanted to draw attention to a few notable entries.&lt;&#x2F;p&gt;
+&lt;p&gt;While the fundamental ideas powering BonsaiDb are still the same as previous releases, this release left almost no code untouched. The GitHub stats show &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;compare&#x2F;v0.1.0-dev.4...v0.1.0&quot;&gt;29,933 additions and 11,678 across 450 commits&lt;&#x2F;a&gt; -- and those stats don&#x27;t include the new crates introduced. The &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.1.0&quot;&gt;release on GitHub&lt;&#x2F;a&gt; covers all of the changes, but we wanted to draw attention to a few notable entries.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;-3&quot;&gt;
 
 
