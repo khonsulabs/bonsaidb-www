@@ -69,7 +69,7 @@
 &lt;&#x2F;span&gt;&lt;span&gt;    total_histogram.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;len&lt;&#x2F;span&gt;&lt;span&gt;()
 &lt;&#x2F;span&gt;&lt;span&gt;);
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
-&lt;p&gt;Using Transmog as a foundation, BonsaiDb provides streamlined APIs for interacting with &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.1.0&#x2F;guide&#x2F;about&#x2F;concepts&#x2F;document.html#serializable-collections&quot;&gt;serialized collections&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Using Transmog as a foundation, BonsaiDb provides streamlined APIs for interacting with &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;0.1.0&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.Connection.html#using-connection-with-collectiondocumentt&quot;&gt;serialized collections&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;-5&quot;&gt;
 
 
