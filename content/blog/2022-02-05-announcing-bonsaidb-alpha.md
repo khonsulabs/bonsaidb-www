@@ -10,11 +10,11 @@ It's been over six months since [we announced PliantDb 0.1.0-dev.4](https://comm
 
 ## {{ anchor(text = "Upgrading existing databases") }}
 
-There is no upgrade path from 0.1.0-dev.4. We have warned against using this project outside of experimentation, so we hope this is not an issue for anyone. However, if this is devastating news to anyone, please reach out to us, and we can try to help.
+There is no upgrade path from 0.1.0-dev.4. Prior to this release, we warned against using this project outside of experimentation, so we hope this is not an issue for anyone. However, if this is devastating news to anyone, please reach out to us, and we can try to help.
 
 ## {{ anchor(text = "What does alpha mean?") }}
 
-We only released the first alpha once we felt reasonably confident we had a solid foundation. We expect bugs will be found, and we are certain that at least one user will lose data. It's just a fact of life. The alpha phase enables adventurous users to begin using BonsaiDb to help us find these issues before we label BonsaiDb stable.
+The biggest barrier to adoption was our own making: our README actively discouraged early-adopters except out of experimentation. We held off releasing this first alpha until after we were confident in the foundation we've laid. We expect bugs will be found, and we are certain that at least one user will lose data. It's just a fact of life. The alpha phase enables adventurous users to begin using BonsaiDb to help us find these issues before we label BonsaiDb "stable."
 
 We encourage users that attempt to use this in an environment where data loss would be detrimental to utilize and test the [backup and restore](https://bonsaidb.io/about/#backup-restore) functionality regularly.
 
@@ -22,7 +22,7 @@ We are still planning to add features during the alpha phase, but those features
 
 ## {{ anchor(text = "What's new?") }}
 
-In many ways, BonsaiDb v0.1.0 is an entirely different database than PliantDb v0.1.0-dev.4. And yet, in other ways, it hasn't changed much. The [CHANGELOG](https://github.com/khonsulabs/bonsaidb/blob/main/CHANGELOG.md) covers all of the changes, but we wanted to draw attention to a few notable entries.
+While the fundamental ideas powering BonsaiDb are still the same as previous releases, this release left almost no code untouched. The GitHub stats show [29,933 additions and 11,678 across 450 commits](https://github.com/khonsulabs/bonsaidb/compare/v0.1.0-dev.4...v0.1.0) -- and those stats don't include the new crates introduced. The [release on GitHub](https://github.com/khonsulabs/bonsaidb/releases/tag/v0.1.0) covers all of the changes, but we wanted to draw attention to a few notable entries.
 
 ### {{ anchor(text = "New Storage Layer") }}
 
