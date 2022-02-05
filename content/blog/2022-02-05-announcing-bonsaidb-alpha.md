@@ -46,7 +46,7 @@ println!(
 );
 ```
 
-Using Transmog as a foundation, BonsaiDb provides streamlined APIs for interacting with [serialized collections](https://dev.bonsaidb.io/v0.1.0/guide/about/concepts/document.html#serializable-collections).
+Using Transmog as a foundation, BonsaiDb provides streamlined APIs for interacting with [serialized collections](https://docs.rs/bonsaidb/0.1.0/bonsaidb/core/connection/trait.Connection.html#using-connection-with-collectiondocumentt).
 
 ### {{ anchor(text = "Extensible TCP Handling") }}
 
