@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BonsaiDb v0.2.0: Custom Primary Keys, LZ4 Compression</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="/nodarkreader.min.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/bonsaidb-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start">
+                <a class="navbar-item 
+
+
+
+" href="/">
+                    Getting Started
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/about/">
+                    What is BonsaiDb?
+                </a>
+                <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                    Blog
+                </a>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
+            </div>
+        </div>
+    </nav>
+
+    
+<div class="container content px-4">
+    <h1>BonsaiDb v0.2.0: Custom Primary Keys, LZ4 Compression</h1>
+    
+    <p>
+        
+        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Ecton</a>.
+        
+        
+        Published 2022-02-18.
+        
+        
+    </p>
+    
+    <blockquote>
+<p><strong>What is BonsaiDb?</strong></p>
+<p><a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a> is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: <a href="https://bonsaidb.io/about">What is
+BonsaiDb?</a>.</p>
+</blockquote>
+<p>I'm excited to announce <a href="https://github.com/khonsulabs/bonsaidb/releases/tag/v0.2.0">v0.2.0</a>, which brings two major features in
+addition to many small improvements and fixes. There are API-level changes that
+are potentially breaking changes. The <a href="https://github.com/khonsulabs/bonsaidb/tree/main/CHANGELOG.md">CHANGELOG</a> should help navigate through the changes
+necessary to update your projects.</p>
+<h2 id="">
+
+
+<a href="#Custom%20Primary%20Keys" name="Custom%20Primary%20Keys">
+    Custom Primary Keys
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>One design decision that was made early in BonsaiDb's development was to use a
+u64 as the unique id/primary key for all documents. This was largely done to
+simplify the API, and I felt like it was reasonable that users could create an
+alternate key using a <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/schema/trait.ViewSchema.html#method.unique">unique view</a>.</p>
+<p>I've attempted twice before to change it to allow customizing the primary key,
+but each time I ended up reverting the changes as I didn't like the impact to
+the API. However, this time I've succeeded in adding this API with minimal
+impact to the high-level API.</p>
+<p>Our <a href="https://github.com/khonsulabs/bonsaidb/blob/v0.2.0/examples/basic-local/examples/primary-keys.rs">new example</a> demonstrates how this feature can be
+used with the <code>Collection</code> derive macro:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span>#[</span><span style="color:#bf616a;">derive</span><span>(Debug, Serialize, Deserialize, Collection, Eq, PartialEq)]
+</span><span>#[</span><span style="color:#bf616a;">collection</span><span>(name = &quot;</span><span style="color:#a3be8c;">multi-key</span><span>&quot;, primary_key = (u32, u64))]
+</span><span style="color:#b48ead;">struct </span><span>MultiKey {
+</span><span>    </span><span style="color:#bf616a;">value</span><span>: String,
+</span><span>}
+</span><span>
+</span><span>async </span><span style="color:#b48ead;">fn </span><span style="color:#8fa1b3;">test</span><span>&lt;C: Connection&gt;(</span><span style="color:#bf616a;">db</span><span>: C) -&gt; anyhow::Result&lt;()&gt; {
+</span><span>    </span><span style="color:#b48ead;">let</span><span> inserted = MultiKey {
+</span><span>        value: String::from(&quot;</span><span style="color:#a3be8c;">hello</span><span>&quot;),
+</span><span>    }
+</span><span>    .</span><span style="color:#96b5b4;">insert_into</span><span>((</span><span style="color:#d08770;">42</span><span>, </span><span style="color:#d08770;">64</span><span>), &amp;db)
+</span><span>    .await?;
+</span><span>    </span><span style="color:#b48ead;">let</span><span> retrieved = MultiKey::get((</span><span style="color:#d08770;">42</span><span>, </span><span style="color:#d08770;">64</span><span>), &amp;db)
+</span><span>        .await?
+</span><span>        .</span><span style="color:#96b5b4;">expect</span><span>(&quot;</span><span style="color:#a3be8c;">document not found</span><span>&quot;);
+</span><span>}
+</span></code></pre>
+<p>The way this is implemented, any type that implements <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/trait.Key.html"><code>Key</code> trait</a> and
+isn't too large can be used as a primary key. The current size limitation is
+purely for optimization, and may be relaxed in the future.</p>
+<p>More information about this feature can be found <a href="https://dev.bonsaidb.io/v0.2.0/guide/about/concepts/collection.html#primary-keys">in our user guide</a>.</p>
+<h2 id="-1">
+
+
+<a href="#LZ4%20Compression" name="LZ4%20Compression">
+    LZ4 Compression
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>A potential user was originally trying to diagnose why BonsaiDb was creating
+larger databases than Sled. After some troubleshooting, it was discovered that
+they had enabled the <code>zstd</code> feature in Sled, enabling automatic compression of
+data being stored.</p>
+<p>This was a feature I had already planned on supporting, although my research had
+led me to believe that LZ4 was a better choice for an algorithm. Without doing
+comparative benchmarking personally, I decided to start with LZ4 compression and
+<a href="https://github.com/khonsulabs/bonsaidb/issues/198">add <code>zstd</code> once namespaced features are released in Rust</a>.</p>
+<p>Some benchmarks have been updated to include compression for comparision. The
+results are interesting to look at, but no serious comparisons should be drawn
+yet. If you are under tight space constraints, this feature can save a lot of
+storage space while not impacting performance in a major way.</p>
+<p><a href="https://dev.bonsaidb.io/v0.2.0/benchmarks/commerce/large-balanced/4/index.html#FindProduct"><img src="https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;large-balanced&#x2F;4&#x2F;FindProduct.png" class="block-image" alt="lookup product by id"  /></a></p>
+<p>As you can see in this graph, the <a href="https://dev.bonsaidb.io/v0.2.0/benchmarks/commerce/">Commerce
+Benchmark</a> sometimes shows
+improved performance over the uncompressed version. As always, performance will
+depend on your hardware and operating environment, which is why this is an
+opt-in feature.</p>
+<p>The user who originally asked about this feature had reported that BonsaiDb's
+uncompressed database size a staggering 30x larger than the equivalent data in
+Sled. The next day they were able to test a branch with the feature enabled. The
+BonsaiDb database compressed with LZ4 shrunk to under half the size of their
+Sled database.</p>
+<h2 id="-2">
+
+
+<a href="#Getting%20Started" name="Getting%20Started">
+    Getting Started
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Our <a href="https://bonsaidb.io/">homepage</a> has basic setup instructions and a list of examples. We have started writing a <a href="https://dev.bonsaidb.io/v0.2.0/guide/">user's guide</a>, and we have tried to write <a href="https://docs.rs/bonsaidb/">good documentation</a>.</p>
+<p>We would love to hear from you if you have questions or feedback. We have <a href="https://community.khonsulabs.com/">community Discourse forums</a> and a <a href="https://discord.khonsulabs.com">Discord server</a>, but also welcome anyone to <a href="https://github.com/khonsulabs/bonsaidb/issues/new">open an issue</a> with any questions or feedback.</p>
+<p>We dream big with <a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a>, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love <a href="https://github.com/khonsulabs/bonsaidb/labels/good%20first%20issue">additional contributors</a> who have similar passions and ambitions.</p>
+<p>Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!</p>
+
+</div>
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                website content
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/site.js"></script>
+</body>
+
+</html>

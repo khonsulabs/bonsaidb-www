@@ -4,8 +4,106 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-02-05T00:00:00+00:00</updated>
+	<updated>2022-02-18T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>BonsaiDb v0.2.0: Custom Primary Keys, LZ4 Compression</title>
+		<published>2022-02-18T00:00:00+00:00</published>
+		<updated>2022-02-18T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/bonsaidb-v0-2-0/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/bonsaidb-v0-2-0/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;What is BonsaiDb?&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;about&quot;&gt;What is
+BonsaiDb?&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;I&#x27;m excited to announce &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.2.0&quot;&gt;v0.2.0&lt;&#x2F;a&gt;, which brings two major features in
+addition to many small improvements and fixes. There are API-level changes that
+are potentially breaking changes. The &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;tree&#x2F;main&#x2F;CHANGELOG.md&quot;&gt;CHANGELOG&lt;&#x2F;a&gt; should help navigate through the changes
+necessary to update your projects.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Custom%20Primary%20Keys&quot; name=&quot;Custom%20Primary%20Keys&quot;&gt;
+    Custom Primary Keys
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;One design decision that was made early in BonsaiDb&#x27;s development was to use a
+u64 as the unique id&#x2F;primary key for all documents. This was largely done to
+simplify the API, and I felt like it was reasonable that users could create an
+alternate key using a &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;schema&#x2F;trait.ViewSchema.html#method.unique&quot;&gt;unique view&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;ve attempted twice before to change it to allow customizing the primary key,
+but each time I ended up reverting the changes as I didn&#x27;t like the impact to
+the API. However, this time I&#x27;ve succeeded in adding this API with minimal
+impact to the high-level API.&lt;&#x2F;p&gt;
+&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;blob&#x2F;v0.2.0&#x2F;examples&#x2F;basic-local&#x2F;examples&#x2F;primary-keys.rs&quot;&gt;new example&lt;&#x2F;a&gt; demonstrates how this feature can be
+used with the &lt;code&gt;Collection&lt;&#x2F;code&gt; derive macro:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Debug, Serialize, Deserialize, Collection, Eq, PartialEq)]
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;collection&lt;&#x2F;span&gt;&lt;span&gt;(name = &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;multi-key&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, primary_key = (u32, u64))]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;MultiKey {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;: String,
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;test&lt;&#x2F;span&gt;&lt;span&gt;&amp;lt;C: Connection&amp;gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;db&lt;&#x2F;span&gt;&lt;span&gt;: C) -&amp;gt; anyhow::Result&amp;lt;()&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; inserted = MultiKey {
+&lt;&#x2F;span&gt;&lt;span&gt;        value: String::from(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;hello&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;),
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;insert_into&lt;&#x2F;span&gt;&lt;span&gt;((&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;42&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;64&lt;&#x2F;span&gt;&lt;span&gt;), &amp;amp;db)
+&lt;&#x2F;span&gt;&lt;span&gt;    .await?;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; retrieved = MultiKey::get((&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;42&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;64&lt;&#x2F;span&gt;&lt;span&gt;), &amp;amp;db)
+&lt;&#x2F;span&gt;&lt;span&gt;        .await?
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;expect&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;document not found&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The way this is implemented, any type that implements &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;trait.Key.html&quot;&gt;&lt;code&gt;Key&lt;&#x2F;code&gt; trait&lt;&#x2F;a&gt; and
+isn&#x27;t too large can be used as a primary key. The current size limitation is
+purely for optimization, and may be relaxed in the future.&lt;&#x2F;p&gt;
+&lt;p&gt;More information about this feature can be found &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;guide&#x2F;about&#x2F;concepts&#x2F;collection.html#primary-keys&quot;&gt;in our user guide&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#LZ4%20Compression&quot; name=&quot;LZ4%20Compression&quot;&gt;
+    LZ4 Compression
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;A potential user was originally trying to diagnose why BonsaiDb was creating
+larger databases than Sled. After some troubleshooting, it was discovered that
+they had enabled the &lt;code&gt;zstd&lt;&#x2F;code&gt; feature in Sled, enabling automatic compression of
+data being stored.&lt;&#x2F;p&gt;
+&lt;p&gt;This was a feature I had already planned on supporting, although my research had
+led me to believe that LZ4 was a better choice for an algorithm. Without doing
+comparative benchmarking personally, I decided to start with LZ4 compression and
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;198&quot;&gt;add &lt;code&gt;zstd&lt;&#x2F;code&gt; once namespaced features are released in Rust&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Some benchmarks have been updated to include compression for comparision. The
+results are interesting to look at, but no serious comparisons should be drawn
+yet. If you are under tight space constraints, this feature can save a lot of
+storage space while not impacting performance in a major way.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;large-balanced&#x2F;4&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;dev.bonsaidb.io&amp;#x2F;v0.2.0&amp;#x2F;benchmarks&amp;#x2F;commerce&amp;#x2F;large-balanced&amp;#x2F;4&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;As you can see in this graph, the &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;&quot;&gt;Commerce
+Benchmark&lt;&#x2F;a&gt; sometimes shows
+improved performance over the uncompressed version. As always, performance will
+depend on your hardware and operating environment, which is why this is an
+opt-in feature.&lt;&#x2F;p&gt;
+&lt;p&gt;The user who originally asked about this feature had reported that BonsaiDb&#x27;s
+uncompressed database size a staggering 30x larger than the equivalent data in
+Sled. The next day they were able to test a branch with the feature enabled. The
+BonsaiDb database compressed with LZ4 shrunk to under half the size of their
+Sled database.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Getting%20Started&quot; name=&quot;Getting%20Started&quot;&gt;
+    Getting Started
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic setup instructions and a list of examples. We have started writing a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;guide&#x2F;&quot;&gt;user&#x27;s guide&lt;&#x2F;a&gt;, and we have tried to write &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;&quot;&gt;good documentation&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;We would love to hear from you if you have questions or feedback. We have &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;&quot;&gt;community Discourse forums&lt;&#x2F;a&gt; and a &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&quot;&gt;Discord server&lt;&#x2F;a&gt;, but also welcome anyone to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;new&quot;&gt;open an issue&lt;&#x2F;a&gt; with any questions or feedback.&lt;&#x2F;p&gt;
+&lt;p&gt;We dream big with &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;labels&#x2F;good%20first%20issue&quot;&gt;additional contributors&lt;&#x2F;a&gt; who have similar passions and ambitions.&lt;&#x2F;p&gt;
+&lt;p&gt;Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!&lt;&#x2F;p&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>Announcing BonsaiDb 0.1.0: A Rust NoSQL database that grows with you</title>
 		<published>2022-02-05T00:00:00+00:00</published>
