@@ -47,7 +47,7 @@ when these macros were added in [v0.1.1][v0.1.1].
 
 I have an important design philosophy with BonsaiDb: Everything should be as
 ergonomic as possible without macros. Macros should be used to improve an
-already-well-designed API. I was confortable writing
+already-well-designed API. I was comfortable writing
 schemas by hand, but I recognized how often I copy and pasted boilerplate code
 and then tweaked small portions -- a good sign that a macro would help!
 
@@ -137,8 +137,8 @@ authors, editions, and works by their unique ID. Everything was working great.
 
 ### {{ anchor(text = "Querying large datasets with views") }}
 
-I wanted to add support to show all of the books (works) that an author wrote.
-In the data coming from OpenLibrary, the `Work` type has a list of author roles.
+I wanted to add support to show all the books (works) that an author wrote.
+In the data coming from OpenLibrary, the `Work` tdype has a list of author roles.
 This is the
 [`View`](https://dev.bonsaidb.io/release/guide/about/concepts/view.html)
 definition that enables this query:
@@ -171,7 +171,7 @@ impl CollectionViewSchema for WorksByAuthor {
 ```
 
 The data has some sanitization issues, including that keys sometimes are
-shortend from `/authors/UNIQUEID` to `/a/UNIQUEID`. Because importing the data
+shortened from `/authors/UNIQUEID` to `/a/UNIQUEID`. Because importing the data
 takes so long, I chose to clean up the data post-import rather than force myself
 to re-run the import with some code to clean it up while importing.
 
