@@ -25,7 +25,7 @@ have been running BonsaiDb through its paces. Several bugs have been discovered
 and fixed, with these releases happening in February:
 
 - [v0.1.0](https://github.com/khonsulabs/bonsaidb/releases/tag/v0.1.0): Initial alpha release.
-- [v0.1.1][v0.1.1]: [Derive macros](#Derive%20Macros) for common traits, many documentation
+- [v0.1.1][v0.1.1]: [Derive macros](/blog/february-2022-update#Derive%20Macros) for common traits, many documentation
   improvements, and memory-only databases for testing purposes.
 - [v0.1.2](https://github.com/khonsulabs/bonsaidb/releases/tag/v0.1.2): Worked
   around an undocumented panic within tokio::sleep on Windows that a user
