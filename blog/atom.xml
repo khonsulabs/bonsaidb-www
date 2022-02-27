@@ -4,8 +4,318 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-02-18T00:00:00+00:00</updated>
+	<updated>2022-02-26T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>BonsaiDb February update: Supporting and Optimizing BonsaiDb</title>
+		<published>2022-02-26T00:00:00+00:00</published>
+		<updated>2022-02-26T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/february-2022-update/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/february-2022-update/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;What is BonsaiDb?&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;about&quot;&gt;What is
+BonsaiDb?&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;It&#x27;s the last weekend of the month, and I want to make it a habit at the end of
+each month to reflect on the previous month as well as talk about what I&#x27;m
+currently focused on or what is coming next.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Status%20of%20the%20Alpha&quot; name=&quot;Status%20of%20the%20Alpha&quot;&gt;
+    Status of the Alpha
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;I released our initial alpha on February 5. I am ecstatic with the warm
+reception. &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&#x2F;&quot;&gt;Our Discord server&lt;&#x2F;a&gt; has grown with several active users who
+have been running BonsaiDb through its paces. Several bugs have been discovered
+and fixed, with these releases happening in February:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.1.0&quot;&gt;v0.1.0&lt;&#x2F;a&gt;: Initial alpha release.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.1.1&quot;&gt;v0.1.1&lt;&#x2F;a&gt;: &lt;a href=&quot;&#x2F;blog&#x2F;february-2022-update#Derive%20Macros&quot;&gt;Derive macros&lt;&#x2F;a&gt; for common traits, many documentation
+improvements, and memory-only databases for testing purposes.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.1.2&quot;&gt;v0.1.2&lt;&#x2F;a&gt;: Worked
+around an undocumented panic within tokio::sleep on Windows that a user
+experienced. Upstream patch merged as well.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.2.0&quot;&gt;v0.2.0&lt;&#x2F;a&gt;: &lt;a href=&quot;.&#x2F;bonsaidb-v0-2-0#Custom%20Primary%20Keys&quot;&gt;Custom
+primary keys&lt;&#x2F;a&gt;, &lt;a href=&quot;&#x2F;blog&#x2F;bonsaidb-v0-2-0#LZ4%20Compression&quot;&gt;LZ4
+compression&lt;&#x2F;a&gt;, and other minor improvements.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;In addition to these releases, the underlying storage layer (&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt;)
+has been updated as well with several new features, bug fixes, and performance
+improvements. The primary performance improvements that have been released have
+centered around better usage of Rust&#x27;s type system to avoid extra allocations.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#Derive%20Macros&quot; name=&quot;Derive%20Macros&quot;&gt;
+    Derive Macros
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ModProg&#x2F;&quot;&gt;@ModProg&lt;&#x2F;a&gt; noticed that I had open issues for adding derive macros for
+some common traits. He became the second contributor to the BonsaiDb repository
+when these macros were added in &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.1.1&quot;&gt;v0.1.1&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;I have an important design philosophy with BonsaiDb: Everything should be as
+ergonomic as possible without macros. Macros should be used to improve an
+already-well-designed API. I was confortable writing
+schemas by hand, but I recognized how often I copy and pasted boilerplate code
+and then tweaked small portions -- a good sign that a macro would help!&lt;&#x2F;p&gt;
+&lt;p&gt;The way these macros are written is using a new crate &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ModProg&#x2F;&quot;&gt;@ModProg&lt;&#x2F;a&gt; wrote:
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ModProg&#x2F;attribute-derive&quot;&gt;attribute-derive&lt;&#x2F;a&gt;. I&#x27;ve made a few
+updates to the macros since his pull request, and it&#x27;s been a wonderful
+experience. If you are looking into writing an attribute proc macro, you might
+want to consider using this crate to make simplify parsing and support more
+Rust-y syntaxes.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Supporting%20BonsaiDb&quot; name=&quot;Supporting%20BonsaiDb&quot;&gt;
+    Supporting BonsaiDb
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;I&#x27;ve tried to be very responsive to all questions, feedback, and issues. It&#x27;s
+fun seeing BonsaiDb evaluated in new ways. As I recalled in &lt;a href=&quot;&#x2F;blog&#x2F;bonsaidb-v0-2-0#LZ4%20Compression&quot;&gt;the LZ4 Compression
+feature introduction&lt;&#x2F;a&gt;, I introduced that feature the day after a
+potential user ran into space issues when evaluating BonsaiDb against their
+current Sled code.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ModProg&#x2F;&quot;&gt;@ModProg&lt;&#x2F;a&gt; one morning tried running BonsaiDb on a Raspberry Pi, which
+led to us diagnosing &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;GuillaumeGomez&#x2F;sysinfo&#x2F;issues&#x2F;700&quot;&gt;a bug&#x2F;edge case that&#x27;s been fixed in the &lt;code&gt;sysinfo&lt;&#x2F;code&gt;
+crate&lt;&#x2F;a&gt;. It was a fun
+morning debugging BonsaiDb, an async codebase, over a Discord screenshare
+showing an ssh session into the Raspberry Pi running GDB!&lt;&#x2F;p&gt;
+&lt;p&gt;A few days ago, the same user that was testing a somewhat large dataset reported
+an issue. It turned out to be &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;commit&#x2F;125234cb3928ad4cd0c087d1afdd1d25ecd5710e&quot;&gt;a long-standing
+bug&lt;&#x2F;a&gt;
+in Nebari&#x27;s transaction log reading code. The unit tests were inadequate, and
+the only reason it was noticed was due to the LZ4 decompression failing once a
+transaction log entry was large enough to be stored compressed across multiple
+pages. The associated data isn&#x27;t currently being used outside of the
+&lt;code&gt;list_executed_transactions()&lt;&#x2F;code&gt; function, but eventually is planned to be a core
+part of replication. A &lt;code&gt;cargo update&lt;&#x2F;code&gt; is all that is needed for BonsaiDb to
+adopt the updated version of Nebari.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-3&quot;&gt;
+
+
+&lt;a href=&quot;#Testing%20BonsaiDb%20with%20a%20large%20dataset&quot; name=&quot;Testing%20BonsaiDb%20with%20a%20large%20dataset&quot;&gt;
+    Testing BonsaiDb with a large dataset
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Despite the bug that was just found, I still felt fairly confident in BonsaiDb&#x27;s
+stability. Yet, it showed I hadn&#x27;t really tested a big dataset. With a user
+trying to use BonsaiDb with a large dataset, I felt like I should do my own
+testing to feel as confident in BonsaiDb&#x27;s abilities as I can be.&lt;&#x2F;p&gt;
+&lt;p&gt;After looking through a few locations, I stumbled upon the &lt;a href=&quot;https:&#x2F;&#x2F;openlibrary.org&#x2F;developers&#x2F;dumps&quot;&gt;Open Library Data
+Dumps&lt;&#x2F;a&gt;. The data set I&#x27;m going to talk
+about in this post contains these entities:&lt;&#x2F;p&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Collection&lt;&#x2F;th&gt;&lt;th&gt;Records&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;Authors&lt;&#x2F;td&gt;&lt;td&gt;9,145,605&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;Editions&lt;&#x2F;td&gt;&lt;td&gt;33,102,390&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;Works&lt;&#x2F;td&gt;&lt;td&gt;24,010,896&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;p&gt;The uncompressed file that this data is loaded from is 51,447mb. It contains
+additional data from the types listed, so direct size comparisons aren&#x27;t able to
+be done post-import.&lt;&#x2F;p&gt;
+&lt;p&gt;Writing an importer was a fun project. Since the data being imported is too
+large to read into RAM before processing, I started with &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;blob&#x2F;5216db14f621233c0a5f7f8ba2ac62c7508b3bd5&#x2F;examples&#x2F;open-library&#x2F;examples&#x2F;open-library.rs#L440-L481&quot;&gt;a streaming TSV
+parser&lt;&#x2F;a&gt;
+that uses &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;zesterer&#x2F;flume&quot;&gt;flume&lt;&#x2F;a&gt; to send parsed records to another task. This uses a
+bounded channel which will park the TSV parser thread if it outpaces the code
+that saves the records to the disk.&lt;&#x2F;p&gt;
+&lt;p&gt;The data importing logic is fairly straightforward. I have one method that
+receives records from the TSV parser and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;blob&#x2F;5216db14f621233c0a5f7f8ba2ac62c7508b3bd5&#x2F;examples&#x2F;open-library&#x2F;examples&#x2F;open-library.rs#L545-L565&quot;&gt;creates batched
+transactions&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Importing the data with LZ4 compression enabled took 60m56s, and with
+compression disabled it took 64m12s. The resulting file sizes are interesting:&lt;&#x2F;p&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Collection&lt;&#x2F;th&gt;&lt;th&gt;LZ4 Uncompacted&lt;&#x2F;th&gt;&lt;th&gt;LZ4 Compacted&lt;&#x2F;th&gt;&lt;th&gt;Uncompacted&lt;&#x2F;th&gt;&lt;th&gt;Compacted&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;Authors&lt;&#x2F;td&gt;&lt;td&gt;13,316mb&lt;&#x2F;td&gt;&lt;td&gt;3,675mb&lt;&#x2F;td&gt;&lt;td&gt;23,508mb&lt;&#x2F;td&gt;&lt;td&gt;4,159mb&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;Editions&lt;&#x2F;td&gt;&lt;td&gt;74,459mb&lt;&#x2F;td&gt;&lt;td&gt;33,155mb&lt;&#x2F;td&gt;&lt;td&gt;118,330mb&lt;&#x2F;td&gt;&lt;td&gt;38,372mb&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;Works&lt;&#x2F;td&gt;&lt;td&gt;40,443mb&lt;&#x2F;td&gt;&lt;td&gt;12,082mb&lt;&#x2F;td&gt;&lt;td&gt;71,601mb&lt;&#x2F;td&gt;&lt;td&gt;13,565mb&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;p&gt;BonsaiDb uses &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt;, which uses an append-only file format for its
+database. As the internal trees are built, old nodes are left behind on disk.
+The only way to reclaim the disk space currently is to compact the database -- a
+process which rewrites all the active data to a fresh file and swaps the files
+atomically once fully synchronized. Compacting the compressed database took
+6m55s, and compacting the uncompressed database took 7m20s.&lt;&#x2F;p&gt;
+&lt;p&gt;After testing importing and overwriting the database several times, my
+confidence level in BonsaiDb grew. I built a simple CLI that allows querying
+authors, editions, and works by their unique ID. Everything was working great.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;-4&quot;&gt;
+
+
+&lt;a href=&quot;#Querying%20large%20datasets%20with%20views&quot; name=&quot;Querying%20large%20datasets%20with%20views&quot;&gt;
+    Querying large datasets with views
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;I wanted to add support to show all of the books (works) that an author wrote.
+In the data coming from OpenLibrary, the &lt;code&gt;Work&lt;&#x2F;code&gt; type has a list of author roles.
+This is the
+&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;about&#x2F;concepts&#x2F;view.html&quot;&gt;&lt;code&gt;View&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+definition that enables this query:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(View, Debug, Clone)]
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;view&lt;&#x2F;span&gt;&lt;span&gt;(name = &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;by-author&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, collection = Work, key = String, value = u32)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;WorksByAuthor;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;impl &lt;&#x2F;span&gt;&lt;span&gt;CollectionViewSchema &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;WorksByAuthor {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;type &lt;&#x2F;span&gt;&lt;span&gt;View = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(
+&lt;&#x2F;span&gt;&lt;span&gt;        &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;document&lt;&#x2F;span&gt;&lt;span&gt;: CollectionDocument&amp;lt;&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self::&lt;&#x2F;span&gt;&lt;span&gt;View as View&amp;gt;::Collection&amp;gt;,
+&lt;&#x2F;span&gt;&lt;span&gt;    ) -&amp;gt; ViewMapResult&amp;lt;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;Self::&lt;&#x2F;span&gt;&lt;span&gt;View&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;        document
+&lt;&#x2F;span&gt;&lt;span&gt;            .contents
+&lt;&#x2F;span&gt;&lt;span&gt;            .authors
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;into_iter&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;filter_map&lt;&#x2F;span&gt;&lt;span&gt;(|&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;role&lt;&#x2F;span&gt;&lt;span&gt;| role.author)
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;map&lt;&#x2F;span&gt;&lt;span&gt;(|&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;author&lt;&#x2F;span&gt;&lt;span&gt;| {
+&lt;&#x2F;span&gt;&lt;span&gt;                document
+&lt;&#x2F;span&gt;&lt;span&gt;                    .header
+&lt;&#x2F;span&gt;&lt;span&gt;                    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;emit_key_and_value&lt;&#x2F;span&gt;&lt;span&gt;(author.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;into_key&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;replace&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;&#x2F;a&#x2F;&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;&#x2F;authors&#x2F;&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;), &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;)
+&lt;&#x2F;span&gt;&lt;span&gt;            })
+&lt;&#x2F;span&gt;&lt;span&gt;            .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;collect&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The data has some sanitization issues, including that keys sometimes are
+shortend from &lt;code&gt;&#x2F;authors&#x2F;UNIQUEID&lt;&#x2F;code&gt; to &lt;code&gt;&#x2F;a&#x2F;UNIQUEID&lt;&#x2F;code&gt;. Because importing the data
+takes so long, I chose to clean up the data post-import rather than force myself
+to re-run the import with some code to clean it up while importing.&lt;&#x2F;p&gt;
+&lt;p&gt;The entire function to display an author in the CLI is:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;async &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;fn &lt;&#x2F;span&gt;&lt;span style=&quot;color:#8fa1b3;&quot;&gt;summarize&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;database&lt;&#x2F;span&gt;&lt;span&gt;: &amp;amp;Database) -&amp;gt; anyhow::Result&amp;lt;()&amp;gt; {
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if let &lt;&#x2F;span&gt;&lt;span&gt;Some(name) = &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.name {
+&lt;&#x2F;span&gt;&lt;span&gt;        println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Name: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, name);
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if let &lt;&#x2F;span&gt;&lt;span&gt;Some(bio) = &amp;amp;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.bio {
+&lt;&#x2F;span&gt;&lt;span&gt;        println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Biography:&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;\n&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, bio.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;value&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; works = database
+&lt;&#x2F;span&gt;&lt;span&gt;        .view::&amp;lt;WorksByAuthor&amp;gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;with_key&lt;&#x2F;span&gt;&lt;span&gt;(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;self&lt;&#x2F;span&gt;&lt;span&gt;.key.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;clone&lt;&#x2F;span&gt;&lt;span&gt;())
+&lt;&#x2F;span&gt;&lt;span&gt;        .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;query_with_collection_docs&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;        .await?;
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if &lt;&#x2F;span&gt;&lt;span&gt;!works.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;is_empty&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;        println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Works:&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;);
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for&lt;&#x2F;span&gt;&lt;span&gt; work in works.documents.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;values&lt;&#x2F;span&gt;&lt;span&gt;() {
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if let &lt;&#x2F;span&gt;&lt;span&gt;Some(title) = &amp;amp;work.contents.title {
+&lt;&#x2F;span&gt;&lt;span&gt;                println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, work.contents.key, title)
+&lt;&#x2F;span&gt;&lt;span&gt;            }
+&lt;&#x2F;span&gt;&lt;span&gt;        }
+&lt;&#x2F;span&gt;&lt;span&gt;    }
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span&gt;    Ok(())
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;While this was easy to implement, I knew that this was going to be a painful
+process to run. BonsaiDb&#x27;s views are lazily evaluated (with the exception of
+unique views). The first time the view is accessed, the view will need to have
+it&#x27;s &lt;code&gt;map()&lt;&#x2F;code&gt; function invoked for each document stored in the collection. For
+the Works collection, that means processing 24 million rows.&lt;&#x2F;p&gt;
+&lt;p&gt;The initial query took over an hour. Subsequent queries are fast: the &lt;code&gt;time open-library author OL1394865A&lt;&#x2F;code&gt; command completes in less than 400ms once the
+view is indexed.&lt;&#x2F;p&gt;
+&lt;p&gt;I really wanted to be able to turn this example into a benchmarking suite, and
+the only way to do that without driving myself crazy was to start optimizing.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;-5&quot;&gt;
+
+
+&lt;a href=&quot;#Optimizing%20View%20Mapping&quot; name=&quot;Optimizing%20View%20Mapping&quot;&gt;
+    Optimizing View Mapping
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;The initial implementation of the view mapper was aimed at being correct, not
+necessarily fast. It was originally designed to operate within
+&lt;a href=&quot;https:&#x2F;&#x2F;sled.rs&#x2F;&quot;&gt;Sled&lt;&#x2F;a&gt;, which allowed non-transactional reads and writes. The
+thought was that I could simply parallelize some loops and magically the view
+mapping system would be faster because Sled would handle ensuring the data was
+written to disk correctly with multi-threaded writes.&lt;&#x2F;p&gt;
+&lt;p&gt;After switching to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt;, the view mapper always runs in a
+transactional context. Each view mapping operation created its own transaction
+-- the slowest way to write to the database. The biggest priority was going to
+be to refactor the view mapper to batch the operations into larger transactions.&lt;&#x2F;p&gt;
+&lt;p&gt;My &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;pull&#x2F;213&#x2F;commits&#x2F;b40607f753f1ab1808eb25a559e39fa0f6080541&quot;&gt;initial refactoring did just
+that&lt;&#x2F;a&gt;
+and lowered the execution time significantly (~70%), but it also introduced a subtle
+bug. As a result, not all mappings were being saved, but I
+didn&#x27;t notice the issue until much later in the refactoring process.&lt;&#x2F;p&gt;
+&lt;p&gt;One issue I was running into is that Nebari&#x27;s &lt;code&gt;TransactionTree&lt;&#x2F;code&gt; required an
+exclusive borrow on the &lt;code&gt;ExecutingTransaction&lt;&#x2F;code&gt;. This prevented being able to read
+documents in one thread while writing view entries in another thread. I
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;commit&#x2F;c195be84412b532dd1802379676cada106f6c62f&quot;&gt;refactored Nebari&#x27;s transaction handling
+code&lt;&#x2F;a&gt;
+to allow this sort of parallelization.&lt;&#x2F;p&gt;
+&lt;p&gt;After &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;pull&#x2F;213&#x2F;commits&#x2F;5216db14f621233c0a5f7f8ba2ac62c7508b3bd5&quot;&gt;adopting the new
+functionality&lt;&#x2F;a&gt;,
+here are the view mapping times on the compressed dataset:&lt;&#x2F;p&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Collection&lt;&#x2F;th&gt;&lt;th&gt;Size&lt;&#x2F;th&gt;&lt;th&gt;View&lt;&#x2F;th&gt;&lt;th&gt;Unoptimized (LZ4)&lt;&#x2F;th&gt;&lt;th&gt;Optimized (LZ4)&lt;&#x2F;th&gt;&lt;th&gt;Optimized&lt;&#x2F;th&gt;&lt;th&gt;Uncompacted&lt;&#x2F;th&gt;&lt;th&gt;Compacted&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;Works&lt;&#x2F;td&gt;&lt;td&gt;12,082mb&lt;&#x2F;td&gt;&lt;td&gt;WorksByAuthor&lt;&#x2F;td&gt;&lt;td&gt;1h02m03s&lt;&#x2F;td&gt;&lt;td&gt;10m16s&lt;&#x2F;td&gt;&lt;td&gt;10m13s&lt;&#x2F;td&gt;&lt;td&gt;16,241mb&lt;&#x2F;td&gt;&lt;td&gt;1,863mb&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;Editions&lt;&#x2F;td&gt;&lt;td&gt;33,155mb&lt;&#x2F;td&gt;&lt;td&gt;EditionsByWork&lt;&#x2F;td&gt;&lt;td&gt;26m52s&lt;&#x2F;td&gt;&lt;td&gt;12m23s&lt;&#x2F;td&gt;&lt;td&gt;12m48s&lt;&#x2F;td&gt;&lt;td&gt;17,507mb&lt;&#x2F;td&gt;&lt;td&gt;3,396mb&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;p&gt;While preparing this post, I&#x27;ve re-run the pre-optimized code and optimized code
+to verify my notes on timings. When initially starting work on optimization, I
+hadn&#x27;t implemented &lt;code&gt;EditionsByWork&lt;&#x2F;code&gt;. I&#x27;ve verified the output of both
+unoptimized versions and optimized versions match a random set of entries that
+I&#x27;ve compared against their website. To clarify some of the numbers: all sizes
+listed above are the compressed sizes. Adding all sizes made the table too large
+to be easily understood.&lt;&#x2F;p&gt;
+&lt;p&gt;At this stage, I no longer have any low hanging fruit from an algorithm
+perspective. The next step in optimization would be to start profiling, but I&#x27;ve
+reached my initial goals, so I&#x27;m going to be focusing on wrapping up this &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;pull&#x2F;213&quot;&gt;pull
+request&lt;&#x2F;a&gt; by finishing this
+example. I would enjoy turning this into a benchmark suite, but I&#x27;m also not
+excited at the prospects of how long such a suite would take to debug fully.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-6&quot;&gt;
+
+
+&lt;a href=&quot;#Next%20steps%20for%20BonsaiDb&quot; name=&quot;Next%20steps%20for%20BonsaiDb&quot;&gt;
+    Next steps for BonsaiDb
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;I&#x27;m going to continue prioritizing any stability or performance issues as they
+are reported. There have been a few repeated requests that I&#x27;m going to be
+working on soon: &amp;quot;best practices&amp;quot; overview, internal archicture documentation,
+and a high-level roadmap.&lt;&#x2F;p&gt;
+&lt;p&gt;Several people have expressed interest in learning more about BonsaiDb&#x27;s
+internals and roadmap with a goal of potentially contributing. I will be working
+on those requests soon. In the meantime, I want to extend my offer to anyone
+reading this: if you have any questions about any part of BonsaiDb, don&#x27;t
+hesitate to ask! Regardless of your experience with Rust, if you&#x27;re excited at
+the idea of helping build BonsaiDb, I will be happy to help you get up to speed.&lt;&#x2F;p&gt;
+&lt;p&gt;Aside from improved documentation and project planning, I was working on
+building a &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;pull&#x2F;211&quot;&gt;persistent job
+queue&lt;&#x2F;a&gt;, which I will be
+returning to and hopefully ship in March. I&#x27;m building this feature as a
+standalone crate that will allow users to create independent job queues with
+different job distribution strategies, and the long-term goal is for this crate
+to be the first &amp;quot;plugin&amp;quot; for BonsaiDb.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-7&quot;&gt;
+
+
+&lt;a href=&quot;#Getting%20Started&quot; name=&quot;Getting%20Started&quot;&gt;
+    Getting Started
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic setup instructions and a list of
+examples. We have started writing a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;guide&#x2F;&quot;&gt;user&#x27;s
+guide&lt;&#x2F;a&gt;, and we have tried to write &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;&quot;&gt;good
+documentation&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;We would love to hear from you if you have questions or feedback. We have
+&lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;&quot;&gt;community Discourse forums&lt;&#x2F;a&gt; and a &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&quot;&gt;Discord
+server&lt;&#x2F;a&gt;, but also welcome anyone to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;new&quot;&gt;open an
+issue&lt;&#x2F;a&gt; with any questions or
+feedback.&lt;&#x2F;p&gt;
+&lt;p&gt;We dream big with &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;, and we believe that it can simplify
+writing and deploying complex, data-driven applications in Rust. We would love
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;labels&#x2F;good%20first%20issue&quot;&gt;additional
+contributors&lt;&#x2F;a&gt;
+who have similar passions and ambitions.&lt;&#x2F;p&gt;
+&lt;p&gt;Lastly, if you build something with one of our libraries, we would love to hear
+about it. Nothing makes us happier than hearing people are building things with
+our crates!&lt;&#x2F;p&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>BonsaiDb v0.2.0: Custom Primary Keys, LZ4 Compression</title>
 		<published>2022-02-18T00:00:00+00:00</published>
