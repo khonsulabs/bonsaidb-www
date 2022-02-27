@@ -60,7 +60,7 @@ some common traits. He became the second contributor to the BonsaiDb repository
 when these macros were added in &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.1.1&quot;&gt;v0.1.1&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;I have an important design philosophy with BonsaiDb: Everything should be as
 ergonomic as possible without macros. Macros should be used to improve an
-already-well-designed API. I was confortable writing
+already-well-designed API. I was comfortable writing
 schemas by hand, but I recognized how often I copy and pasted boilerplate code
 and then tweaked small portions -- a good sign that a macro would help!&lt;&#x2F;p&gt;
 &lt;p&gt;The way these macros are written is using a new crate &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ModProg&#x2F;&quot;&gt;@ModProg&lt;&#x2F;a&gt; wrote:
@@ -150,8 +150,8 @@ authors, editions, and works by their unique ID. Everything was working great.&l
     Querying large datasets with views
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
-&lt;p&gt;I wanted to add support to show all of the books (works) that an author wrote.
-In the data coming from OpenLibrary, the &lt;code&gt;Work&lt;&#x2F;code&gt; type has a list of author roles.
+&lt;p&gt;I wanted to add support to show all the books (works) that an author wrote.
+In the data coming from OpenLibrary, the &lt;code&gt;Work&lt;&#x2F;code&gt; tdype has a list of author roles.
 This is the
 &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;about&#x2F;concepts&#x2F;view.html&quot;&gt;&lt;code&gt;View&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
 definition that enables this query:&lt;&#x2F;p&gt;
@@ -181,7 +181,7 @@ definition that enables this query:&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;span&gt;}
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;The data has some sanitization issues, including that keys sometimes are
-shortend from &lt;code&gt;&#x2F;authors&#x2F;UNIQUEID&lt;&#x2F;code&gt; to &lt;code&gt;&#x2F;a&#x2F;UNIQUEID&lt;&#x2F;code&gt;. Because importing the data
+shortened from &lt;code&gt;&#x2F;authors&#x2F;UNIQUEID&lt;&#x2F;code&gt; to &lt;code&gt;&#x2F;a&#x2F;UNIQUEID&lt;&#x2F;code&gt;. Because importing the data
 takes so long, I chose to clean up the data post-import rather than force myself
 to re-run the import with some code to clean it up while importing.&lt;&#x2F;p&gt;
 &lt;p&gt;The entire function to display an author in the CLI is:&lt;&#x2F;p&gt;
