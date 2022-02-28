@@ -151,7 +151,7 @@ authors, editions, and works by their unique ID. Everything was working great.&l
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
 &lt;p&gt;I wanted to add support to show all the books (works) that an author wrote.
-In the data coming from OpenLibrary, the &lt;code&gt;Work&lt;&#x2F;code&gt; tdype has a list of author roles.
+In the data coming from OpenLibrary, the &lt;code&gt;Work&lt;&#x2F;code&gt; type has a list of author roles.
 This is the
 &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;about&#x2F;concepts&#x2F;view.html&quot;&gt;&lt;code&gt;View&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
 definition that enables this query:&lt;&#x2F;p&gt;
