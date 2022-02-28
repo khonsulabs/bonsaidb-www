@@ -48,6 +48,10 @@ $red:          hsl(319, 86%, 81%);
     margin-bottom: 1em;
 }
 
+a code {
+    color: $cyan;
+}
+
 .content h1 a, .content h2 a, .content h3 a, .content h4 a, .content h5 a, .content h6 a {
     color: $text-strong;
 }

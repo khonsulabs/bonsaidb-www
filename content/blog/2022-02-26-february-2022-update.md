@@ -138,7 +138,7 @@ authors, editions, and works by their unique ID. Everything was working great.
 ### {{ anchor(text = "Querying large datasets with views") }}
 
 I wanted to add support to show all the books (works) that an author wrote.
-In the data coming from OpenLibrary, the `Work` tdype has a list of author roles.
+In the data coming from OpenLibrary, the `Work` type has a list of author roles.
 This is the
 [`View`](https://dev.bonsaidb.io/release/guide/about/concepts/view.html)
 definition that enables this query:
