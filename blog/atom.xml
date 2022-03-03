@@ -4,8 +4,126 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-02-26T00:00:00+00:00</updated>
+	<updated>2022-03-03T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>BonsaiDb v0.3.0: Optimized views, bug fixes, and more</title>
+		<published>2022-03-03T00:00:00+00:00</published>
+		<updated>2022-03-03T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/bonsaidb-v0-3-0/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/bonsaidb-v0-3-0/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;What is BonsaiDb?&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;about&quot;&gt;What is
+BonsaiDb?&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;BonsaiDb &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;releases&#x2F;tag&#x2F;v0.3.0&quot;&gt;v0.3.0&lt;&#x2F;a&gt; has been released featuring optimized view
+processing, bug fixes, and a few new features -- including one from a new
+contributor!&lt;&#x2F;p&gt;
+&lt;p&gt;Optimization of the view processing system has been covered in the &lt;a href=&quot;&#x2F;blog&#x2F;february-2022-update#Optimizing%20View%20Mapping&quot;&gt;previous
+blog post&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Deleting%20users%20via%20StorageConnection&quot; name=&quot;Deleting%20users%20via%20StorageConnection&quot;&gt;
+    Deleting users via StorageConnection
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;A new function, &lt;code&gt;delete_user()&lt;&#x2F;code&gt; has been added to &lt;code&gt;StorageConnection&lt;&#x2F;code&gt;, allowing
+for users to not only be created but also deleted without direct database
+access. This feature was added by &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;vbmade2000&quot;&gt;@vbmade2000&lt;&#x2F;a&gt; -- now the third
+contributor to the BonsaiDb repository!&lt;&#x2F;p&gt;
+&lt;p&gt;BonsaiDb provides open-access its &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;admin&#x2F;index.html&quot;&gt;admin schema types&lt;&#x2F;a&gt;. This meant
+that users could still be deleted, but it required doing so directly through
+&lt;code&gt;Storage::admin()&lt;&#x2F;code&gt;, and couldn&#x27;t be done over a networked client, for example.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#Querying%20Data%20by%20Prefix&quot; name=&quot;Querying%20Data%20by%20Prefix&quot;&gt;
+    Querying Data by Prefix
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;A user on Discord requested an easier way to be able to query data using a
+prefix. For example, if the key type is a &lt;code&gt;String&lt;&#x2F;code&gt; or &lt;code&gt;Vec&amp;lt;u8&amp;gt;&lt;&#x2F;code&gt;, a query should
+be able to be made for any matches that start with a given prefix. Collections
+now support listing documents with a given prefix:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(Debug, Serialize, Deserialize, Default, Collection)]
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;collection&lt;&#x2F;span&gt;&lt;span&gt;(name = &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;MyCollection&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, primary_key = String)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;pub struct &lt;&#x2F;span&gt;&lt;span&gt;MyCollection;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; results = MyCollection::list_with_prefix(String::from(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;), db).await?;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;&lt;code&gt;results&lt;&#x2F;code&gt; will contain all documents whose id&#x27;s start with &lt;code&gt;a&lt;&#x2F;code&gt;. The same
+capability is also available for views:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;derive&lt;&#x2F;span&gt;&lt;span&gt;(View, Debug, Clone)]
+&lt;&#x2F;span&gt;&lt;span&gt;#[&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;view&lt;&#x2F;span&gt;&lt;span&gt;(name = &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;by-name&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, key = String, collection = MyCollection)]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;struct &lt;&#x2F;span&gt;&lt;span&gt;ByName;
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for&lt;&#x2F;span&gt;&lt;span&gt; mapping in db
+&lt;&#x2F;span&gt;&lt;span&gt;    .view::&amp;lt;ByName&amp;gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;with_key_prefix&lt;&#x2F;span&gt;&lt;span&gt;(String::from(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;))
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;query&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    .await?
+&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    assert!(mapping.key.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;starts_with&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;a&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;));
+&lt;&#x2F;span&gt;&lt;span&gt;    println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{}&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt; in document &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:?}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, mapping.key, mapping.source);
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;This functionality is powered by a new trait,
+&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;trait.IntoPrefixRange.html&quot;&gt;&lt;code&gt;IntoPrefixRange&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;,
+which allows any custom key type to provide this functionality if possible.
+BonsaiDb currently only provides implementations for &lt;code&gt;String&lt;&#x2F;code&gt; and the &lt;code&gt;Vec&amp;lt;u8&amp;gt;&lt;&#x2F;code&gt;
+types.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Nebari%20Bug%20Fixes&quot; name=&quot;Nebari%20Bug%20Fixes&quot;&gt;
+    Nebari Bug Fixes
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;This release updates &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt; to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;releases&#x2F;tag&#x2F;v0.4.0&quot;&gt;v0.4.0&lt;&#x2F;a&gt;. It contains
+an important fix to ensure the transaction log is always written sequentially.
+This edge case was discovered while running unit tests &amp;quot;one more time&amp;quot; before
+preparing a release. A unit test that never failed suddenly failed. Here&#x27;s the
+code in question that failed:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let mut&lt;&#x2F;span&gt;&lt;span&gt; handles = Vec::new();
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for &lt;&#x2F;span&gt;&lt;span&gt;_ in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;..&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;10 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; manager = manager.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;clone&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;    handles.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;push&lt;&#x2F;span&gt;&lt;span&gt;(std::thread::spawn(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;move &lt;&#x2F;span&gt;&lt;span&gt;|| {
+&lt;&#x2F;span&gt;&lt;span&gt;        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;for&lt;&#x2F;span&gt;&lt;span&gt; id in &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0_&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;u32&lt;&#x2F;span&gt;&lt;span&gt;..&lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1_000 &lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;            &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; tx = manager.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;new_transaction&lt;&#x2F;span&gt;&lt;span&gt;([&amp;amp;id.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;to_be_bytes&lt;&#x2F;span&gt;&lt;span&gt;()[..]]);
+&lt;&#x2F;span&gt;&lt;span&gt;            tx.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;commit&lt;&#x2F;span&gt;&lt;span&gt;().&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;        }
+&lt;&#x2F;span&gt;&lt;span&gt;    }));
+&lt;&#x2F;span&gt;&lt;span&gt;}
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The test then proceeds to wait for all the threads to finish and verify the
+results. One thing it does is attempt to load each transaction one by one. At
+first glance, this seems innocuous, but due to how Nebari is designed,
+&lt;code&gt;new_transaction()&lt;&#x2F;code&gt; allocates a transaction id, but it isn&#x27;t written to the
+transaction log until &lt;code&gt;commit()&lt;&#x2F;code&gt; occurs. I was &lt;em&gt;lucky&lt;&#x2F;em&gt; to have this test fail,
+as it was a legitimate edge case that I hadn&#x27;t tested against. Needless to say,
+there&#x27;s now a dedicated unit test to out-of-order writing.&lt;&#x2F;p&gt;
+&lt;p&gt;While working on this fix, however, I now have enough of a reason to implement
+the next version of the transaction log to address a few design issues I&#x27;ve
+thought of since writing it originally. The good news is that even if the
+transaction log your database has currently is out of order, I plan to have the
+upgrade process to the new format fix any ordering issues.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-3&quot;&gt;
+
+
+&lt;a href=&quot;#Getting%20Started&quot; name=&quot;Getting%20Started&quot;&gt;
+    Getting Started
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic setup instructions and a list of examples. We have started writing a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;guide&#x2F;&quot;&gt;user&#x27;s guide&lt;&#x2F;a&gt;, and we have tried to write &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;&quot;&gt;good documentation&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;We would love to hear from you if you have questions or feedback. We have &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;&quot;&gt;community Discourse forums&lt;&#x2F;a&gt; and a &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&quot;&gt;Discord server&lt;&#x2F;a&gt;, but also welcome anyone to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;new&quot;&gt;open an issue&lt;&#x2F;a&gt; with any questions or feedback.&lt;&#x2F;p&gt;
+&lt;p&gt;We dream big with &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;labels&#x2F;good%20first%20issue&quot;&gt;additional contributors&lt;&#x2F;a&gt; who have similar passions and ambitions.&lt;&#x2F;p&gt;
+&lt;p&gt;Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!&lt;&#x2F;p&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>BonsaiDb February update: Supporting and Optimizing BonsaiDb</title>
 		<published>2022-02-26T00:00:00+00:00</published>
