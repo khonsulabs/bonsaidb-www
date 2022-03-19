@@ -85,7 +85,7 @@ Several times I pondered rewriting CouchDB atop PostgreSQL using JSONB columns
 to see how it would perform. I never ended up taking any of those prototypes
 very far, but the thought process helped me appreciate and understand CouchDB&#x27;s
 inner workings better.&lt;&#x2F;p&gt;
-&lt;p&gt;One day while working on [Cosmic Verge][comsicverge], it dawned on me: I had
+&lt;p&gt;One day while working on &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;cosmicverge&quot;&gt;Cosmic Verge&lt;&#x2F;a&gt;, it dawned on me: I had
 built a small wrapper around &lt;a href=&quot;https:&#x2F;&#x2F;sled.rs&quot;&gt;Sled&lt;&#x2F;a&gt; that made it feel like a higher-level
 database. What if I went further and built a CouchDB-like API atop Sled?&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;-2&quot;&gt;
