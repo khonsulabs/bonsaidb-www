@@ -2,7 +2,7 @@
 title = "BonsaiDb January update: Alpha Next Week"
 
 [extra]
-author = "Ecton"
+author = "Jonathan Johnson"
 author_url = "https://github.com/ecton"
 +++
 

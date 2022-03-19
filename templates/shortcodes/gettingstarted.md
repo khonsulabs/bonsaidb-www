@@ -1,4 +1,7 @@
-Our [homepage](https://bonsaidb.io/) has basic setup instructions and a list of examples. We have started writing a [user's guide](https://dev.bonsaidb.io/v0.2.0/guide/), and we have tried to write [good documentation](https://docs.rs/bonsaidb/).
+Our [homepage](https://bonsaidb.io/) has basic setup instructions and a list of
+examples. We have started writing a [user's
+guide](https://dev.bonsaidb.io/release/guide/), and we have tried to write [good
+documentation](https://docs.rs/bonsaidb/).
 
 We would love to hear from you if you have questions or feedback. We have [community Discourse forums](https://community.khonsulabs.com/) and a [Discord server](https://discord.khonsulabs.com), but also welcome anyone to [open an issue](https://github.com/khonsulabs/bonsaidb/issues/new) with any questions or feedback.
 

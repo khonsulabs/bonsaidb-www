@@ -2,7 +2,7 @@
 title = "Benchmarking relational data in BonsaiDb"
 
 [extra]
-author = "Ecton"
+author = "Jonathan Johnson"
 author_url = "https://github.com/ecton"
 +++
 
