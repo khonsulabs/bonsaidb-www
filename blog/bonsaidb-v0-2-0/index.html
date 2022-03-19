@@ -26,15 +26,7 @@
                 <img src="/bonsaidb-64.png" height="28" />
                 <h1>BonsaiDb</h1>
             </a>
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-        </div>
-
-        <div class="navbar-menu" id="navbar-menu">
-            <div class="navbar-start">
+            <div class="is-hidden-mobile is-flex-tablet">
                 <a class="navbar-item 
 
 
@@ -56,6 +48,39 @@ is-active
 " href="/blog/">
                     Blog
                 </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
             </div>
             <div class="navbar-end">
                 <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
@@ -82,7 +107,7 @@ is-active
     
     <p>
         
-        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Ecton</a>.
+        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Jonathan Johnson</a>.
         
         
         Published 2022-02-18.
@@ -158,7 +183,7 @@ comparative benchmarking personally, I decided to start with LZ4 compression and
 results are interesting to look at, but no serious comparisons should be drawn
 yet. If you are under tight space constraints, this feature can save a lot of
 storage space while not impacting performance in a major way.</p>
-<p><a href="https://dev.bonsaidb.io/v0.2.0/benchmarks/commerce/large-balanced/4/index.html#FindProduct"><img src="https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;large-balanced&#x2F;4&#x2F;FindProduct.png" class="block-image" alt="lookup product by id"  /></a></p>
+<p><a href="https://dev.bonsaidb.io/v0.2.0/benchmarks/commerce/large-balanced/4/index.html#FindProduct"><img src="https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;large-balanced&#x2F;4&#x2F;FindProduct.png" class="block-image" alt="lookup product by id"   /></a></p>
 <p>As you can see in this graph, the <a href="https://dev.bonsaidb.io/v0.2.0/benchmarks/commerce/">Commerce
 Benchmark</a> sometimes shows
 improved performance over the uncompressed version. As always, performance will

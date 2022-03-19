@@ -26,15 +26,7 @@
                 <img src="/bonsaidb-64.png" height="28" />
                 <h1>BonsaiDb</h1>
             </a>
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-        </div>
-
-        <div class="navbar-menu" id="navbar-menu">
-            <div class="navbar-start">
+            <div class="is-hidden-mobile is-flex-tablet">
                 <a class="navbar-item 
 
 
@@ -56,6 +48,39 @@ is-active
 " href="/blog/">
                     Blog
                 </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
             </div>
             <div class="navbar-end">
                 <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
@@ -82,7 +107,7 @@ is-active
     
     <p>
         
-        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Ecton</a>.
+        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Jonathan Johnson</a>.
         
         
         Published 2022-01-27.
@@ -115,7 +140,7 @@ is-active
 </span></code></pre>
 <p>This configuration has two rules: persist after 5 seconds if there is at least 1 change, and perist if there are at least 200 changes. This means if BonsaiDb unexpectedly is killed, at most the most recent 5 seconds of changes would be lost. However, if a batch of changes is written, they will be persisted immediately.</p>
 <p>So, how does the key-value store perform compared to Redis?</p>
-<p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/get-bytes/1KiB/report/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;get-bytes&#x2F;1KiB&#x2F;report&#x2F;violin.svg" class="block-image" alt="get-key 1kb" style="background-color: #DDD"  /></a></p>
+<p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/get-bytes/1KiB/report/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;get-bytes&#x2F;1KiB&#x2F;report&#x2F;violin.svg" class="block-image" alt="get-key 1kb" style="background-color: #DDD"   /></a></p>
 <p>Well, as you might expect, if you don't have network access, things go very fast -- measured in nanoseconds on my personal computer. However, the networking performance leaves something to be desired. After doing a lot of profiling, I could see that the TLS for the QUIC connection accounts for roughly 30% of the time spent. However, that still is a little slower than the WebSocket implementation, which in turn is significantly slower than Redis.</p>
 <p>My profiling has led me to believe that <a href="https://github.com/khonsulabs/bonsaidb/issues/129">switching to Socketto</a> will bring the WebSocket implementation closer by reducing the number of allocations. Only time will tell if that will match Redis's performance, but I'm hopeful it will be close enough to not care. For the QUIC connection, our <a href="https://github.com/daxpedda">other major contributor</a> has plans to dig in and see what can be done to reduce some of the allocations we saw in the profiling we did.</p>
 <h3 id="-1">
@@ -126,7 +151,7 @@ is-active
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h3>
 <p>My last <a href="https://bonsaidb.io/blog/commerce-benchmark/">blog post</a> goes into detail about a new benchmark I wrote to attempt to simulate a simple relational database workload. The results were staggering to me.</p>
-<p><a href="https://bonsaidb.io/blog/commerce-benchmark/"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;LookupProduct.png" class="block-image" alt="find prodcut by id graph"  /></a></p>
+<p><a href="https://bonsaidb.io/blog/commerce-benchmark/"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;LookupProduct.png" class="block-image" alt="find prodcut by id graph"   /></a></p>
 <p>Nearly every operation across every workload showed all ways of accessing BonsaiDb outperforming PostgreSQL significantly.</p>
 <h3 id="-2">
 

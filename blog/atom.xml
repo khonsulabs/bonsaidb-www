@@ -4,8 +4,286 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-03-03T00:00:00+00:00</updated>
+	<updated>2022-03-19T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>A Year of BonsaiDb: A retrospective and looking to the future</title>
+		<published>2022-03-19T00:00:00+00:00</published>
+		<updated>2022-03-19T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/one-year-anniversary/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/one-year-anniversary/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;What is BonsaiDb?&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;about&quot;&gt;What is
+BonsaiDb?&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Today marks the one year anniversary of the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;commit&#x2F;43bd3a25b61fc7841c9554422d7bb46ad4362e59&quot;&gt;initial commit&lt;&#x2F;a&gt; to
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;. This project is largely a written by &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ecton&quot;&gt;me (@Ecton)&lt;&#x2F;a&gt;,
+although I&#x27;m very thankful to have been accompanied along the way by
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;daxpedda&quot;&gt;@daxpedda&lt;&#x2F;a&gt;. He is responsible for the &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;fabruic&quot;&gt;QUIC networking
+layer&lt;&#x2F;a&gt;, our currently removed OPAQUE-KE support, and above all,
+countless long discussions and debates that not only led to starting this
+project, but also to the easy-to-use API designs we have today.&lt;&#x2F;p&gt;
+&lt;p&gt;In the last few months, we&#x27;ve also had two additional contributors:
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;modprog&quot;&gt;@ModProg&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;vbmade2000&quot;&gt;@vbmade2000&lt;&#x2F;a&gt;. I&#x27;m grateful for their
+additions to the project, and I hope this year we see even more contributors as
+BonsaiDb gains momentum.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Beginning%20a%20real%20bonsai%20cluster&quot; name=&quot;Beginning%20a%20real%20bonsai%20cluster&quot;&gt;
+    Beginning a real bonsai cluster
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;The name BonsaiDb was suggested by &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;daxpedda&quot;&gt;@daxpedda&lt;&#x2F;a&gt; after countless times
+where we stumbled trying to pronounce the project&#x27;s former name: PliantDb. When
+I &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;t&#x2F;short-update-pliantdb-is-now-known-as-bonsaidb&#x2F;74&quot;&gt;announced the new name&lt;&#x2F;a&gt;, I researched trying to grow a bonsai
+tree in the Las Vegas climate. My initial findings were that many of the iconic
+types are difficult to grow here, and I ended up shelving the idea.&lt;&#x2F;p&gt;
+&lt;p&gt;As March was approaching, I knew I wanted to commemorate the anniversary of the
+first commit. I researched again and found two species that were great
+candidates for being able to be grown mostly indoors. After some deliberation, I
+decided to start with a Golden Gate (Tiger Bark) Ficus:&lt;&#x2F;p&gt;
+&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;one-year-anniversary-ficus.jpg&quot; class=&quot;block-image&quot; alt=&quot;One Year Anniversary Golden Gate Ficus&quot;  width=&quot;400&quot;  &#x2F;&gt;
+&lt;p&gt;After giving the tree another week or two of adjustment to its new home, I&#x27;ll be
+pruning it for the first time and attempting to grow a second tree from its
+cuttings. Within the limits of being able to provide good living conditions for
+each tree, I hope to expand the &amp;quot;cluster&amp;quot; each year and will share progress
+pictures along the way!&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#The%20first%20year%3A%20Inspiration&quot; name=&quot;The%20first%20year%3A%20Inspiration&quot;&gt;
+    The first year: Inspiration
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;The inspiration for &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; came from weeks and weeks of
+discussions between &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ecton&quot;&gt;myself&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;daxpedda&quot;&gt;@daxpedda&lt;&#x2F;a&gt;. We were wanting
+to build an cluster architecture for an MMO that:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Was easy to deploy and maintain&lt;&#x2F;li&gt;
+&lt;li&gt;Was affodable&lt;&#x2F;li&gt;
+&lt;li&gt;Could scale horizontally&lt;&#x2F;li&gt;
+&lt;li&gt;Could subdivide players by &amp;quot;location&amp;quot; within the cluster:
+&lt;ul&gt;
+&lt;li&gt;Each location could have database&#x2F;cache&#x2F;cpu resources allocated dynamically&lt;&#x2F;li&gt;
+&lt;li&gt;Each location would be Highly Available&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;Used as many Rust-written solutions as possible&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;At the start of our discussions, I was dead-set on using PostgreSQL and Redis
+for our database&#x2F;caching needs. However both PostgreSQL and Redis aren&#x27;t easy to
+deploy and maintain in a highly available cluster, and if I chose managed
+solutions, they definitely weren&#x27;t affordable.&lt;&#x2F;p&gt;
+&lt;p&gt;When starting my last company, I chose &lt;a href=&quot;https:&#x2F;&#x2F;couchdb.apache.org&#x2F;&quot;&gt;CouchDB&lt;&#x2F;a&gt; for various reasons
+that aren&#x27;t worth diving into. Through the ten years of growing that company, I
+became intimately familiar with the simple yet powerful design of CouchDB.
+Several times I pondered rewriting CouchDB atop PostgreSQL using JSONB columns
+to see how it would perform. I never ended up taking any of those prototypes
+very far, but the thought process helped me appreciate and understand CouchDB&#x27;s
+inner workings better.&lt;&#x2F;p&gt;
+&lt;p&gt;One day while working on [Cosmic Verge][comsicverge], it dawned on me: I had
+built a small wrapper around &lt;a href=&quot;https:&#x2F;&#x2F;sled.rs&quot;&gt;Sled&lt;&#x2F;a&gt; that made it feel like a higher-level
+database. What if I went further and built a CouchDB-like API atop Sled?&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#The%20first%20year%3A%20Initial%20Goals&quot; name=&quot;The%20first%20year%3A%20Initial%20Goals&quot;&gt;
+    The first year: Initial Goals
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;Initially, I was hesitant to tell anyone I was building a database. Despite
+relying on &lt;a href=&quot;https:&#x2F;&#x2F;sled.rs&quot;&gt;Sled&lt;&#x2F;a&gt; for the low-level transactional storage, it still felt
+like one of those projects that is usually ill-advised. I finally felt confident
+enough in my reasoning of &lt;em&gt;why&lt;&#x2F;em&gt; I was building &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; that I &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;t&#x2F;did-i-say-i-was-refocusing&#x2F;58#pliantdb-the-core-of-cosmic-verge-2&quot;&gt;wrote a detailed
+devlog&lt;&#x2F;a&gt; describing the motivation for tackling this new
+project.&lt;&#x2F;p&gt;
+&lt;p&gt;Early on, I never had high ambitions for BonsaiDb. After all, this was the first
+database I had ever written. The likelihood of me building a high-performance
+database seemed low. Instead, I wanted to focus primarily on developer
+experience, reliability, and ease of deployment. I tried to make intelligent
+choices based on my expectations of what would be efficient, but I intentionally
+avoided comparing BonsaiDb against other databases until &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;January of this
+year&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;To me the selling points of BonsaiDb were (and still are):&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;Straightforward to use and deploy.&lt;&#x2F;li&gt;
+&lt;li&gt;Can write generic code that works regardless of how BonsaiDb is deployed.&lt;&#x2F;li&gt;
+&lt;li&gt;&amp;quot;Battery-powered&amp;quot; with common needs for developers, reducing complexity of deployments:
+&lt;ul&gt;
+&lt;li&gt;ACID-compliant transactional document storage&lt;&#x2F;li&gt;
+&lt;li&gt;Lightweight Atomic Key-Value store (a-la Redis)&lt;&#x2F;li&gt;
+&lt;li&gt;PubSub&lt;&#x2F;li&gt;
+&lt;li&gt;Unified and extensible authentication and permissions model&lt;&#x2F;li&gt;
+&lt;li&gt;Persistent Job Queue System (a la SQS&#x2F;Resque&#x2F;Sidekiq). Work on this has been
+started but is not shipping yet, but it has been a goal from the start of
+the project.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;Built in Rust, for Rust.&lt;&#x2F;li&gt;
+&lt;li&gt;Vision includes a &amp;quot;grows with you&amp;quot; pitch:
+&lt;ul&gt;
+&lt;li&gt;Bi-directional replication&lt;&#x2F;li&gt;
+&lt;li&gt;Quorum-based clustering&lt;&#x2F;li&gt;
+&lt;li&gt;Modular plugin system to support &amp;quot;resuable&amp;quot; collections and services&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h3 id=&quot;-3&quot;&gt;
+
+
+&lt;a href=&quot;#BonsaiDb%20isn%27t%20just%20a%20toy&quot; name=&quot;BonsaiDb%20isn%27t%20just%20a%20toy&quot;&gt;
+    BonsaiDb isn&amp;#x27;t just a toy
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;In October a series of events made me look at porting the append-only B-Tree
+implementation from CouchDB to Rust as a potential replacement for &lt;a href=&quot;https:&#x2F;&#x2F;sled.rs&quot;&gt;Sled&lt;&#x2F;a&gt;
+in our architecture. In the end, the bug that I was experiencing on Mac &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;t&#x2F;introducing-nebari-a-key-value-data-store-written-using-an-append-only-file-format&#x2F;81#what-caused-the-uncontrolled-memory-usage-5&quot;&gt;was
+unrelated&lt;&#x2F;a&gt; to Sled, but its symptoms manifested in such a way that
+resembled issues others have had with Sled in the past.&lt;&#x2F;p&gt;
+&lt;p&gt;After getting some basic unit tests working, I did something really stupid: I
+benchmarked it against Sled and SQLite. Why was it stupid? It kicked off a
+viscious few weeks, nearly reaffirming the common wisdom: why was I trying to
+write my own database? I would stare &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;nebari-scaleway-gp1-xs&#x2F;index.html&quot;&gt;at microbenchmarks&lt;&#x2F;a&gt; and
+profiling results, tweak something, and try again. Over and over. For some
+reason it just wasn&#x27;t occurring to me: the fact &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt; was even in the
+same realm as these highly optimized databases was exciting enough. Eventually,
+I &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;t&#x2F;introducing-nebari-a-key-value-data-store-written-using-an-append-only-file-format&#x2F;81#why-still-develop-nebari-6&quot;&gt;convinced myself&lt;&#x2F;a&gt; it was better for the future of BonsaiDb to
+adopt Nebari.&lt;&#x2F;p&gt;
+&lt;p&gt;In January I was preparing to release our first alpha. I knew if I didn&#x27;t have
+benchmarks available, it would be one of the first questions asked. I wrote a
+benchmark suite aimed at comparing BonsaiDb against PostgreSQL in a simple
+eCommerce setup. I wasn&#x27;t prepared for the results: BonsaiDb is significantly
+faster than PostgreSQL &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;index.html&quot;&gt;in this benchmark suite&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Last month I set my focus &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;february-2022-update&#x2F;#Testing%20BonsaiDb%20with%20a%20large%20dataset&quot;&gt;testing large datasets&lt;&#x2F;a&gt; and was able
+to achieve performance again that exceeded my expectations. I no longer am
+viewing BonsaiDb as an easy-to-use database that will be &amp;quot;good enough&amp;quot; for many
+people. I now view BonsaiDb as having the potential to be a serious database
+option for most people.&lt;&#x2F;p&gt;
+&lt;p&gt;For being just one year old, I&#x27;m extremely happy with where BonsaiDb is today.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-4&quot;&gt;
+
+
+&lt;a href=&quot;#Year%20Two%3A%20My%20Goals&quot; name=&quot;Year%20Two%3A%20My%20Goals&quot;&gt;
+    Year Two: My Goals
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;One thing that surprised me was how much interest &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt; garnered.
+Despite not heavily advertising it, it&#x27;s accumulated a fair number of stars on
+GitHub. It&#x27;s popular enough that I&#x27;ve been rethinking how I was planning on
+implementing certain features. Outside of bug fixes and minor features, I
+haven&#x27;t spent much time working on Nebari as it has been meeting BonsaiDb&#x27;s
+needs. I would like to spend more time in this coming year making Nebari a
+better crate for developers to consume directly. Ultimately, the more users
+Nebari has, the more confidence everyone can have in BonsaiDb&#x27;s ACID compliance.&lt;&#x2F;p&gt;
+&lt;p&gt;For &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;, there are several goals I have:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Features, Features, Features&lt;&#x2F;strong&gt;: I&#x27;m excited at exploring a wide variety of
+features aiming to make BonsaiDb more powerful and easier to use:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;pull&#x2F;220&quot;&gt;Ability to use BonsaiDb in non-async
+code&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;78&quot;&gt;Persistent Job Queue&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;162&quot;&gt;Supporting Metrics&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;136&quot;&gt;Document Dependencies&#x2F;Foreign Keys&#x2F;Graph Relationships&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;69&quot;&gt;Collection Lifecycles&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;90&quot;&gt;Replication&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;There are countless other features I hope to explore as well, but those are
+some of the higher priority items as I view them.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Stability&lt;&#x2F;strong&gt;: I would like to be able to declare a stable version within the
+next year. I&#x27;m currently treating BonsaiDb as if it&#x27;s stable: trying to
+preserve backwards compatibility for the storage format, prioritizing bug
+fixes, and keeping a thorough changelog.&lt;&#x2F;p&gt;
+&lt;p&gt;By this time next year, I would like to be at a point where the core of
+BonsaiDb is changing infrequently, and focus is on building higher level
+abstractions.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Tooling&lt;&#x2F;strong&gt;: A good, graphical database administration tool not only makes
+exploring a database more approachable, it also can aide in quickly diagnosing
+and fixing data issues. Because BonsaiDb is architected to not know about the
+contents of the documents being stored, creating a good, generic
+administration tool will be a fun challenge.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;strong&gt;Community&lt;&#x2F;strong&gt;: Fostering an active developer community around BonsaiDb is
+important for many reasons. As I mentioned before, the more users BonsaiDb
+has, the more confident we can all feel about its reliability. Beyond that,
+however, is something more fundamental for me: I thrive on success stories and
+helping solve interesting data problems.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;-5&quot;&gt;
+
+
+&lt;a href=&quot;#Help%20grow%20BonsaiDb&quot; name=&quot;Help%20grow%20BonsaiDb&quot;&gt;
+    Help grow BonsaiDb
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Building BonsaiDb has reawakened many of the passions I felt in my first
+full-time computer-related job: working on REALbasic (now
+&lt;a href=&quot;https:&#x2F;&#x2F;www.xojo.com&#x2F;&quot;&gt;Xojo&lt;&#x2F;a&gt;). As I started getting schema design questions and
+feature requests from potential users, I reflected on the joy those interactions
+provided me. It is clear to me that one of the reasons I look back so fondly at
+my first programming job is the wide array of problems I helped users solve.&lt;&#x2F;p&gt;
+&lt;p&gt;For the longest time, I held off on allowing any means of sponsoring development
+of BonsaiDb. Until recently, I was still hoping to get back to writing an MMO
+once BonsaiDb was mature enough. My dreams have changed in the past months: I
+want to focus on bringing safe, high-level data-oriented application development
+to Rust. Initially, that means getting BonsaiDb to a maturity level where it
+meets my original vision.&lt;&#x2F;p&gt;
+&lt;p&gt;Many readers may not be aware that the early days of BonsaiDb development were
+overlapped with my development of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;gooey&#x2F;&quot;&gt;Gooey&lt;&#x2F;a&gt;. To this day, it is the only
+framework that meets my personal desires of application development. However,
+it&#x27;s lacking many critical features&#x2F;widgets. I paused development because I want
+to focus on BonsaiDb. Yet, I also want to begin writing GUI administration tools
+for BonsaiDb soon.&lt;&#x2F;p&gt;
+&lt;p&gt;I would love to continue dedicating my focus to these areas of the Rust ecosystem:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;BonsaiDb: Easy-to-use database that grows with you.&lt;&#x2F;li&gt;
+&lt;li&gt;Building cross-platform applications in Rust (with or without Gooey)&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;If you would like to ensure my ability to continue working on these projects
+full-time, I am now &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;sponsors&#x2F;ecton&quot;&gt;accepting sponsorship through GitHub
+Sponsors&lt;&#x2F;a&gt;. I have been working on open-source Rust projects since
+November 2019 all funded by the sale of my previous startup. I would love the
+opportunity to continue working on open-source full time without needing to
+focus on building another startup. As I am not in dire need of finances, please
+only sponsor me if you have truly disposable income.&lt;&#x2F;p&gt;
+&lt;p&gt;Another important way to help grow BonsaiDb is to contribute. I&#x27;ve been working
+on adding &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22&quot;&gt;&amp;quot;Good First Issue&amp;quot;&lt;&#x2F;a&gt; tasks. If you&#x27;re looking to
+contribute to an open-source Rust project, I would be honored to have you as
+part of our team.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-6&quot;&gt;
+
+
+&lt;a href=&quot;#Trying%20out%20BonsaiDb&quot; name=&quot;Trying%20out%20BonsaiDb&quot;&gt;
+    Trying out BonsaiDb
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic setup instructions and a list of
+examples. We have started writing a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;&quot;&gt;user&#x27;s
+guide&lt;&#x2F;a&gt;, and we have tried to write &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;&quot;&gt;good
+documentation&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;I would love to hear from you if you have questions or feedback. We have
+&lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;&quot;&gt;community Discourse forums&lt;&#x2F;a&gt; and a &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&quot;&gt;Discord
+server&lt;&#x2F;a&gt;, but also welcome anyone to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;new&quot;&gt;open an
+issue&lt;&#x2F;a&gt; with any questions or
+feedback.&lt;&#x2F;p&gt;
+&lt;p&gt;Lastly, if you build something with one of our libraries, we would love to hear
+about it. Nothing makes us happier than hearing people are building things with
+our crates!&lt;&#x2F;p&gt;
+&lt;p&gt;Thank you to all of the wonderful people in the Khonsu Labs community and the
+Rust ecosystem.&lt;&#x2F;p&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>BonsaiDb v0.3.0: Optimized views, bug fixes, and more</title>
 		<published>2022-03-03T00:00:00+00:00</published>
@@ -118,7 +396,10 @@ upgrade process to the new format fix any ordering issues.&lt;&#x2F;p&gt;
     Getting Started
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
-&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic setup instructions and a list of examples. We have started writing a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;guide&#x2F;&quot;&gt;user&#x27;s guide&lt;&#x2F;a&gt;, and we have tried to write &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;&quot;&gt;good documentation&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic setup instructions and a list of
+examples. We have started writing a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;&quot;&gt;user&#x27;s
+guide&lt;&#x2F;a&gt;, and we have tried to write &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;&quot;&gt;good
+documentation&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;We would love to hear from you if you have questions or feedback. We have &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;&quot;&gt;community Discourse forums&lt;&#x2F;a&gt; and a &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&quot;&gt;Discord server&lt;&#x2F;a&gt;, but also welcome anyone to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;new&quot;&gt;open an issue&lt;&#x2F;a&gt; with any questions or feedback.&lt;&#x2F;p&gt;
 &lt;p&gt;We dream big with &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;labels&#x2F;good%20first%20issue&quot;&gt;additional contributors&lt;&#x2F;a&gt; who have similar passions and ambitions.&lt;&#x2F;p&gt;
 &lt;p&gt;Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!&lt;&#x2F;p&gt;
@@ -508,7 +789,7 @@ comparative benchmarking personally, I decided to start with LZ4 compression and
 results are interesting to look at, but no serious comparisons should be drawn
 yet. If you are under tight space constraints, this feature can save a lot of
 storage space while not impacting performance in a major way.&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;large-balanced&#x2F;4&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;dev.bonsaidb.io&amp;#x2F;v0.2.0&amp;#x2F;benchmarks&amp;#x2F;commerce&amp;#x2F;large-balanced&amp;#x2F;4&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;large-balanced&#x2F;4&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;dev.bonsaidb.io&amp;#x2F;v0.2.0&amp;#x2F;benchmarks&amp;#x2F;commerce&amp;#x2F;large-balanced&amp;#x2F;4&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;As you can see in this graph, the &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.2.0&#x2F;benchmarks&#x2F;commerce&#x2F;&quot;&gt;Commerce
 Benchmark&lt;&#x2F;a&gt; sometimes shows
 improved performance over the uncompressed version. As always, performance will
@@ -710,7 +991,7 @@ ecosystem up to the current draft spec:&lt;&#x2F;p&gt;
 &lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
 &lt;p&gt;This configuration has two rules: persist after 5 seconds if there is at least 1 change, and perist if there are at least 200 changes. This means if BonsaiDb unexpectedly is killed, at most the most recent 5 seconds of changes would be lost. However, if a batch of changes is written, they will be persisted immediately.&lt;&#x2F;p&gt;
 &lt;p&gt;So, how does the key-value store perform compared to Redis?&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;get-bytes&#x2F;1KiB&#x2F;report&#x2F;index.html&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;suite&amp;#x2F;get-bytes&amp;#x2F;1KiB&amp;#x2F;report&amp;#x2F;violin.svg&quot; class=&quot;block-image&quot; alt=&quot;get-key 1kb&quot; style=&quot;background-color: #DDD&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;get-bytes&#x2F;1KiB&#x2F;report&#x2F;index.html&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;suite&amp;#x2F;get-bytes&amp;#x2F;1KiB&amp;#x2F;report&amp;#x2F;violin.svg&quot; class=&quot;block-image&quot; alt=&quot;get-key 1kb&quot; style=&quot;background-color: #DDD&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;Well, as you might expect, if you don&#x27;t have network access, things go very fast -- measured in nanoseconds on my personal computer. However, the networking performance leaves something to be desired. After doing a lot of profiling, I could see that the TLS for the QUIC connection accounts for roughly 30% of the time spent. However, that still is a little slower than the WebSocket implementation, which in turn is significantly slower than Redis.&lt;&#x2F;p&gt;
 &lt;p&gt;My profiling has led me to believe that &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;129&quot;&gt;switching to Socketto&lt;&#x2F;a&gt; will bring the WebSocket implementation closer by reducing the number of allocations. Only time will tell if that will match Redis&#x27;s performance, but I&#x27;m hopeful it will be close enough to not care. For the QUIC connection, our &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;daxpedda&quot;&gt;other major contributor&lt;&#x2F;a&gt; has plans to dig in and see what can be done to reduce some of the allocations we saw in the profiling we did.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;-1&quot;&gt;
@@ -721,7 +1002,7 @@ ecosystem up to the current draft spec:&lt;&#x2F;p&gt;
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
 &lt;p&gt;My last &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;blog post&lt;&#x2F;a&gt; goes into detail about a new benchmark I wrote to attempt to simulate a simple relational database workload. The results were staggering to me.&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find prodcut by id graph&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find prodcut by id graph&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;Nearly every operation across every workload showed all ways of accessing BonsaiDb outperforming PostgreSQL significantly.&lt;&#x2F;p&gt;
 &lt;h3 id=&quot;-2&quot;&gt;
 
@@ -873,9 +1154,9 @@ README&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;These graphs show the accumulated execution time of each operation:&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#LookupProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;
-&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find product by name&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;
-&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#AddProductToCart&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;AddProductToCart.png&quot; class=&quot;block-image&quot; alt=&quot;add product to cart&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#LookupProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find product by name&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#AddProductToCart&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;AddProductToCart.png&quot; class=&quot;block-image&quot; alt=&quot;add product to cart&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;This set of graphs is from the &amp;quot;large, write-heavy, 2 workers per core&amp;quot;
 benchmark, run on a &lt;a href=&quot;https:&#x2F;&#x2F;scaleway.com&quot;&gt;Scaleway&lt;&#x2F;a&gt; GP1-XS instance running
 Ubuntu 20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage. The entire

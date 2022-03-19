@@ -26,15 +26,7 @@
                 <img src="/bonsaidb-64.png" height="28" />
                 <h1>BonsaiDb</h1>
             </a>
-            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-                <span aria-hidden="true"></span>
-            </a>
-        </div>
-
-        <div class="navbar-menu" id="navbar-menu">
-            <div class="navbar-start">
+            <div class="is-hidden-mobile is-flex-tablet">
                 <a class="navbar-item 
 
 
@@ -56,6 +48,39 @@ is-active
 " href="/blog/">
                     Blog
                 </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
             </div>
             <div class="navbar-end">
                 <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
