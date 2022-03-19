@@ -3,6 +3,8 @@
 {% import "macros.html" as macros %}
 
 {% block title %}{{ section.title }}{% endblock title %}
+{% block ogtitle %}{{ section.title }}{% endblock ogtitle %}
+{% block ogurl %}{{ section.permalink | safe }}{% endblock ogurl %}
 
 {% block content %}
 <div class="container content px-4">
@@ -13,7 +15,6 @@
         <div class="content">
             <h3 class="title is-4"><a href="{{ get_url(path = page.path) }}">{{ page.title }}</a></h3>
             <p class="subtitle is-6">Published {{ page.date }}</p>
-            <p>{{ page.summary }}</p>
         </div>
     </article>
     {% else %}

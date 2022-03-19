@@ -19,6 +19,15 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
     <link rel="manifest" href="/site.webmanifest">
     <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+    <meta property="og:title"
+        content="{% block ogtitle %}BonsaiDb: A Rust database that grows with you.{% endblock ogtitle %}" />
+    <meta property="og:image" content="{% block ogimage %}/apple-touch-icon.png{% endblock ogimage %}" />
+    <meta property="og:description"
+        content="{% block ogdescription %}BonsaiDb is a batteries-included database aimed at being the most developer-friendly database.{% endblock ogdescription %}" />
+    <meta property="og:url" content="{% block ogurl %}{% endblock ogurl %}" />
+    <meta property="og:image:width" content="{% block ogimagewidth %}180{% endblock ogimagewidth %}" />
+    <meta property="og:image:height" content="{% block ogimageheight %}180{% endblock ogimageheight %}" />
+    <meta property="og:type" content='{% block ogtype %}website{% endblock ogtype %}' />
 </head>
 
 <body>

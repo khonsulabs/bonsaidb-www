@@ -2,6 +2,7 @@
 title = "A Year of BonsaiDb: A retrospective and looking to the future"
 
 [extra]
+summary = "BonsaiDb's primary contributor reflects on the first year of development and what the future holds for BonsaiDb."
 author = "Jonathan Johnson"
 author_url = "https://github.com/ecton"
 +++

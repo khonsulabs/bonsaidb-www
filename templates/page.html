@@ -3,6 +3,14 @@
 {% import "macros.html" as macros %}
 
 {% block title %}{{ page.title }}{% endblock title %}
+{% block ogtitle %}{{ page.title }}{% endblock ogtitle %}
+{% block ogurl %}{{ page.permalink | safe }}{% endblock ogurl %}
+{% block ogdescription %}{% if page.extra.summary %}{{ page.extra.summary | safe }}{% else %}BonsaiDb is a
+batteries-included
+database
+aimed at being the most developer-friendly database.{% endif %}{% endblock ogdescription %}
+
+{% block ogtype %}{% if page.date or page.extra.author %}article{% else %}website{% endif %}{% endblock ogtype %}
 
 {% block content %}
 <div class="container content px-4">
