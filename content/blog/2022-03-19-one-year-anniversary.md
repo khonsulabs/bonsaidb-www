@@ -69,7 +69,7 @@ to see how it would perform. I never ended up taking any of those prototypes
 very far, but the thought process helped me appreciate and understand CouchDB's
 inner workings better.
 
-One day while working on [Cosmic Verge][comsicverge], it dawned on me: I had
+One day while working on [Cosmic Verge][cosmicverge], it dawned on me: I had
 built a small wrapper around [Sled][sled] that made it feel like a higher-level
 database. What if I went further and built a CouchDB-like API atop Sled?
 
