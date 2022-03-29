@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BonsaiDb v0.4.0: Now available without async</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="/nodarkreader.min.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/bonsaidb-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+    <meta property="og:title"
+        content="BonsaiDb v0.4.0: Now available without async" />
+    <meta property="og:image"
+        content="https://bonsaidb.io/apple-touch-icon.png" />
+    <meta property="og:description"
+        content="BonsaiDb is a
+batteries-included
+database
+aimed at being the most developer-friendly database." />
+    <meta property="og:url" content="https://bonsaidb.io/blog/bonsaidb-v0-4-0/" />
+    <meta property="og:image:width" content="180" />
+    <meta property="og:image:height" content="180" />
+    <meta property="og:type" content='article' />
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <div class="is-hidden-mobile is-flex-tablet">
+                <a class="navbar-item 
+
+
+
+" href="/">
+                    Getting Started
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/about/">
+                    What is BonsaiDb?
+                </a>
+                <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                    Blog
+                </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
+            </div>
+        </div>
+    </nav>
+
+    
+<div class="container content px-4">
+    <h1>BonsaiDb v0.4.0: Now available without async</h1>
+    
+    <p>
+        
+        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Jonathan Johnson</a>.
+        
+        
+        Published 2022-03-29.
+        
+        
+    </p>
+    
+    <blockquote>
+<p><strong>What is BonsaiDb?</strong></p>
+<p><a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a> is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: <a href="https://bonsaidb.io/about">What is
+BonsaiDb?</a>.</p>
+</blockquote>
+<p>BonsaiDb <a href="https://github.com/khonsulabs/bonsaidb/releases/tag/v0.4.0">v0.4.0</a> has been released with a new blocking (non-async)
+API, better identity/authentication session management, and many other
+improvements. The full list of changes can be viewed <a href="https://github.com/khonsulabs/bonsaidb/releases/tag/v0.4.0">on the GitHub Release
+page</a>.</p>
+<p>For readers who enjoy the &quot;This month in BonsaiDb&quot; updates, this release
+announcement takes the place of that post this month.</p>
+<h2 id="">
+
+
+<a href="#Updating%20existing%20projects" name="Updating%20existing%20projects">
+    Updating existing projects
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>This update contains no changes to how data is stored. However, there are a
+large number of types that have been renamed to distinguish async types from
+blocking types.</p>
+<p>If you have an existing project and want to continue using async, here are the
+types that you need to find and replace with their async counterparts in your
+project:</p>
+<table><thead><tr><th>Crate</th><th>Blocking Type</th><th>Async Type</th></tr></thead><tbody>
+<tr><td>Core</td><td>Connection</td><td>AsyncConnection</td></tr>
+<tr><td>Core</td><td>StorageConnection</td><td>AsyncStorageConnection</td></tr>
+<tr><td>Core</td><td>PubSub</td><td>AsyncPubSub</td></tr>
+<tr><td>Core</td><td>Subscriber</td><td>AsyncSubscriber</td></tr>
+<tr><td>Core</td><td>KeyValue</td><td>AsyncKeyValue</td></tr>
+<tr><td>Core</td><td>LowLevelConnection</td><td>AsyncLowLevelConnection</td></tr>
+<tr><td>Local</td><td>Storage</td><td>AsyncStorage</td></tr>
+<tr><td>Local</td><td>Database</td><td>AsyncDatabase</td></tr>
+</tbody></table>
+<p>After changing these types, you might encounter errors with functions like
+<code>SerializedCollection::push_into</code> or <code>SerializedCollection::list</code>. In every
+situation that this happens, you should be able to simply add <code>_async</code> to the
+function name. For example, <code>SerializedCollection::push_into_async</code> is the async
+version of <code>SerializedCollection::push_into</code>.</p>
+<p>If you are using the local version of BonsaiDb, Tokio has become an optional
+dependency. To enable async, enable the appropriate feature for whichever crate
+you're importing:</p>
+<pre data-lang="toml" style="background-color:#2b303b;color:#c0c5ce;" class="language-toml "><code class="language-toml" data-lang="toml"><span style="color:#bf616a;">bonsaidb </span><span>= { </span><span style="color:#bf616a;">version </span><span>= &quot;</span><span style="color:#a3be8c;">0.4.0</span><span>&quot;, </span><span style="color:#bf616a;">features </span><span>= [&quot;</span><span style="color:#a3be8c;">local</span><span>&quot;, &quot;</span><span style="color:#a3be8c;">local-async</span><span>&quot;] }
+</span><span style="color:#bf616a;">bonsaidb-local </span><span>= { </span><span style="color:#bf616a;">version </span><span>= &quot;</span><span style="color:#a3be8c;">0.4.0</span><span>&quot;, </span><span style="color:#bf616a;">default-features </span><span>= </span><span style="color:#d08770;">false</span><span>, </span><span style="color:#bf616a;">features </span><span>= [&quot;</span><span style="color:#a3be8c;">async</span><span>&quot;] }
+</span></code></pre>
+<p>There are other small breaking changes which are unlikely to affect most users.
+The full list can be <a href="https://github.com/khonsulabs/bonsaidb/blob/v0.4.0/CHANGELOG.md">viewed in the CHANGELOG</a> or <a href="https://github.com/khonsulabs/bonsaidb/releases/tag/v0.4.0">release
+page</a>.</p>
+<p>For those it might help, I've updated an <a href="https://minority-game.gooey.rs/">example project</a> of
+mine from v0.2 to this new release. The changes can be viewed in <a href="https://github.com/khonsulabs/minority-game/commit/c7ae081a0c37dc359f4c6e0bc2f821dc5a73f8aa">this
+commit</a>. This project features a client/server workspace
+and uses BonsaiDb's custom API functionality.</p>
+<h2 id="-1">
+
+
+<a href="#Why%20introduce%20a%20blocking%20API%3F" name="Why%20introduce%20a%20blocking%20API%3F">
+    Why introduce a blocking API?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>BonsaiDb has always wrapped <a href="https://github.com/khonsulabs/nebari">Nebari</a>'s blocking API with
+<a href="https://docs.rs/tokio/latest/tokio/task/fn.spawn_blocking.html">tokio::task::spawn_blocking</a> and exposed an async API. The
+reason behind this initial design was that the local-only version of BonsaiDb
+was a convenience feature, and the &quot;real&quot; benefit of projects adopting BonsaiDb
+was to use its server mode (and eventually clustering mode). I believe strongly
+that async is the best way to design a server that has long-lasting connections,
+and the types of applications I envision being developed with BonsaiDb fit that
+access model: Remote PubSub, Server-Push Apis, and more.</p>
+<p>One day I was joking that a friend wouldn't want to use BonsaiDb for his project
+because it would force him to use async. While he proceeded to say that async
+wouldn't stop him, the exchange made me take stock of the current users of
+BonsaiDb. Of all the people who I know are using BonsaiDb, most were only using
+the local version and many weren't building networked applications.</p>
+<p>Case in point, one user was painstakingly porting their
+project to async from sync to be able to use BonsaiDb. Thankfully, this set of
+changes were already underway, and they were able to be the first external
+tester of the new blocking API.</p>
+<h2 id="-2">
+
+
+<a href="#How%20does%20BonsaiDb%20enable%20both%20blocking%20and%20async%20access%3F" name="How%20does%20BonsaiDb%20enable%20both%20blocking%20and%20async%20access%3F">
+    How does BonsaiDb enable both blocking and async access?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>For the the local implementation, the most direct implementation is the blocking
+implementation. This means that there will be less overhead on local
+&quot;connections&quot; using the non-async interface. The overhead is very low, but it is
+present, and it is the same overhead that has always been present on BonsaiDb's
+interface.</p>
+<p>The local implementation exposes <code>Storage</code> and <code>Database</code>, which implement
+<code>StorageConnection</code> and <code>Connection</code> respectively. These types are the blocking
+types. <code>AsyncStorage</code> and <code>AsyncDatabase</code> implement <code>AsyncStorageConnection</code> and
+<code>AsyncConnection</code>. These types are the async types that internally store a
+handle to the Tokio runtime they belong to. This grants these types the types
+the ability to spawn blocking tasks as needed, even when used in async code that
+is using another async runtime.</p>
+<p>All local types offer several convenient functions that allow seamless
+conversion to and from each other, enabling applications that use both blocking
+and async to use BonsaiDb as their database with ease.</p>
+<p>The server implementation currently only exposes an initialization API that is
+compatible with async code. Once the server is initialized, however, a
+<code>Server</code>/<code>CustomServer</code> instance can be converted to <code>Storage</code>, enabling
+blocking access to the underlying storage layer.</p>
+<p>The <code>Client</code> type used for accessing a server implements both
+<code>StorageConnection</code> and <code>AsyncStorageConnection</code>, except for on WASM where no
+blocking implementation is provided. Currently, all networking implementations
+require Tokio to drive their networking behind the scenes, but in the future
+alternative implementations are possible to remove the reliance on Tokio for the
+network client.</p>
+<h2 id="-3">
+
+
+<a href="#Improved%20authenticated%20session%20handling" name="Improved%20authenticated%20session%20handling">
+    Improved authenticated session handling
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Prior to this release, there was no way to enforce database permissions in the
+offline version of BonsaiDb. If you are building a multi-user app but are using
+your own web server, how are you supposed to be able to leverage BonsaiDb's
+permissions and authentication?</p>
+<p>This release addresses this problem by moving all permission checking into the
+offline version and adding <code>assume_identity()</code> to
+<code>StorageConnection</code>/<code>AsyncStorageConnection</code>. Assuming an identity requires the
+permission to be allowed by the current connection. These changes allow all
+applications that need multi-user support to use the built-in role-based access
+control and, optionally, the built-in password authentication.</p>
+<p>Each connection object now has an associated <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/connection/struct.Session.html"><code>Session</code></a>, available
+through the new <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/connection/trait.HasSession.html"><code>HasSession</code> trait</a>. The functions
+<code>assume_identity()</code> and <code>authenticate()</code> return a new instance that is
+authenticated with the updated identity and associated permissions. The original
+connection retains its original authentication. This allows multiple
+authentication sessions to coexist on the same underlying connection, regardless
+of if it's a local or remote connection.</p>
+<p>When opening a local storage/database/server, the connection begins with no
+identity and restricted permissions. When connecting to a remote server, the
+client's unauthenticated session is limited to the permissions from
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/server/struct.ServerConfiguration.html#structfield.default_permissions"><code>ServerConfiguration::default_permissions</code></a>. After
+authenticating a user or assuming an identity,
+<a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/local/config/struct.StorageConfiguration.html#structfield.authenticated_permissions"><code>StorageConfiguration::authenticated_permissions</code></a>
+will be merged with the identity's granted permissions.</p>
+<p>I hope to see users trying out BonsaiDb's built-in user management and
+role-based access control!</p>
+<h2 id="-4">
+
+
+<a href="#Primary%20Key&#x2F;View%20Key%20improvements" name="Primary%20Key&#x2F;View%20Key%20improvements">
+    Primary Key&#x2F;View Key improvements
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The <a href="https://dev.bonsaidb.io/release/guide/traits/key.html"><code>Key</code> trait</a> has been split into two traits: <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/trait.Key.html"><code>Key</code></a>
+and <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/trait.KeyEncoding.html"><code>KeyEncoding</code></a>. This split has enabled various queries to
+take borrowed representations of the keys. For example, a <code>String</code> key type can
+now be queried using an <code>&amp;str</code>:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> doc = MyCollection::get(&quot;</span><span style="color:#a3be8c;">my key</span><span>&quot;, &amp;db)?;
+</span><span style="color:#b48ead;">let</span><span> mappings = db.view::&lt;MyView&gt;().</span><span style="color:#96b5b4;">with_key</span><span>(&quot;</span><span style="color:#a3be8c;">my key</span><span>&quot;).</span><span style="color:#96b5b4;">query</span><span>()?;
+</span></code></pre>
+<p>Additional types now have <code>Key</code> implementations provided for them: <code>[u8; N]</code>,
+<code>SystemTime</code> and <code>Duration</code>.</p>
+<h2 id="-5">
+
+
+<a href="#Using%20Time%20as%20a%20Key" name="Using%20Time%20as%20a%20Key">
+    Using Time as a Key
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Both <code>SystemTime</code> and <code>Duration</code> are stored with the full range that <code>Duration</code>
+supports. In memory, these types require 12 bytes to represent, and even with
+variable integer encoding, the values encoded as keys can still be fairly long.</p>
+<p>Most users don't need nanosecond precision with the range of 42 times the age of
+the universe. After a fun coworking session <a href="https://discord.khonsulabs.com/">on our Discord server</a>, I
+introduced <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/struct.LimitedResolutionDuration.html"><code>LimitedResolutionDuration</code></a> and
+<a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/struct.LimitedResolutionTimestamp.html">`LimitedResolutionTimestamp</a>. These types allow representing durations and
+timestamps using smaller in-memory representations, and offer additional
+compression using variable integer encoding and customizable epochs.</p>
+<p>To see an example of the benefits, compare timestamps encoded over the span of
+the next 40 years and their <code>Key</code>-encoded lengths:</p>
+<img src="&#x2F;images&#x2F;timestamp-key-encoding-chart.png" class="block-image" alt="Timestamp Encoding Lengths (bytes)"   />
+<p>As you can see, <code>SystemTime</code> encodes as 9 bytes (and will continue to do so
+until year 10,680). This is true of Duration as well, because <code>SystemTime</code>'s
+<code>Key</code> implementation encodes the duration from the unix epoch.</p>
+<p>By using one millisecond resolution, we can reduce the number of bytes down to 6 and
+also use only 8 bytes in memory to represent the value. By using one second
+resolution, we can further reduce the key size by another byte.</p>
+<p>How can we compress timestamps further? By leveraging an Epoch that is closer to the median of the expected timestamp/duration range, we can allow the variable integer encoding to shine. The closer to the Epoch the timestamp is, the smaller the value is.</p>
+<p>In the above chart, the two values that dip in the middle use <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/struct.BonsaiEpoch.html"><code>BonsaiEpoch</code></a>. After considering that databases either live long enough to be used for almost an eternity (PostgreSQL was first released in the 1980s) or live a short life. I thought the 10-year anniversary of the first commit of BonsaiDb seemed like a good idea.</p>
+<p>Despite it being an arbitrary decision, further consideration showed that epoch
+is good for one reason: Nanosecond-resolution timestamps encoded today will
+encode as 8 bytes, and will continue doing so until year 2,049. If an epoch
+slightly farther out were chosen, today's timestamps would encode with a full 9
+bytes, offering no benefit over the unix epoch version. This extra byte of
+savings isn't much, but it does make the key size word size or less on most
+modern machines.</p>
+<p>I've added a <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/index.html#types">full set of types</a> that support resolutions ranging
+from nanoseconds to weeks, and timestamp types that support both the BonsaiDb
+and unix epochs. You can also implement your <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/trait.TimeResolution.html">own resolution</a>
+and/or <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/trait.TimeEpoch.html">epoch</a> to tailor fit how these new types work.</p>
+<h2 id="-6">
+
+
+<a href="#Other%20contributors%20this%20release" name="Other%20contributors%20this%20release">
+    Other contributors this release
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>I wanted to make sure to include a mention for <a href="https://github.com/vbmade2000">@vbmade2000</a>'s
+contributions to this release. They added the <a href="https://github.com/khonsulabs/bonsaidb/pull/215">ability to delete users</a>,
+and the <a href="https://github.com/khonsulabs/bonsaidb/pull/221">ability to retrieve</a> a list of document headers without fetching
+the document's contents.</p>
+<p>If you are interested in contributing to BonsaiDb, I am trying to keep a healthy
+list of <a href="https://github.com/khonsulabs/bonsaidb/issues?q=is%3Aopen+label%3A%22good+first+issue%22+sort%3Aupdated-desc">good first issues</a>.</p>
+<h2 id="-7">
+
+
+<a href="#Getting%20Started" name="Getting%20Started">
+    Getting Started
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Our <a href="https://bonsaidb.io/">homepage</a> has basic setup instructions and a list of
+examples. We have started writing a <a href="https://dev.bonsaidb.io/release/guide/">user's
+guide</a>, and we have tried to write <a href="https://docs.rs/bonsaidb/">good
+documentation</a>.</p>
+<p>We would love to hear from you if you have questions or feedback. We have <a href="https://community.khonsulabs.com/">community Discourse forums</a> and a <a href="https://discord.khonsulabs.com">Discord server</a>, but also welcome anyone to <a href="https://github.com/khonsulabs/bonsaidb/issues/new">open an issue</a> with any questions or feedback.</p>
+<p>We dream big with <a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a>, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love <a href="https://github.com/khonsulabs/bonsaidb/labels/good%20first%20issue">additional contributors</a> who have similar passions and ambitions.</p>
+<p>Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!</p>
+
+</div>
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <iframe src="https://github.com/sponsors/ecton/button" title="Sponsor ecton" height="35" width="116"
+                style="border: 0;"></iframe>
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                website content
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/site.js"></script>
+</body>
+
+</html>
