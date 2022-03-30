@@ -165,10 +165,10 @@ project:</p>
 <tr><td>Local</td><td>Database</td><td>AsyncDatabase</td></tr>
 </tbody></table>
 <p>After changing these types, you might encounter errors with functions like
-<code>SerializedCollection::push_into</code> or <code>SerializedCollection::list</code>. In every
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/schema/trait.SerializedCollection.html#method.push_into"><code>SerializedCollection::push_into</code></a> or <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/schema/trait.SerializedCollection.html#method.list"><code>SerializedCollection::list</code></a>. In every
 situation that this happens, you should be able to simply add <code>_async</code> to the
-function name. For example, <code>SerializedCollection::push_into_async</code> is the async
-version of <code>SerializedCollection::push_into</code>.</p>
+function name. For example, <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/schema/trait.SerializedCollection.html#method.push_into_async"><code>SerializedCollection::push_into_async</code></a> is the async
+version of <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/schema/trait.SerializedCollection.html#method.push_into"><code>SerializedCollection::push_into</code></a>.</p>
 <p>If you are using the local version of BonsaiDb, Tokio has become an optional
 dependency. To enable async, enable the appropriate feature for whichever crate
 you're importing:</p>
@@ -219,22 +219,25 @@ implementation. This means that there will be less overhead on local
 very low, but it is
 present, and it is the same overhead that has always been present on BonsaiDb's
 interface.</p>
-<p>The local implementation exposes <code>Storage</code> and <code>Database</code>, which implement
-<code>StorageConnection</code> and <code>Connection</code> respectively. These types are the blocking
-types. <code>AsyncStorage</code> and <code>AsyncDatabase</code> implement <code>AsyncStorageConnection</code> and
-<code>AsyncConnection</code>. These types are the async types that internally store a
-handle to the Tokio runtime they belong to. This grants these types the types
-the ability to spawn blocking tasks as needed, even when used in async code that
-is using another async runtime.</p>
+<p>The local implementation exposes <a href="https://docs.rs/bonsaidb/latest/bonsaidb/local/struct.Storage.html"><code>Storage</code></a> and
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/local/struct.Database.html"><code>Database</code></a>, which implement
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.StorageConnection.html"><code>StorageConnection</code></a> and <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.Connection.html"><code>Connection</code></a>
+respectively. These types are the blocking types.
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/local/struct.AsyncStorage.html"><code>AsyncStorage</code></a> and <a href="https://docs.rs/bonsaidb/latest/bonsaidb/local/struct.AsyncDatabase.html"><code>AsyncDatabase</code></a> implement
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.AsyncStorageConnection.html"><code>AsyncStorageConnection</code></a> and
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.AsyncConnection.html"><code>AsyncConnection</code></a>. These types are the async types that
+internally store a handle to the Tokio runtime they belong to. This grants these
+types the types the ability to spawn blocking tasks as needed, even when used in
+async code that is using another async runtime.</p>
 <p>All local types offer several convenient functions that allow seamless
 conversion to and from each other, enabling applications that use both blocking
 and async to use BonsaiDb as their database with ease.</p>
 <p>The server implementation currently only exposes an initialization API that is
 compatible with async code. Once the server is initialized, however, a
-<code>Server</code>/<code>CustomServer</code> instance can be converted to <code>Storage</code>, enabling
-blocking access to the underlying storage layer.</p>
-<p>The <code>Client</code> type used for accessing a server implements both
-<code>StorageConnection</code> and <code>AsyncStorageConnection</code>, except for on WASM where no
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/server/type.Server.html"><code>Server</code></a>/<a href="https://docs.rs/bonsaidb/latest/bonsaidb/server/struct.CustomServer.html"><code>CustomServer</code></a> instance can be converted to
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/local/struct.Storage.html"><code>Storage</code></a>, enabling blocking access to the underlying storage layer.</p>
+<p>The <a href="https://docs.rs/bonsaidb/latest/bonsaidb/client/struct.Client.html"><code>Client</code></a> type used for accessing a server implements both
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.StorageConnection.html"><code>StorageConnection</code></a> and <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.AsyncStorageConnection.html"><code>AsyncStorageConnection</code></a>, except for on WASM where no
 blocking implementation is provided. Currently, all networking implementations
 require Tokio to drive their networking behind the scenes, but in the future
 alternative implementations are possible to remove the reliance on Tokio for the
@@ -252,7 +255,7 @@ your own web server, how are you supposed to be able to leverage BonsaiDb's
 permissions and authentication?</p>
 <p>This release addresses this problem by moving all permission checking into the
 offline version and adding <code>assume_identity()</code> to
-<code>StorageConnection</code>/<code>AsyncStorageConnection</code>. Assuming an identity requires the
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.StorageConnection.html"><code>StorageConnection</code></a>/<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.AsyncStorageConnection.html"><code>AsyncStorageConnection</code></a>. Assuming an identity requires the
 permission to be allowed by the current connection. These changes allow all
 applications that need multi-user support to use the built-in role-based access
 control and, optionally, the built-in password authentication.</p>
@@ -301,17 +304,19 @@ variable integer encoding, the values encoded as keys can still be fairly long.<
 <p>Most users don't need nanosecond precision with the range of 42 times the age of
 the universe. After a fun coworking session <a href="https://discord.khonsulabs.com/">on our Discord server</a>, I
 introduced <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.LimitedResolutionDuration.html"><code>LimitedResolutionDuration</code></a> and
-<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.LimitedResolutionTimestamp.html">`LimitedResolutionTimestamp</a>. These types allow representing durations and
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.LimitedResolutionTimestamp.html"><code>LimitedResolutionTimestamp</code></a>. These types allow representing durations and
 timestamps using smaller in-memory representations, and offer additional
 compression using variable integer encoding and customizable epochs.</p>
 <p>To see an example of the benefits, compare timestamps encoded over the span of
 the next 40 years and their <code>Key</code>-encoded lengths:</p>
 <img src="&#x2F;images&#x2F;timestamp-key-encoding-chart.png" class="block-image" alt="Timestamp Encoding Lengths (bytes)"   />
 <p>As you can see, <code>SystemTime</code> encodes as 9 bytes (and will continue to do so
-until year 10,680). This is true of Duration as well, because <code>SystemTime</code>'s
-<code>Key</code> implementation encodes the duration from the unix epoch.</p>
-<p>By using one millisecond resolution, we can reduce the number of bytes down to 6 and
-also use only 8 bytes in memory to represent the value. By using one second
+until year 10,680). <code>SystemTime</code>'s <code>Key</code> implementation encodes the duration
+from the unix epoch, so this means that Durations that of 52 years with
+nanosecond precision take 9 bytes to encode. The smaller the Duration being
+encoded, the smaller the output will be.</p>
+<p>By using one millisecond resolution, we can reduce the number of bytes down to 6
+and also use only 8 bytes in memory to represent the value. By using one second
 resolution, we can further reduce the key size by another byte.</p>
 <p>How can we compress timestamps further? By leveraging an Epoch that is closer to
 the median of the expected timestamp/duration range, we can allow the variable

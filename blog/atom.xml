@@ -49,10 +49,10 @@ project:&lt;&#x2F;p&gt;
 &lt;tr&gt;&lt;td&gt;Local&lt;&#x2F;td&gt;&lt;td&gt;Database&lt;&#x2F;td&gt;&lt;td&gt;AsyncDatabase&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
 &lt;p&gt;After changing these types, you might encounter errors with functions like
-&lt;code&gt;SerializedCollection::push_into&lt;&#x2F;code&gt; or &lt;code&gt;SerializedCollection::list&lt;&#x2F;code&gt;. In every
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;schema&#x2F;trait.SerializedCollection.html#method.push_into&quot;&gt;&lt;code&gt;SerializedCollection::push_into&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; or &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;schema&#x2F;trait.SerializedCollection.html#method.list&quot;&gt;&lt;code&gt;SerializedCollection::list&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. In every
 situation that this happens, you should be able to simply add &lt;code&gt;_async&lt;&#x2F;code&gt; to the
-function name. For example, &lt;code&gt;SerializedCollection::push_into_async&lt;&#x2F;code&gt; is the async
-version of &lt;code&gt;SerializedCollection::push_into&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+function name. For example, &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;schema&#x2F;trait.SerializedCollection.html#method.push_into_async&quot;&gt;&lt;code&gt;SerializedCollection::push_into_async&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; is the async
+version of &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;schema&#x2F;trait.SerializedCollection.html#method.push_into&quot;&gt;&lt;code&gt;SerializedCollection::push_into&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;If you are using the local version of BonsaiDb, Tokio has become an optional
 dependency. To enable async, enable the appropriate feature for whichever crate
 you&#x27;re importing:&lt;&#x2F;p&gt;
@@ -103,22 +103,25 @@ implementation. This means that there will be less overhead on local
 very low, but it is
 present, and it is the same overhead that has always been present on BonsaiDb&#x27;s
 interface.&lt;&#x2F;p&gt;
-&lt;p&gt;The local implementation exposes &lt;code&gt;Storage&lt;&#x2F;code&gt; and &lt;code&gt;Database&lt;&#x2F;code&gt;, which implement
-&lt;code&gt;StorageConnection&lt;&#x2F;code&gt; and &lt;code&gt;Connection&lt;&#x2F;code&gt; respectively. These types are the blocking
-types. &lt;code&gt;AsyncStorage&lt;&#x2F;code&gt; and &lt;code&gt;AsyncDatabase&lt;&#x2F;code&gt; implement &lt;code&gt;AsyncStorageConnection&lt;&#x2F;code&gt; and
-&lt;code&gt;AsyncConnection&lt;&#x2F;code&gt;. These types are the async types that internally store a
-handle to the Tokio runtime they belong to. This grants these types the types
-the ability to spawn blocking tasks as needed, even when used in async code that
-is using another async runtime.&lt;&#x2F;p&gt;
+&lt;p&gt;The local implementation exposes &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;local&#x2F;struct.Storage.html&quot;&gt;&lt;code&gt;Storage&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;local&#x2F;struct.Database.html&quot;&gt;&lt;code&gt;Database&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, which implement
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.StorageConnection.html&quot;&gt;&lt;code&gt;StorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.Connection.html&quot;&gt;&lt;code&gt;Connection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+respectively. These types are the blocking types.
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;local&#x2F;struct.AsyncStorage.html&quot;&gt;&lt;code&gt;AsyncStorage&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;local&#x2F;struct.AsyncDatabase.html&quot;&gt;&lt;code&gt;AsyncDatabase&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; implement
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.AsyncStorageConnection.html&quot;&gt;&lt;code&gt;AsyncStorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.AsyncConnection.html&quot;&gt;&lt;code&gt;AsyncConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. These types are the async types that
+internally store a handle to the Tokio runtime they belong to. This grants these
+types the types the ability to spawn blocking tasks as needed, even when used in
+async code that is using another async runtime.&lt;&#x2F;p&gt;
 &lt;p&gt;All local types offer several convenient functions that allow seamless
 conversion to and from each other, enabling applications that use both blocking
 and async to use BonsaiDb as their database with ease.&lt;&#x2F;p&gt;
 &lt;p&gt;The server implementation currently only exposes an initialization API that is
 compatible with async code. Once the server is initialized, however, a
-&lt;code&gt;Server&lt;&#x2F;code&gt;&#x2F;&lt;code&gt;CustomServer&lt;&#x2F;code&gt; instance can be converted to &lt;code&gt;Storage&lt;&#x2F;code&gt;, enabling
-blocking access to the underlying storage layer.&lt;&#x2F;p&gt;
-&lt;p&gt;The &lt;code&gt;Client&lt;&#x2F;code&gt; type used for accessing a server implements both
-&lt;code&gt;StorageConnection&lt;&#x2F;code&gt; and &lt;code&gt;AsyncStorageConnection&lt;&#x2F;code&gt;, except for on WASM where no
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;server&#x2F;type.Server.html&quot;&gt;&lt;code&gt;Server&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;&#x2F;&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;server&#x2F;struct.CustomServer.html&quot;&gt;&lt;code&gt;CustomServer&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; instance can be converted to
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;local&#x2F;struct.Storage.html&quot;&gt;&lt;code&gt;Storage&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, enabling blocking access to the underlying storage layer.&lt;&#x2F;p&gt;
+&lt;p&gt;The &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;client&#x2F;struct.Client.html&quot;&gt;&lt;code&gt;Client&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; type used for accessing a server implements both
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.StorageConnection.html&quot;&gt;&lt;code&gt;StorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.AsyncStorageConnection.html&quot;&gt;&lt;code&gt;AsyncStorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, except for on WASM where no
 blocking implementation is provided. Currently, all networking implementations
 require Tokio to drive their networking behind the scenes, but in the future
 alternative implementations are possible to remove the reliance on Tokio for the
@@ -136,7 +139,7 @@ your own web server, how are you supposed to be able to leverage BonsaiDb&#x27;s
 permissions and authentication?&lt;&#x2F;p&gt;
 &lt;p&gt;This release addresses this problem by moving all permission checking into the
 offline version and adding &lt;code&gt;assume_identity()&lt;&#x2F;code&gt; to
-&lt;code&gt;StorageConnection&lt;&#x2F;code&gt;&#x2F;&lt;code&gt;AsyncStorageConnection&lt;&#x2F;code&gt;. Assuming an identity requires the
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.StorageConnection.html&quot;&gt;&lt;code&gt;StorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;&#x2F;&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.AsyncStorageConnection.html&quot;&gt;&lt;code&gt;AsyncStorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. Assuming an identity requires the
 permission to be allowed by the current connection. These changes allow all
 applications that need multi-user support to use the built-in role-based access
 control and, optionally, the built-in password authentication.&lt;&#x2F;p&gt;
@@ -185,17 +188,19 @@ variable integer encoding, the values encoded as keys can still be fairly long.&
 &lt;p&gt;Most users don&#x27;t need nanosecond precision with the range of 42 times the age of
 the universe. After a fun coworking session &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&#x2F;&quot;&gt;on our Discord server&lt;&#x2F;a&gt;, I
 introduced &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.LimitedResolutionDuration.html&quot;&gt;&lt;code&gt;LimitedResolutionDuration&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and
-&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.LimitedResolutionTimestamp.html&quot;&gt;`LimitedResolutionTimestamp&lt;&#x2F;a&gt;. These types allow representing durations and
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.LimitedResolutionTimestamp.html&quot;&gt;&lt;code&gt;LimitedResolutionTimestamp&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. These types allow representing durations and
 timestamps using smaller in-memory representations, and offer additional
 compression using variable integer encoding and customizable epochs.&lt;&#x2F;p&gt;
 &lt;p&gt;To see an example of the benefits, compare timestamps encoded over the span of
 the next 40 years and their &lt;code&gt;Key&lt;&#x2F;code&gt;-encoded lengths:&lt;&#x2F;p&gt;
 &lt;img src=&quot;&amp;#x2F;images&amp;#x2F;timestamp-key-encoding-chart.png&quot; class=&quot;block-image&quot; alt=&quot;Timestamp Encoding Lengths (bytes)&quot;   &#x2F;&gt;
 &lt;p&gt;As you can see, &lt;code&gt;SystemTime&lt;&#x2F;code&gt; encodes as 9 bytes (and will continue to do so
-until year 10,680). This is true of Duration as well, because &lt;code&gt;SystemTime&lt;&#x2F;code&gt;&#x27;s
-&lt;code&gt;Key&lt;&#x2F;code&gt; implementation encodes the duration from the unix epoch.&lt;&#x2F;p&gt;
-&lt;p&gt;By using one millisecond resolution, we can reduce the number of bytes down to 6 and
-also use only 8 bytes in memory to represent the value. By using one second
+until year 10,680). &lt;code&gt;SystemTime&lt;&#x2F;code&gt;&#x27;s &lt;code&gt;Key&lt;&#x2F;code&gt; implementation encodes the duration
+from the unix epoch, so this means that Durations that of 52 years with
+nanosecond precision take 9 bytes to encode. The smaller the Duration being
+encoded, the smaller the output will be.&lt;&#x2F;p&gt;
+&lt;p&gt;By using one millisecond resolution, we can reduce the number of bytes down to 6
+and also use only 8 bytes in memory to represent the value. By using one second
 resolution, we can further reduce the key size by another byte.&lt;&#x2F;p&gt;
 &lt;p&gt;How can we compress timestamps further? By leveraging an Epoch that is closer to
 the median of the expected timestamp&#x2F;duration range, we can allow the variable
