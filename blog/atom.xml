@@ -99,7 +99,8 @@ tester of the new blocking API.&lt;&#x2F;p&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;For the the local implementation, the most direct implementation is the blocking
 implementation. This means that there will be less overhead on local
-&amp;quot;connections&amp;quot; using the non-async interface. The overhead is very low, but it is
+&amp;quot;connections&amp;quot; using the non-async interface. The overhead of the async types is
+very low, but it is
 present, and it is the same overhead that has always been present on BonsaiDb&#x27;s
 interface.&lt;&#x2F;p&gt;
 &lt;p&gt;The local implementation exposes &lt;code&gt;Storage&lt;&#x2F;code&gt; and &lt;code&gt;Database&lt;&#x2F;code&gt;, which implement
@@ -196,8 +197,15 @@ until year 10,680). This is true of Duration as well, because &lt;code&gt;System
 &lt;p&gt;By using one millisecond resolution, we can reduce the number of bytes down to 6 and
 also use only 8 bytes in memory to represent the value. By using one second
 resolution, we can further reduce the key size by another byte.&lt;&#x2F;p&gt;
-&lt;p&gt;How can we compress timestamps further? By leveraging an Epoch that is closer to the median of the expected timestamp&#x2F;duration range, we can allow the variable integer encoding to shine. The closer to the Epoch the timestamp is, the smaller the value is.&lt;&#x2F;p&gt;
-&lt;p&gt;In the above chart, the two values that dip in the middle use &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.BonsaiEpoch.html&quot;&gt;&lt;code&gt;BonsaiEpoch&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. After considering that databases either live long enough to be used for almost an eternity (PostgreSQL was first released in the 1980s) or live a short life. I thought the 10-year anniversary of the first commit of BonsaiDb seemed like a good idea.&lt;&#x2F;p&gt;
+&lt;p&gt;How can we compress timestamps further? By leveraging an Epoch that is closer to
+the median of the expected timestamp&#x2F;duration range, we can allow the variable
+integer encoding to shine. The closer to the Epoch the timestamp is, the smaller
+the value is.&lt;&#x2F;p&gt;
+&lt;p&gt;In the above chart, the two values that dip in the middle use
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.BonsaiEpoch.html&quot;&gt;&lt;code&gt;BonsaiEpoch&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. After considering that databases either live long
+enough to be used for almost an eternity (PostgreSQL was first released in the
+1980s) or live a short life. I thought the 10-year anniversary of the first
+commit of BonsaiDb seemed like a good idea.&lt;&#x2F;p&gt;
 &lt;p&gt;Despite it being an arbitrary decision, further consideration showed that epoch
 is good for one reason: Nanosecond-resolution timestamps encoded today will
 encode as 8 bytes, and will continue doing so until year 2,049. If an epoch

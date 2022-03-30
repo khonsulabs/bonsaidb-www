@@ -215,7 +215,8 @@ tester of the new blocking API.</p>
 </a></h2>
 <p>For the the local implementation, the most direct implementation is the blocking
 implementation. This means that there will be less overhead on local
-&quot;connections&quot; using the non-async interface. The overhead is very low, but it is
+&quot;connections&quot; using the non-async interface. The overhead of the async types is
+very low, but it is
 present, and it is the same overhead that has always been present on BonsaiDb's
 interface.</p>
 <p>The local implementation exposes <code>Storage</code> and <code>Database</code>, which implement
@@ -312,8 +313,15 @@ until year 10,680). This is true of Duration as well, because <code>SystemTime</
 <p>By using one millisecond resolution, we can reduce the number of bytes down to 6 and
 also use only 8 bytes in memory to represent the value. By using one second
 resolution, we can further reduce the key size by another byte.</p>
-<p>How can we compress timestamps further? By leveraging an Epoch that is closer to the median of the expected timestamp/duration range, we can allow the variable integer encoding to shine. The closer to the Epoch the timestamp is, the smaller the value is.</p>
-<p>In the above chart, the two values that dip in the middle use <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.BonsaiEpoch.html"><code>BonsaiEpoch</code></a>. After considering that databases either live long enough to be used for almost an eternity (PostgreSQL was first released in the 1980s) or live a short life. I thought the 10-year anniversary of the first commit of BonsaiDb seemed like a good idea.</p>
+<p>How can we compress timestamps further? By leveraging an Epoch that is closer to
+the median of the expected timestamp/duration range, we can allow the variable
+integer encoding to shine. The closer to the Epoch the timestamp is, the smaller
+the value is.</p>
+<p>In the above chart, the two values that dip in the middle use
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.BonsaiEpoch.html"><code>BonsaiEpoch</code></a>. After considering that databases either live long
+enough to be used for almost an eternity (PostgreSQL was first released in the
+1980s) or live a short life. I thought the 10-year anniversary of the first
+commit of BonsaiDb seemed like a good idea.</p>
 <p>Despite it being an arbitrary decision, further consideration showed that epoch
 is good for one reason: Nanosecond-resolution timestamps encoded today will
 encode as 8 bytes, and will continue doing so until year 2,049. If an epoch
