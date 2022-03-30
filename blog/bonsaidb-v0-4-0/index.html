@@ -255,8 +255,8 @@ offline version and adding <code>assume_identity()</code> to
 permission to be allowed by the current connection. These changes allow all
 applications that need multi-user support to use the built-in role-based access
 control and, optionally, the built-in password authentication.</p>
-<p>Each connection object now has an associated <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/connection/struct.Session.html"><code>Session</code></a>, available
-through the new <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/connection/trait.HasSession.html"><code>HasSession</code> trait</a>. The functions
+<p>Each connection object now has an associated <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/struct.Session.html"><code>Session</code></a>, available
+through the new <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.HasSession.html"><code>HasSession</code> trait</a>. The functions
 <code>assume_identity()</code> and <code>authenticate()</code> return a new instance that is
 authenticated with the updated identity and associated permissions. The original
 connection retains its original authentication. This allows multiple
@@ -267,7 +267,7 @@ identity and restricted permissions. When connecting to a remote server, the
 client's unauthenticated session is limited to the permissions from
 <a href="https://docs.rs/bonsaidb/latest/bonsaidb/server/struct.ServerConfiguration.html#structfield.default_permissions"><code>ServerConfiguration::default_permissions</code></a>. After
 authenticating a user or assuming an identity,
-<a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/local/config/struct.StorageConfiguration.html#structfield.authenticated_permissions"><code>StorageConfiguration::authenticated_permissions</code></a>
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/local/config/struct.StorageConfiguration.html#structfield.authenticated_permissions"><code>StorageConfiguration::authenticated_permissions</code></a>
 will be merged with the identity's granted permissions.</p>
 <p>I hope to see users trying out BonsaiDb's built-in user management and
 role-based access control!</p>
@@ -278,8 +278,8 @@ role-based access control!</p>
     Primary Key&#x2F;View Key improvements
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h2>
-<p>The <a href="https://dev.bonsaidb.io/release/guide/traits/key.html"><code>Key</code> trait</a> has been split into two traits: <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/trait.Key.html"><code>Key</code></a>
-and <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/trait.KeyEncoding.html"><code>KeyEncoding</code></a>. This split has enabled various queries to
+<p>The <a href="https://dev.bonsaidb.io/release/guide/traits/key.html"><code>Key</code> trait</a> has been split into two traits: <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/trait.Key.html"><code>Key</code></a>
+and <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/trait.KeyEncoding.html"><code>KeyEncoding</code></a>. This split has enabled various queries to
 take borrowed representations of the keys. For example, a <code>String</code> key type can
 now be queried using an <code>&amp;str</code>:</p>
 <pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#b48ead;">let</span><span> doc = MyCollection::get(&quot;</span><span style="color:#a3be8c;">my key</span><span>&quot;, &amp;db)?;
@@ -299,8 +299,8 @@ supports. In memory, these types require 12 bytes to represent, and even with
 variable integer encoding, the values encoded as keys can still be fairly long.</p>
 <p>Most users don't need nanosecond precision with the range of 42 times the age of
 the universe. After a fun coworking session <a href="https://discord.khonsulabs.com/">on our Discord server</a>, I
-introduced <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/struct.LimitedResolutionDuration.html"><code>LimitedResolutionDuration</code></a> and
-<a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/struct.LimitedResolutionTimestamp.html">`LimitedResolutionTimestamp</a>. These types allow representing durations and
+introduced <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.LimitedResolutionDuration.html"><code>LimitedResolutionDuration</code></a> and
+<a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.LimitedResolutionTimestamp.html">`LimitedResolutionTimestamp</a>. These types allow representing durations and
 timestamps using smaller in-memory representations, and offer additional
 compression using variable integer encoding and customizable epochs.</p>
 <p>To see an example of the benefits, compare timestamps encoded over the span of
@@ -313,7 +313,7 @@ until year 10,680). This is true of Duration as well, because <code>SystemTime</
 also use only 8 bytes in memory to represent the value. By using one second
 resolution, we can further reduce the key size by another byte.</p>
 <p>How can we compress timestamps further? By leveraging an Epoch that is closer to the median of the expected timestamp/duration range, we can allow the variable integer encoding to shine. The closer to the Epoch the timestamp is, the smaller the value is.</p>
-<p>In the above chart, the two values that dip in the middle use <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/struct.BonsaiEpoch.html"><code>BonsaiEpoch</code></a>. After considering that databases either live long enough to be used for almost an eternity (PostgreSQL was first released in the 1980s) or live a short life. I thought the 10-year anniversary of the first commit of BonsaiDb seemed like a good idea.</p>
+<p>In the above chart, the two values that dip in the middle use <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/struct.BonsaiEpoch.html"><code>BonsaiEpoch</code></a>. After considering that databases either live long enough to be used for almost an eternity (PostgreSQL was first released in the 1980s) or live a short life. I thought the 10-year anniversary of the first commit of BonsaiDb seemed like a good idea.</p>
 <p>Despite it being an arbitrary decision, further consideration showed that epoch
 is good for one reason: Nanosecond-resolution timestamps encoded today will
 encode as 8 bytes, and will continue doing so until year 2,049. If an epoch
@@ -321,10 +321,10 @@ slightly farther out were chosen, today's timestamps would encode with a full 9
 bytes, offering no benefit over the unix epoch version. This extra byte of
 savings isn't much, but it does make the key size word size or less on most
 modern machines.</p>
-<p>I've added a <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/index.html#types">full set of types</a> that support resolutions ranging
+<p>I've added a <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/index.html#types">full set of types</a> that support resolutions ranging
 from nanoseconds to weeks, and timestamp types that support both the BonsaiDb
-and unix epochs. You can also implement your <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/trait.TimeResolution.html">own resolution</a>
-and/or <a href="https://dev.bonsaidb.io/v0.4.0/docs/bonsaidb/core/key/time/limited/trait.TimeEpoch.html">epoch</a> to tailor fit how these new types work.</p>
+and unix epochs. You can also implement your <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/trait.TimeResolution.html">own resolution</a>
+and/or <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/key/time/limited/trait.TimeEpoch.html">epoch</a> to tailor fit how these new types work.</p>
 <h2 id="-6">
 
 

@@ -139,8 +139,8 @@ offline version and adding &lt;code&gt;assume_identity()&lt;&#x2F;code&gt; to
 permission to be allowed by the current connection. These changes allow all
 applications that need multi-user support to use the built-in role-based access
 control and, optionally, the built-in password authentication.&lt;&#x2F;p&gt;
-&lt;p&gt;Each connection object now has an associated &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;struct.Session.html&quot;&gt;&lt;code&gt;Session&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, available
-through the new &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.HasSession.html&quot;&gt;&lt;code&gt;HasSession&lt;&#x2F;code&gt; trait&lt;&#x2F;a&gt;. The functions
+&lt;p&gt;Each connection object now has an associated &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;struct.Session.html&quot;&gt;&lt;code&gt;Session&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, available
+through the new &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.HasSession.html&quot;&gt;&lt;code&gt;HasSession&lt;&#x2F;code&gt; trait&lt;&#x2F;a&gt;. The functions
 &lt;code&gt;assume_identity()&lt;&#x2F;code&gt; and &lt;code&gt;authenticate()&lt;&#x2F;code&gt; return a new instance that is
 authenticated with the updated identity and associated permissions. The original
 connection retains its original authentication. This allows multiple
@@ -151,7 +151,7 @@ identity and restricted permissions. When connecting to a remote server, the
 client&#x27;s unauthenticated session is limited to the permissions from
 &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;server&#x2F;struct.ServerConfiguration.html#structfield.default_permissions&quot;&gt;&lt;code&gt;ServerConfiguration::default_permissions&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. After
 authenticating a user or assuming an identity,
-&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;local&#x2F;config&#x2F;struct.StorageConfiguration.html#structfield.authenticated_permissions&quot;&gt;&lt;code&gt;StorageConfiguration::authenticated_permissions&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;local&#x2F;config&#x2F;struct.StorageConfiguration.html#structfield.authenticated_permissions&quot;&gt;&lt;code&gt;StorageConfiguration::authenticated_permissions&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
 will be merged with the identity&#x27;s granted permissions.&lt;&#x2F;p&gt;
 &lt;p&gt;I hope to see users trying out BonsaiDb&#x27;s built-in user management and
 role-based access control!&lt;&#x2F;p&gt;
@@ -162,8 +162,8 @@ role-based access control!&lt;&#x2F;p&gt;
     Primary Key&amp;#x2F;View Key improvements
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
-&lt;p&gt;The &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;traits&#x2F;key.html&quot;&gt;&lt;code&gt;Key&lt;&#x2F;code&gt; trait&lt;&#x2F;a&gt; has been split into two traits: &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;trait.Key.html&quot;&gt;&lt;code&gt;Key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
-and &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;trait.KeyEncoding.html&quot;&gt;&lt;code&gt;KeyEncoding&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. This split has enabled various queries to
+&lt;p&gt;The &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;traits&#x2F;key.html&quot;&gt;&lt;code&gt;Key&lt;&#x2F;code&gt; trait&lt;&#x2F;a&gt; has been split into two traits: &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;trait.Key.html&quot;&gt;&lt;code&gt;Key&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;
+and &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;trait.KeyEncoding.html&quot;&gt;&lt;code&gt;KeyEncoding&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. This split has enabled various queries to
 take borrowed representations of the keys. For example, a &lt;code&gt;String&lt;&#x2F;code&gt; key type can
 now be queried using an &lt;code&gt;&amp;amp;str&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
 &lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; doc = MyCollection::get(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;my key&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, &amp;amp;db)?;
@@ -183,8 +183,8 @@ supports. In memory, these types require 12 bytes to represent, and even with
 variable integer encoding, the values encoded as keys can still be fairly long.&lt;&#x2F;p&gt;
 &lt;p&gt;Most users don&#x27;t need nanosecond precision with the range of 42 times the age of
 the universe. After a fun coworking session &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&#x2F;&quot;&gt;on our Discord server&lt;&#x2F;a&gt;, I
-introduced &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.LimitedResolutionDuration.html&quot;&gt;&lt;code&gt;LimitedResolutionDuration&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and
-&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.LimitedResolutionTimestamp.html&quot;&gt;`LimitedResolutionTimestamp&lt;&#x2F;a&gt;. These types allow representing durations and
+introduced &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.LimitedResolutionDuration.html&quot;&gt;&lt;code&gt;LimitedResolutionDuration&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.LimitedResolutionTimestamp.html&quot;&gt;`LimitedResolutionTimestamp&lt;&#x2F;a&gt;. These types allow representing durations and
 timestamps using smaller in-memory representations, and offer additional
 compression using variable integer encoding and customizable epochs.&lt;&#x2F;p&gt;
 &lt;p&gt;To see an example of the benefits, compare timestamps encoded over the span of
@@ -197,7 +197,7 @@ until year 10,680). This is true of Duration as well, because &lt;code&gt;System
 also use only 8 bytes in memory to represent the value. By using one second
 resolution, we can further reduce the key size by another byte.&lt;&#x2F;p&gt;
 &lt;p&gt;How can we compress timestamps further? By leveraging an Epoch that is closer to the median of the expected timestamp&#x2F;duration range, we can allow the variable integer encoding to shine. The closer to the Epoch the timestamp is, the smaller the value is.&lt;&#x2F;p&gt;
-&lt;p&gt;In the above chart, the two values that dip in the middle use &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.BonsaiEpoch.html&quot;&gt;&lt;code&gt;BonsaiEpoch&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. After considering that databases either live long enough to be used for almost an eternity (PostgreSQL was first released in the 1980s) or live a short life. I thought the 10-year anniversary of the first commit of BonsaiDb seemed like a good idea.&lt;&#x2F;p&gt;
+&lt;p&gt;In the above chart, the two values that dip in the middle use &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;struct.BonsaiEpoch.html&quot;&gt;&lt;code&gt;BonsaiEpoch&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. After considering that databases either live long enough to be used for almost an eternity (PostgreSQL was first released in the 1980s) or live a short life. I thought the 10-year anniversary of the first commit of BonsaiDb seemed like a good idea.&lt;&#x2F;p&gt;
 &lt;p&gt;Despite it being an arbitrary decision, further consideration showed that epoch
 is good for one reason: Nanosecond-resolution timestamps encoded today will
 encode as 8 bytes, and will continue doing so until year 2,049. If an epoch
@@ -205,10 +205,10 @@ slightly farther out were chosen, today&#x27;s timestamps would encode with a fu
 bytes, offering no benefit over the unix epoch version. This extra byte of
 savings isn&#x27;t much, but it does make the key size word size or less on most
 modern machines.&lt;&#x2F;p&gt;
-&lt;p&gt;I&#x27;ve added a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;index.html#types&quot;&gt;full set of types&lt;&#x2F;a&gt; that support resolutions ranging
+&lt;p&gt;I&#x27;ve added a &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;index.html#types&quot;&gt;full set of types&lt;&#x2F;a&gt; that support resolutions ranging
 from nanoseconds to weeks, and timestamp types that support both the BonsaiDb
-and unix epochs. You can also implement your &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;trait.TimeResolution.html&quot;&gt;own resolution&lt;&#x2F;a&gt;
-and&#x2F;or &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;v0.4.0&#x2F;docs&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;trait.TimeEpoch.html&quot;&gt;epoch&lt;&#x2F;a&gt; to tailor fit how these new types work.&lt;&#x2F;p&gt;
+and unix epochs. You can also implement your &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;trait.TimeResolution.html&quot;&gt;own resolution&lt;&#x2F;a&gt;
+and&#x2F;or &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;key&#x2F;time&#x2F;limited&#x2F;trait.TimeEpoch.html&quot;&gt;epoch&lt;&#x2F;a&gt; to tailor fit how these new types work.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;-6&quot;&gt;
 
 
