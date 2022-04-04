@@ -227,7 +227,7 @@ respectively. These types are the blocking types.
 <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.AsyncStorageConnection.html"><code>AsyncStorageConnection</code></a> and
 <a href="https://docs.rs/bonsaidb/latest/bonsaidb/core/connection/trait.AsyncConnection.html"><code>AsyncConnection</code></a>. These types are the async types that
 internally store a handle to the Tokio runtime they belong to. This grants these
-types the types the ability to spawn blocking tasks as needed, even when used in
+types the ability to spawn blocking tasks as needed, even when used in
 async code that is using another async runtime.</p>
 <p>All local types offer several convenient functions that allow seamless
 conversion to and from each other, enabling applications that use both blocking

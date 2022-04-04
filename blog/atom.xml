@@ -111,7 +111,7 @@ respectively. These types are the blocking types.
 &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.AsyncStorageConnection.html&quot;&gt;&lt;code&gt;AsyncStorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and
 &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.AsyncConnection.html&quot;&gt;&lt;code&gt;AsyncConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. These types are the async types that
 internally store a handle to the Tokio runtime they belong to. This grants these
-types the types the ability to spawn blocking tasks as needed, even when used in
+types the ability to spawn blocking tasks as needed, even when used in
 async code that is using another async runtime.&lt;&#x2F;p&gt;
 &lt;p&gt;All local types offer several convenient functions that allow seamless
 conversion to and from each other, enabling applications that use both blocking
