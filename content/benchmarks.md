@@ -16,7 +16,7 @@ the performance of various functionality changes based on what other load the
 database is under. For example, read performance will be impacted by the amount
 of writes happening and vice-versa.
 
-The [Commerce Benchmark](#Commerce%20Benchmark) aims to provide a way to simulate
+The [Commerce Benchmark](/benchmarks/#Commerce%20Benchmark) aims to provide a way to simulate
 different ratios of read operations and write operations for a simple eCommerce
 schema. It might be tempting to use the results of this benchmark to claim that
 BonsaiDb will be faster for your application than another database choice.
@@ -91,9 +91,9 @@ Clicking on any graph will take you to the individual benchmark's report page.
 
 #### ACID-compliant Document Inserts
 
-These benchmarks measures the ACID-compliant insert speed of documents of
-varying sizes. Random data is utilized for the document contents, which is a
-worst-case scenario when enabling compression.
+These benchmarks measure the ACID-compliant insert speed of documents of varying
+sizes. Random data is utilized for the document contents, which is a worst-case
+scenario when enabling compression.
 
 Results from a [Scaleway](https://scaleway.com) GP1-XS instance:
 
