@@ -49,6 +49,14 @@ the transaction.
 [collection]: https://dev.bonsaidb.io/release/guide/about/concepts/collection.html
 [acid]: https://en.wikipedia.org/wiki/ACID
 
+### {{ anchor(text = "Competitive Performance", slug = "competitive-performance") }}
+
+BonsaiDb does not aim to be the fastest database available. Instead, our focus
+is on developer experience and data reliability. However, we recognize the
+importance of trusting that BonsaiDb is able perform as well as existing
+database solutions and aim to provide competitive performance. To see how
+BonsaiDb currently compares, check out our [benchmarks](/benchmarks).
+
 ### {{ anchor(text = "At-Rest Encryption", slug = "encryption") }}
 
 BonsaiDb optionally supports [encrypting data at-rest][at-rest-encryption],
