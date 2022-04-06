@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>How fast is BonsaiDb?</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="/nodarkreader.min.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/bonsaidb-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+    <meta property="og:title"
+        content="How fast is BonsaiDb?" />
+    <meta property="og:image"
+        content="https://bonsaidb.io/apple-touch-icon.png" />
+    <meta property="og:description"
+        content="BonsaiDb is a
+batteries-included
+database
+aimed at being the most developer-friendly database." />
+    <meta property="og:url" content="https://bonsaidb.io/benchmarks/" />
+    <meta property="og:image:width" content="180" />
+    <meta property="og:image:height" content="180" />
+    <meta property="og:type" content='website' />
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <div class="is-hidden-mobile is-flex-tablet">
+                <a class="navbar-item 
+
+
+
+" href="/">
+                    Getting Started
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/about/">
+                    What is BonsaiDb?
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/blog/">
+                    Blog
+                </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
+            </div>
+        </div>
+    </nav>
+
+    
+<div class="container content px-4">
+    <h1>How fast is BonsaiDb?</h1>
+    
+    <p>BonsaiDb's goal for performance is to be comparable to other popular,
+general-purpose, ACID-compliant databases such as SQLite, PostgreSQL, and
+MongoDB. We do not consider performance to be a core focus in development and
+will make decisions that create a better developer experience over raw
+performance.</p>
+<h2 id="">
+
+
+<a href="#What%20do%20these%20benchmarks%20tell%20us%20about%20BonsaiDb%3F" name="What%20do%20these%20benchmarks%20tell%20us%20about%20BonsaiDb%3F">
+    What do these benchmarks tell us about BonsaiDb?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Benchmarking a database is challenging, as each database has a unique set of
+features. Microbenchmarks aren't good for evaluating performance, because often
+the performance of various functionality changes based on what other load the
+database is under. For example, read performance will be impacted by the amount
+of writes happening and vice-versa.</p>
+<p>The <a href="/benchmarks/#Commerce%20Benchmark">Commerce Benchmark</a> aims to provide a way to simulate
+different ratios of read operations and write operations for a simple eCommerce
+schema. It might be tempting to use the results of this benchmark to claim that
+BonsaiDb will be faster for your application than another database choice.</p>
+<p>The unfortunate reality is that no matter how well designed a benchmark suite
+is, it will never be able to predict the performance of a database solution for
+your application with your usage patterns.</p>
+<p>The only conclusion we want readers to draw from these benchmarks is:
+<strong>BonsaiDb's performance is comparable to other mainstream databases.</strong></p>
+<h2 id="-1">
+
+
+<a href="#General%20Notes" name="General%20Notes">
+    General Notes
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>All benchmarks on this page are tailored to try to give a fair comparison
+between what functionality BonsaiDb offers and the closest equivalent mode in
+the database being compared against. This means that there are ways to operate
+other databases in configurations that provide different guarantees (such as not
+being fully ACID-compliant) and sometimes those modes can yield faster
+execution. These benchmarks will always pick the best way to compare other
+databases against BonsaiDb's guarantees, and as such, will not give a complete
+picture of any of the databases being compared.</p>
+<p>It is important to consider the hardware which BonsaiDb will be deployed to.
+Many developers have more powerful development machines than their applications
+eventually are deployed on. Each database has slightly different performance
+behaviors on various types of hard drives and memory constraints.</p>
+<h2 id="-2">
+
+
+<a href="#Commerce%20Benchmark" name="Commerce%20Benchmark">
+    Commerce Benchmark
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The <a href="https://github.com/khonsulabs/bonsaidb/tree/main/benchmarks/benches/commerce">Commerce Benchmark</a> attempts to simulate a
+relational database workload. All benchmarks are measuring fully ACID-compliant
+reads and writes. Click on either graph for the full report.</p>
+<p>This suite runs a series of operations with various configurations for:</p>
+<ul>
+<li>The dataset size (small, medium large)</li>
+<li>A load profile (read-heavy, balanced, write-heavy)</li>
+</ul>
+<p>For more information about this suite, including instructions on how to run the
+suite on your own hardware, see the <a href="https://github.com/khonsulabs/bonsaidb/tree/main/benchmarks/benches/commerce">benchmark's README</a>.</p>
+<h3 id="current-results">Current Results</h3>
+<p>Results from a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance running Ubuntu
+20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage (only occasionally
+updated):</p>
+<p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/commerce/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;Overview.png" class="block-image" alt="Commerce Benchmark Overview from Scaleway"   /></a></p>
+<p>Results when executed on GitHub Actions:</p>
+<p><a href="https://dev.bonsaidb.io/main/benchmarks/commerce/"><img src="https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;benchmarks&#x2F;commerce&#x2F;Overview.png" class="block-image" alt="Commerce Benchmark Overview from GitHub Actions"   /></a></p>
+<h2 id="-3">
+
+
+<a href="#Microbenchmarks" name="Microbenchmarks">
+    Microbenchmarks
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>BonsaiDb doesn't have many microbenchmarks yet. This suite uses
+<a href="https://github.com/bheisler/criterion.rs">Criterion</a> for its measurements.</p>
+<p>This suite currently only has one benchmark for documents/collections, and a few
+for the key-value store.</p>
+<h3 id="current-results-1">Current Results</h3>
+<ul>
+<li>Results from a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance running Ubuntu
+20.04 with 4 CPU cores, 16GB of RAM, and local NVME storage (only occasionally
+updated): <a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/report/index.html">full report</a></li>
+<li>Results when executed on GitHub Actions: <a href="https://dev.bonsaidb.io/main/benchmarks/suite/report/index.html">full report</a></li>
+</ul>
+<p>Clicking on any graph will take you to the individual benchmark's report page.</p>
+<h4 id="acid-compliant-document-inserts">ACID-compliant Document Inserts</h4>
+<p>These benchmarks measure the ACID-compliant insert speed of documents of varying
+sizes. Random data is utilized for the document contents, which is a worst-case
+scenario when enabling compression.</p>
+<p>Results from a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance:</p>
+<p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/save_documents/report/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;save_documents&#x2F;report&#x2F;lines.svg" class="block-image" alt="save_documents overview from Scaleway" style="background-color: #DDD"   /></a></p>
+<p>Results when executed on GitHub Actions:</p>
+<p><a href="https://dev.bonsaidb.io/main/benchmarks/suite/save_documents/report/index.html"><img src="https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;benchmarks&#x2F;suite&#x2F;save_documents&#x2F;report&#x2F;lines.svg" class="block-image" alt="save_documents overview from GitHub Actions" style="background-color: #DDD"   /></a></p>
+<h4 id="key-value-get-bytes">Key-Value Get Bytes</h4>
+<p>This benchmark measures the atomic get speed from the key-value store with keys
+of varying sizes.</p>
+<p>Results from a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance:</p>
+<p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/get-bytes/report/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;get-bytes&#x2F;report&#x2F;lines.svg" class="block-image" alt="get-bytes overview from Scaleway" style="background-color: #DDD"   /></a></p>
+<p>Results when executed on GitHub Actions:</p>
+<p><a href="https://dev.bonsaidb.io/main/benchmarks/suite/get-bytes/report/index.html"><img src="https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;benchmarks&#x2F;suite&#x2F;get-bytes&#x2F;report&#x2F;lines.svg" class="block-image" alt="get-bytes overview from GitHub Actions" style="background-color: #DDD"   /></a></p>
+<h4 id="key-value-set-bytes">Key-Value Set Bytes</h4>
+<p>This benchmark measures the atomic set (insert) speed from the key-value store
+with keys of varying sizes. These operations are confirmed before they are
+persisted to disk, making the key-value store not ACID compliant.</p>
+<p>Results from a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance:</p>
+<p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/set-bytes/report/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;set-bytes&#x2F;report&#x2F;lines.svg" class="block-image" alt="set-bytes overview from Scaleway" style="background-color: #DDD"   /></a></p>
+<p>Results when executed on GitHub Actions:</p>
+<p><a href="https://dev.bonsaidb.io/main/benchmarks/suite/set-bytes/report/index.html"><img src="https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;benchmarks&#x2F;suite&#x2F;set-bytes&#x2F;report&#x2F;lines.svg" class="block-image" alt="set-bytes overview from GitHub Actions" style="background-color: #DDD"   /></a></p>
+<h4 id="key-value-increment-value">Key-Value Increment Value</h4>
+<p>This benchmark measures the atomic increment operation speed from the key-value
+store. These operations are confirmed before they are persisted to disk, making
+the key-value store not ACID compliant.</p>
+<p>Results from a <a href="https://scaleway.com">Scaleway</a> GP1-XS instance:</p>
+<p><a href="https://khonsulabs-storage.s3.us-west-000.backblazeb2.com/bonsaidb-scaleway-gp1-xs/suite/increment/report/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;increment&#x2F;report&#x2F;violin.svg" class="block-image" alt="get-bytes overview from Scaleway" style="background-color: #DDD"   /></a></p>
+<p>Results when executed on GitHub Actions:</p>
+<p><a href="https://dev.bonsaidb.io/main/benchmarks/suite/get-bytes/report/index.html"><img src="https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;suite&#x2F;increment&#x2F;report&#x2F;violin.svg" class="block-image" alt="get-bytes overview from GitHub Actions" style="background-color: #DDD"   /></a></p>
+
+</div>
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <iframe src="https://github.com/sponsors/ecton/button" title="Sponsor ecton" height="35" width="116"
+                style="border: 0;"></iframe>
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                website content
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/site.js"></script>
+</body>
+
+</html>

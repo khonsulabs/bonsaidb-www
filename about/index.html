@@ -161,6 +161,16 @@ notified that their order was successfully submitted (and worse, their credit
 card charged), yet after the power is restored, your database has no record of
 the transaction.</p>
 <h3 id="-3">
+<a href="#competitive-performance" name="competitive-performance">
+    Competitive Performance
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>BonsaiDb does not aim to be the fastest database available. Instead, our focus
+is on developer experience and data reliability. However, we recognize the
+importance of trusting that BonsaiDb is able perform as well as existing
+database solutions and aim to provide competitive performance. To see how
+BonsaiDb currently compares, check out our <a href="/benchmarks">benchmarks</a>.</p>
+<h3 id="-4">
 <a href="#encryption" name="encryption">
     At-Rest Encryption
     <i class="bi bi-link-45deg hoverable"></i>
@@ -170,7 +180,7 @@ which prevents data from being leaked if a hard drive is stolen or wasn't wiped
 before being removed from a data center. This is an important feature to have
 when storing Personally Identifiable Information (PII) if your hosting
 environment does not offer ways of encrypting the filesystem itself.</p>
-<h3 id="-4">
+<h3 id="-5">
 <a href="#backup-restore" name="backup-restore">
     Backup &#x2F; Restore
     <i class="bi bi-link-45deg hoverable"></i>
@@ -181,7 +191,7 @@ provides built-in support for using a filesystem directory as a backup location,
 and there is planned support for any <a href="https://github.com/khonsulabs/bonsaidb/issues/122">S3-compatible storage service</a>.
 Currently, backups are always complete backups, but <a href="https://github.com/khonsulabs/bonsaidb/issues/121">incremental backups are
 planned</a>.</p>
-<h3 id="-5">
+<h3 id="-6">
 <a href="#rbac" name="rbac">
     Extensible Role-based Access Control
     <i class="bi bi-link-45deg hoverable"></i>
@@ -196,7 +206,7 @@ manage your application's permissions, not just the database's permissions.</p>
 <p>This feature is still under development, and currently, permissions are only
 enforced at the network level. There are <a href="https://github.com/khonsulabs/bonsaidb/issues/68">plans to allow permissions to be
 evaluated offline as well</a>.</p>
-<h3 id="-6">
+<h3 id="-7">
 <a href="#key-value" name="key-value">
     Atomic Key-Value Storage
     <i class="bi bi-link-45deg hoverable"></i>
@@ -207,7 +217,7 @@ namespaced, atomic <a href="https://dev.bonsaidb.io/release/guide/traits/key-val
 atomic operations as well as some atomic arithmetic operations.</p>
 <p>The default configuration of the Key-Value store prefers data integrity, but
 <a href="https://dev.bonsaidb.io/release/guide/administration/configuration.html#key-value-persistence">can be configured</a> to allow better throughput.</p>
-<h3 id="-7">
+<h3 id="-8">
 <a href="#pubsub" name="pubsub">
     Publish&#x2F;Subscribe (PubSub)
     <i class="bi bi-link-45deg hoverable"></i>
@@ -216,7 +226,7 @@ atomic operations as well as some atomic arithmetic operations.</p>
 messages. <a href="https://dev.bonsaidb.io/release/guide/about/concepts/pubsub.html">PubSub</a> can be used to power features like private messaging
 but can also be used as a way to separate services within an application's
 architecture.</p>
-<h3 id="-8">
+<h3 id="-9">
 <a href="#networked" name="networked">
     Secure Networked Access
     <i class="bi bi-link-45deg hoverable"></i>
@@ -226,7 +236,7 @@ architecture.</p>
 protocol is more efficient, but to enable access in the web browser, WebSockets
 are also offered. WebSockets may eventually be replaced or supplemented with a
 WebRTC offering.</p>
-<h4 id="-9">
+<h4 id="-10">
 <a href="#custom-api" name="custom-api">
     Extensible Wire Protocol
     <i class="bi bi-link-45deg hoverable"></i>
@@ -235,7 +245,7 @@ WebRTC offering.</p>
 style API. This provides an easy way to provide authenticated, permission-aware
 access to server-side functionality.</p>
 <p>The user's guide has <a href="https://dev.bonsaidb.io/release/guide/about/access-models/custom-api-server.html">a page dedicated to an example of this setup</a>.</p>
-<h4 id="-10">
+<h4 id="-11">
 <a href="#tcp-service" name="tcp-service">
     Extensible TCP Layer
     <i class="bi bi-link-45deg hoverable"></i>
@@ -246,7 +256,7 @@ connections <a href="https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct
 performing the negotation</a>.</p>
 <p>An example of this configuration is <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/axum/examples/axum.rs">included in the repository</a>.
 It shows how to use the <a href="https://crates.io/crates/axum">Axum</a> framework alongside BonsaiDb's WebSockets.</p>
-<h4 id="-11">
+<h4 id="-12">
 <a href="#acme" name="acme">
     TLS Certificates via LetsEncrypt
     <i class="bi bi-link-45deg hoverable"></i>
@@ -256,7 +266,7 @@ certificate. If you would like BonsaiDb to automatically acquire one using ACME,
 it's as simple as enabling a feature flag and <a href="https://dev.bonsaidb.io/release/docs/bonsaidb/server/struct.CustomServer.html#method.listen_for_secure_tcp_on">listening for TCP connections on
 port 443</a>. An example showing how this is configured is available
 <a href="https://github.com/khonsulabs/bonsaidb/blob/main/examples/acme/examples/acme.rs">in the repository</a>.</p>
-<h2 id="-12">
+<h2 id="-13">
 <a href="#roadmap" name="roadmap">
     BonsaiDb&#x27;s Planned Features
     <i class="bi bi-link-45deg hoverable"></i>
