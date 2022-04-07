@@ -119,8 +119,9 @@ Results when executed on GitHub Actions:
 #### Key-Value Set Bytes
 
 This benchmark measures the atomic set (insert) speed from the key-value store
-with keys of varying sizes. These operations are confirmed before they are
-persisted to disk, making the key-value store not ACID compliant.
+with keys of varying sizes. These operations are not confirmed to be written to
+disk before the results are reported, making the key-value store not ACID
+compliant.
 
 Results from a [Scaleway](https://scaleway.com) GP1-XS instance:
 
@@ -133,8 +134,9 @@ Results when executed on GitHub Actions:
 #### Key-Value Increment Value
 
 This benchmark measures the atomic increment operation speed from the key-value
-store. These operations are confirmed before they are persisted to disk, making
-the key-value store not ACID compliant.
+store. These operations are not confirmed to be written to
+disk before the results are reported, making the key-value store not ACID
+compliant.
 
 Results from a [Scaleway](https://scaleway.com) GP1-XS instance:
 
