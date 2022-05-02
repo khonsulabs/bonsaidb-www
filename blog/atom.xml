@@ -4,8 +4,259 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-03-29T00:00:00+00:00</updated>
+	<updated>2022-05-02T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>BonsaiDb April Update: Dogfooding and Fixing Bugs</title>
+		<published>2022-05-02T00:00:00+00:00</published>
+		<updated>2022-05-02T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/april-2022-update/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/april-2022-update/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;What is BonsaiDb?&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;about&quot;&gt;What is
+BonsaiDb?&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;This month has been a journey of interesting projects that I have been itching
+to write about. The primary focus of the month was to work on a new project to
+use and test &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;. Before I dive into that topic, I want to
+focus on a bug fix for Nebari that arose from testing this new project.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Nebari%200.5.2%20Update&quot; name=&quot;Nebari%200.5.2%20Update&quot;&gt;
+    Nebari 0.5.2 Update
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Yesterday, I published an update to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt; which contains bug fixes
+that prevent potential corruption of databases. For users of BonsaiDb, the view
+indexer is the only way that this bug could arise, from my understanding of the
+bugs discovered.&lt;&#x2F;p&gt;
+&lt;p&gt;The problem with this bug is that it&#x27;s a silent bug until a compact operation
+occurs. There are various &lt;code&gt;debug_assert!()&lt;&#x2F;code&gt; statements littered in the code that
+assert the internal &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;B%2B_tree&quot;&gt;B+ tree&lt;&#x2F;a&gt; order is correct. These are expensive to
+perform, so they are only enabled in debug builds. Users who are running
+BonsaiDb or Nebari with release builds may not notice the bug, and the database
+may return inconsistent results.&lt;&#x2F;p&gt;
+&lt;p&gt;The only way I was able to reproduce the bug involved many multi-key
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;nebari&#x2F;latest&#x2F;nebari&#x2F;tree&#x2F;struct.Modification.html&quot;&gt;&lt;code&gt;Modification&lt;&#x2F;code&gt;s&lt;&#x2F;a&gt; that operated in such a way that a bug in the
+tree balancing algorithm was found. The edge case only occurred when Nebari
+attempted to avoid splitting a node by moving entries both to the previous and
+next nodes during the same operation. This is impossible on small trees and is
+impossible to trigger by performing operations with only a few keys per
+operation or with a workflow that rarely deletes data.&lt;&#x2F;p&gt;
+&lt;p&gt;Despite me feeling fairly confident users haven&#x27;t encountered this yet, I would
+rest better knowing users have run &lt;code&gt;cargo update&lt;&#x2F;code&gt; to the latest version.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#Fuzzing%20Nebari&quot; name=&quot;Fuzzing%20Nebari&quot;&gt;
+    Fuzzing Nebari
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;After I fixed the bug in &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&quot;&gt;Nebari&lt;&#x2F;a&gt;, I proceeded to try to get a
+&lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Fuzzing&quot;&gt;fuzzing&lt;&#x2F;a&gt; suite set up. For those unfamiliar, fuzzing is an algorithmic
+approach to automated testing where a &amp;quot;fuzzer&amp;quot; repeatedly generates parameters
+for a test in an attempt to discover bugs. The &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;blob&#x2F;a6894b7c04938c35d4c69b161ae6985cf9de3ea5&#x2F;nebari&#x2F;src&#x2F;tree&#x2F;mod.rs#L2607-L2679&quot;&gt;test I wrote&lt;&#x2F;a&gt;
+essentialy was a dumb fuzzer -- the outer loop could be changed to loop forever.&lt;&#x2F;p&gt;
+&lt;p&gt;The advantage of my hand-written test is that it was able to narrow down the
+failure case quickly, as I knew some of the constraints of the inputs that
+produced the bug I encountered. The disadvantage is that it only would find a
+specific pattern of failure, as my inputs were not completely random.&lt;&#x2F;p&gt;
+&lt;p&gt;I ported the same approach to a fuzzer. The fuzzer is written to take an
+arbitrary &lt;code&gt;Vec&amp;lt;BTreeSet&amp;lt;u16&amp;gt;&amp;gt;&amp;gt;&lt;&#x2F;code&gt;. For each &lt;code&gt;BTreeSet&lt;&#x2F;code&gt;, a &lt;code&gt;TreeFile&lt;&#x2F;code&gt; is modified
+using a &lt;code&gt;CompareSwap&lt;&#x2F;code&gt; that inserts the key if a value isn&#x27;t already stored or
+removes the key if a value is already stored. The fuzzer...&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;xkcd.com&#x2F;1745&#x2F;&quot;&gt;&lt;img src=&quot;https:&#x2F;&#x2F;imgs.xkcd.com&#x2F;comics&#x2F;record_scratch.png&quot; alt=&quot;xkcd #1745 &amp;quot;Record Scratch&amp;quot;&quot; &#x2F;&gt;&lt;&#x2F;a&gt;&lt;sup class=&quot;footnote-reference&quot;&gt;&lt;a href=&quot;#1&quot;&gt;1&lt;&#x2F;a&gt;&lt;&#x2F;sup&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;Hey, who would have guessed it? Fuzzing works! As I was writing the last
+paragraph, the fuzzer found that my fix in &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;releases&#x2F;tag&#x2F;v0.5.1&quot;&gt;v0.5.1&lt;&#x2F;a&gt; was incomplete. I
+couldn&#x27;t bring myself to continue writing the post and shifted to working on
+&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;commit&#x2F;70ac91e32835117d594441e103c239ddef7a6ff6&quot;&gt;a fix&lt;&#x2F;a&gt;. I held off on releasing &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;releases&#x2F;tag&#x2F;v0.5.2&quot;&gt;v0.5.2&lt;&#x2F;a&gt; until last
+night, which allowed me to continue running fuzzing for 6 more hours after
+fixing the bug. It&#x27;s been running continuously overnight and up to the point
+of publishing this post without further incident.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;The fuzzer tries over and over to break my test by sending in different values
+for the &lt;code&gt;Vec&amp;lt;BTreeSet&amp;lt;u16&amp;gt;&amp;gt;&lt;&#x2F;code&gt;. Once it discovers a failure, it saves the
+problematic input so that it can be repeated on-demand.&lt;&#x2F;p&gt;
+&lt;p&gt;But that&#x27;s only part of what fuzzing can do for us. By running an &amp;quot;input
+minimization&amp;quot; operation on the crashing input, the fuzzer will try to find the
+smallest input that can reproduce the failure. It saves each of the discovered
+failure cases so they can be tested independently if desired. Once it can no
+longer find a smaller input, it reports the minimized test case.&lt;&#x2F;p&gt;
+&lt;p&gt;I was feeling pretty confident in Nebari&#x27;s stability before Friday. My
+confidence has been shaken, but as I write more fuzzing tests and run them for
+extended periods of time, I&#x27;m hopeful I can weed out any remaining bugs and
+restore my confidence.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Dogfooding%3A%20Shrinking%20Git%20Repository%20Sizes&quot; name=&quot;Dogfooding%3A%20Shrinking%20Git%20Repository%20Sizes&quot;&gt;
+    Dogfooding: Shrinking Git Repository Sizes
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;At the start of the month, I really wanted to build something with BonsaiDb. One
+problem BonsaiDb contributors have is related to my choice to use &lt;a href=&quot;https:&#x2F;&#x2F;pages.github.com&#x2F;&quot;&gt;GitHub
+Pages&lt;&#x2F;a&gt; to build a deployed version of BonsaiDb&#x27;s
+&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;docs&#x2F;bonsaidb&#x2F;&quot;&gt;documentation&lt;&#x2F;a&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;benchmarks&#x2F;suite&#x2F;report&#x2F;&quot;&gt;benchmark&lt;&#x2F;a&gt;
+&lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;benchmarks&#x2F;commerce&#x2F;&quot;&gt;results&lt;&#x2F;a&gt;, and &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;main&#x2F;guide&#x2F;&quot;&gt;user&#x27;s guide&lt;&#x2F;a&gt; on every
+commit. The way this works is that a &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;blob&#x2F;cfe80d2b9d399c34b06cfab3dd1b34b148cf4f19&#x2F;.github&#x2F;workflows&#x2F;docs.yml&quot;&gt;workflow&lt;&#x2F;a&gt;
+generates the static websites into a &lt;code&gt;gh-pages&lt;&#x2F;code&gt; branch, and GitHub deploys the
+latest version of that branch automatically.&lt;&#x2F;p&gt;
+&lt;p&gt;This comes at a cost, however. If you have cloned BonsaiDb&#x27;s repository, you
+probably noticed that the repository is quite large. Using Git, we can inspect
+how much disk space the &lt;code&gt;main&lt;&#x2F;code&gt; branch takes up compared to the &lt;code&gt;gh-pages&lt;&#x2F;code&gt;
+branch:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;# Total size of commits reachable from `main`
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;git&lt;&#x2F;span&gt;&lt;span&gt; rev-list&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt; --disk-usage --objects&lt;&#x2F;span&gt;&lt;span&gt;  refs&#x2F;heads&#x2F;main
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt;     &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;4&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;,302,211&lt;&#x2F;span&gt;&lt;span&gt; (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;~&lt;&#x2F;span&gt;&lt;span&gt;4.3mb)
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;# Total size of commits not reachable from `main`.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;git&lt;&#x2F;span&gt;&lt;span&gt; rev-list&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt; --disk-usage --objects --all --not&lt;&#x2F;span&gt;&lt;span&gt; refs&#x2F;heads&#x2F;main
+&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;,215,042,793&lt;&#x2F;span&gt;&lt;span&gt; (&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;~&lt;&#x2F;span&gt;&lt;span&gt;3.2gb)
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;By moving &lt;code&gt;gh-pages&lt;&#x2F;code&gt; hosting somewhere else, I can reduce BonsaiDb&#x27;s repository
+size down to a few megabytes instead of a few gigabytes. I&#x27;m aware there are
+other approaches that can be taken to alleviate this problem, but when paired
+with a request to add support for &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;222&quot;&gt;file storage&lt;&#x2F;a&gt;, I saw it as an
+opportunity to &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Eating_your_own_dog_food&quot;&gt;dogfood&lt;&#x2F;a&gt; BonsaiDb.&lt;&#x2F;p&gt;
+&lt;p&gt;On Friday, I deployed &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;dossier&quot;&gt;Dossier&lt;&#x2F;a&gt; to &lt;a href=&quot;https:&#x2F;&#x2F;khonsu.dev&#x2F;dossier&#x2F;main&#x2F;docs&#x2F;dossier&#x2F;&quot;&gt;khonsu.dev&lt;&#x2F;a&gt;. I loaded
+all of the BonsaiDb &lt;code&gt;gh-pages&lt;&#x2F;code&gt; files, but then encountered a slower sync time
+than I had hoped for. I had an idea for &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;commit&#x2F;cfe80d2b9d399c34b06cfab3dd1b34b148cf4f19&quot;&gt;an optimization&lt;&#x2F;a&gt; for
+listing files in &lt;code&gt;bonsaidb-files&lt;&#x2F;code&gt; and proceeded to update the View used for that
+operation and incremented its version number. This informs BonsaiDb it should
+discard all of the previously indexed data and reindex that view. While testing
+this locally against a database that had been used extensively for days and had
+over 100,000 files in it, I encountered the Nebari bug covered above. This
+caused me to pause progress on Dossier, as I will always prioritize any bugs
+relating to data integrity.&lt;&#x2F;p&gt;
+&lt;p&gt;I was hoping this blog post would announce that all of BonsaiDb&#x27;s static pages,
+including this blog, were hosted using Dossier, but I haven&#x27;t quite reached that
+milestone. I&#x27;m hopeful that will be true within the next week, however!&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-3&quot;&gt;
+
+
+&lt;a href=&quot;#Easier%20Administration%20of%20BonsaiDb&quot; name=&quot;Easier%20Administration%20of%20BonsaiDb&quot;&gt;
+    Easier Administration of BonsaiDb
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Another challenge I faced in building Dossier is that I needed a way to
+administer permissions. One morning I had the thought: &amp;quot;It&#x27;d be great if I had a
+tool like &lt;code&gt;psql&lt;&#x2F;code&gt;.&amp;quot; For those unfamiliar, &lt;code&gt;psql&lt;&#x2F;code&gt; is a simple command line
+interface that allows you to execute commands on a PostgreSQL database. Of
+course, most databases have SQL, and BonsaiDb has no language.&lt;&#x2F;p&gt;
+&lt;p&gt;Previously, I had considered the extensible &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;blob&#x2F;main&#x2F;examples&#x2F;basic-server&#x2F;examples&#x2F;cli.rs&quot;&gt;command line
+interface&lt;&#x2F;a&gt; to be a good approach, but as I added authentication
+support, I realized that every operation was going to re-authenticate. One
+advantage a tool like &lt;code&gt;pqsl&lt;&#x2F;code&gt; has is that it authenticates once upon launch and
+then reuses the same connection for subsequent commands.&lt;&#x2F;p&gt;
+&lt;p&gt;Because developing programming languages is a hobby of mine, one day I whipped
+up a demo exploring the idea of a language that worked both as a proc macro and
+as a string:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;rust&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-rust &quot;&gt;&lt;code class=&quot;language-rust&quot; data-lang=&quot;rust&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; results = bql!( &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; my_new_user = user &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;ecton&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot; create with password &amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;hunter2&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot; )
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;execute_on&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;storage)
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Created user id: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:?}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, results.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;my_new_user&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;());
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;let&lt;&#x2F;span&gt;&lt;span&gt; results = Program::parse(&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;r&lt;&#x2F;span&gt;&lt;span&gt;#&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;let jon = user &amp;quot;jon&amp;quot; create;&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;#)
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;()
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;execute_on&lt;&#x2F;span&gt;&lt;span&gt;(&amp;amp;storage)
+&lt;&#x2F;span&gt;&lt;span&gt;    .&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;();
+&lt;&#x2F;span&gt;&lt;span&gt;println!(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;Created user id: &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;{:?}&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;, results.&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;get&lt;&#x2F;span&gt;&lt;span&gt;(&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;jon&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;).&lt;&#x2F;span&gt;&lt;span style=&quot;color:#96b5b4;&quot;&gt;unwrap&lt;&#x2F;span&gt;&lt;span&gt;());
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;I was envisioning allowing this language to be extended. For example, the
+&lt;code&gt;bonsaidb-files&lt;&#x2F;code&gt; crate should be able to define its own commands. This creates
+an interesting problem that I decided wasn&#x27;t worth tackling: proc-macros cannot
+invoke code in types that are outside of its own list of dependencies.&lt;&#x2F;p&gt;
+&lt;p&gt;In the end, I decided that the use case for a language for use within Rust would
+be unlikely to surpass a well designed API&#x27;s fluidity. I put aside this
+experiment for now, and for Dossier, I&#x27;ve continued &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;commit&#x2F;48893ef033b1cbe40392021ce92130077291f680&quot;&gt;to
+expand&lt;&#x2F;a&gt; BonsaiDb&#x27;s built-in command line interface.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-4&quot;&gt;
+
+
+&lt;a href=&quot;#Open%20File%20Limits&quot; name=&quot;Open%20File%20Limits&quot;&gt;
+    Open File Limits
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Earlier in the month, I was testing something on my Mac laptop, and I decided to
+invoke the entire test suite with all features enabled on that machine. I ran
+into an error due to having too many open files. I &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;issues&#x2F;8&quot;&gt;expected&lt;&#x2F;a&gt;
+to eventually run into this, and I was proud that my test suite was the first I
+heard of it from a user. One might ask, why does the test suite using so many
+files that it&#x27;s a problem on that machine?&lt;&#x2F;p&gt;
+&lt;p&gt;Most of the unit tests in BonsaiDb are written against the core traits like
+&lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.Connection.html&quot;&gt;&lt;code&gt;Connection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; and &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;latest&#x2F;bonsaidb&#x2F;core&#x2F;connection&#x2F;trait.StorageConnection.html&quot;&gt;&lt;code&gt;StorageConnection&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. The
+&lt;code&gt;core-suite&lt;&#x2F;code&gt; integration test uses &lt;code&gt;bonsaidb-client&lt;&#x2F;code&gt; to run the test suite
+against a shared &lt;code&gt;bonsaidb-server&lt;&#x2F;code&gt; instance. Each unit test for each connection
+type gets its own database. The schema most tests utilize has multiple views,
+each which uses a few files to track their state.&lt;&#x2F;p&gt;
+&lt;p&gt;But still, with roughly 100 unit tests in the suite and two connection types, that
+is only a few hundred files. It turns out that Mac OS has a default per-process
+limit of 256 open files.&lt;&#x2F;p&gt;
+&lt;p&gt;In production, this is easily worked around by configuring the server&#x27;s
+environment, so this issue wasn&#x27;t a huge priority to me. But my mind started
+exploring what sort of data structure I might need to solve this problem. I
+wanted to use an &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Cache_replacement_policies#Least_recently_used_%28LRU%29&quot;&gt;LRU&lt;&#x2F;a&gt; thought an LRU cache that worked with a &lt;code&gt;BTreeMap&lt;&#x2F;code&gt; instead of a &lt;code&gt;HashMap&lt;&#x2F;code&gt;. Alas,
+none of the existing crates seemed to offer this functionality. I whipped up &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;lrumap&quot;&gt;my
+own LRU crate&lt;&#x2F;a&gt; (awaiting publication).&lt;&#x2F;p&gt;
+&lt;p&gt;Despite being 100% safe, it is very similar in performance compared to the
+unsafe crate Nebari currently uses.&lt;&#x2F;p&gt;
+&lt;p&gt;I attempted a few approaches in Nebari, but it&#x27;s a tough problem to solve. As
+this work was dragging on, I really wanted to stop chasing this squirrel and
+make progress on my original goal of the month. I will be finishing up this
+problem in the next month or two. Until then, if you run into this issue, you
+can configure your system to increase the maximum open files for your process,
+user, or system.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-5&quot;&gt;
+
+
+&lt;a href=&quot;#RFC%3A%20Token%20Authentication&quot; name=&quot;RFC%3A%20Token%20Authentication&quot;&gt;
+    RFC: Token Authentication
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;I&#x27;ve written up &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;discussions&#x2F;248&quot;&gt;a request for comments discussion&lt;&#x2F;a&gt; about
+how I&#x27;ve implemented token authentication for BonsaiDb. I&#x27;m dogfooding token
+authentication within Dossier by using it to power API Tokens that each GitHub
+Repository can have to upload files. The Dossier server uses BonsaiDb&#x27;s built-in
+Role-Based Access Control to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;dossier&#x2F;blob&#x2F;7b5d1d393cab65cef633ec36b0ab7a7a37f2aacf&#x2F;src&#x2F;api.rs#L233-L236&quot;&gt;verify permissions&lt;&#x2F;a&gt; when
+synchronizing files.&lt;&#x2F;p&gt;
+&lt;p&gt;Since I&#x27;ve created a new approach and am using a newer algorithm
+(&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;BLAKE3-team&#x2F;BLAKE3&quot;&gt;BLAKE3&lt;&#x2F;a&gt;), I wanted to see if there was any inherent problems with the
+approach I&#x27;m taking. Unless I hear from someone who is a cryptographer, I&#x27;m
+likely to document this feature as &amp;quot;experimental&amp;quot; for the foreseeable future.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-6&quot;&gt;
+
+
+&lt;a href=&quot;#What%27s%20next%3F&quot; name=&quot;What%27s%20next%3F&quot;&gt;
+    What&amp;#x27;s next?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;I&#x27;m going to be continuing to expand the fuzzing suite for Nebari to try to
+ensure it&#x27;s rock-solid. After that, I want to finish moving most of Khonsu Labs&#x27;
+self-hosted static pages onto Dossier. Once that is all done, I expect I will
+feel ready to release the next update to BonsaiDb.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-7&quot;&gt;
+
+
+&lt;a href=&quot;#Getting%20Started&quot; name=&quot;Getting%20Started&quot;&gt;
+    Getting Started
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Our &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;&quot;&gt;homepage&lt;&#x2F;a&gt; has basic setup instructions and a list of
+examples. We have started writing a &lt;a href=&quot;https:&#x2F;&#x2F;dev.bonsaidb.io&#x2F;release&#x2F;guide&#x2F;&quot;&gt;user&#x27;s
+guide&lt;&#x2F;a&gt;, and we have tried to write &lt;a href=&quot;https:&#x2F;&#x2F;docs.rs&#x2F;bonsaidb&#x2F;&quot;&gt;good
+documentation&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;We would love to hear from you if you have questions or feedback. We have &lt;a href=&quot;https:&#x2F;&#x2F;community.khonsulabs.com&#x2F;&quot;&gt;community Discourse forums&lt;&#x2F;a&gt; and a &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&quot;&gt;Discord server&lt;&#x2F;a&gt;, but also welcome anyone to &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;new&quot;&gt;open an issue&lt;&#x2F;a&gt; with any questions or feedback.&lt;&#x2F;p&gt;
+&lt;p&gt;We dream big with &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt;, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;labels&#x2F;good%20first%20issue&quot;&gt;additional contributors&lt;&#x2F;a&gt; who have similar passions and ambitions.&lt;&#x2F;p&gt;
+&lt;p&gt;Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!&lt;&#x2F;p&gt;
+&lt;div class=&quot;footnote-definition&quot; id=&quot;1&quot;&gt;&lt;sup class=&quot;footnote-definition-label&quot;&gt;1&lt;&#x2F;sup&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;xkcd.com&#x2F;1745&#x2F;&quot;&gt;&amp;quot;Record Scratch&amp;quot;&lt;&#x2F;a&gt; by &lt;a href=&quot;https:&#x2F;&#x2F;xkcd.com&quot;&gt;xkcd&lt;&#x2F;a&gt; is licensed under &lt;a href=&quot;https:&#x2F;&#x2F;creativecommons.org&#x2F;licenses&#x2F;by-nc&#x2F;2.5&#x2F;&quot;&gt;CC BY-NC 2.5&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;div&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>BonsaiDb v0.4.0: Now available without async</title>
 		<published>2022-03-29T00:00:00+00:00</published>
