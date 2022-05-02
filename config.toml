@@ -15,6 +15,9 @@ highlight_code = true
 [link_checker]
 skip_anchor_prefixes = [
     "https://github.com/khonsulabs/bonsaidb/blob/5216db14f621233c0a5f7f8ba2ac62c7508b3bd5/examples/open-library/examples/open-library.rs",
+    "https://github.com/khonsulabs/nebari/blob/a6894b7c04938c35d4c69b161ae6985cf9de3ea5/nebari/src/tree/mod.rs",
+    "https://github.com/khonsulabs/dossier/blob/7b5d1d393cab65cef633ec36b0ab7a7a37f2aacf/src/api.rs",
+    "https://en.wikipedia.org/wiki/Cache_replacement_policies",
 ]
 
 [extra]

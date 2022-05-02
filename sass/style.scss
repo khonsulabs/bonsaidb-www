@@ -1,19 +1,19 @@
 @charset "utf-8";
 
-$black:        hsl(33, 20%, 96%) ;
-$black-bis:    hsl(33, 20%, 93%) ;
-$black-ter:    hsl(33, 20%, 86%) ;
+$black: hsl(33, 20%, 96%);
+$black-bis: hsl(33, 20%, 93%);
+$black-ter: hsl(33, 20%, 86%);
 
-$grey-darker:  hsl(33, 30%, 79%);
-$grey-dark:    hsl(33, 30%, 71%);
-$grey:         hsl(33, 30%, 52%);
-$grey-light:   hsl(120, 10%, 29%);
+$grey-darker: hsl(33, 30%, 79%);
+$grey-dark: hsl(33, 30%, 71%);
+$grey: hsl(33, 30%, 52%);
+$grey-light: hsl(120, 10%, 29%);
 $grey-lighter: hsl(120, 10%, 14%);
 $grey-lightest: hsl(120, 10%, 7%);
 
-$white-ter:    hsl(120, 100%, 10%);
-$white-bis:    hsl(120, 100%, 6%);
-$white:        hsl(120, 100%, 2%);
+$white-ter: hsl(120, 100%, 10%);
+$white-bis: hsl(120, 100%, 6%);
+$white: hsl(120, 100%, 2%);
 
 nav .navbar-brand h1 {
     font-size: large;
@@ -21,14 +21,14 @@ nav .navbar-brand h1 {
     color: #CC7700;
 }
 
-$orange:       hsl(14,  100%, 53%);
-$yellow:       hsl(48,  100%, 74%);
-$green:        hsl(153, 53%,  53%);
-$turquoise:    hsl(35, 100%, 41%);
-$cyan:         hsl(207, 61%,  53%);
-$blue:         hsl(200, 53%,  53%);
-$purple:       hsl(271, 100%, 71%);
-$red:          hsl(319, 86%, 81%);
+$orange: hsl(14, 100%, 53%);
+$yellow: hsl(48, 100%, 74%);
+$green: hsl(153, 53%, 53%);
+$turquoise: hsl(35, 100%, 41%);
+$cyan: hsl(207, 61%, 53%);
+$blue: hsl(200, 53%, 53%);
+$purple: hsl(271, 100%, 71%);
+$red: hsl(319, 86%, 81%);
 
 .font-icon {
     padding: 0px 0.5em;
@@ -40,7 +40,8 @@ $red:          hsl(319, 86%, 81%);
     padding: 0;
 }
 
-.navbar, .footer {
+.navbar,
+.footer {
     background-color: #001600;
 }
 
@@ -52,7 +53,12 @@ a code {
     color: $cyan;
 }
 
-.content h1 a, .content h2 a, .content h3 a, .content h4 a, .content h5 a, .content h6 a {
+.content h1 a,
+.content h2 a,
+.content h3 a,
+.content h4 a,
+.content h5 a,
+.content h6 a {
     color: $text-strong;
 }
 
@@ -71,4 +77,8 @@ a code {
     display: block;
     margin: 0 auto;
     padding: 1em 0.25em;
+}
+
+.footnote-definition p {
+    display: inline-block;
 }
