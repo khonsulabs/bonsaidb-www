@@ -1,5 +1,5 @@
 +++
-title = "ACID Compliance: Syncing files fast"
+title = "BonsaiDb performance update: A deep-dive on file synchronization"
 
 [extra]
 author = "Jonathan Johnson"
@@ -32,7 +32,7 @@ Excited to see if it was enough to catch back up to PostgreSQL, I ran it and...
 it was a little faster but was still very slow.
 
 The rest of this post explores everything I've learned since then. Since this a
-summary, let's end with the **tl;dr: Reading data from BonsaiDb is still very
+summary, let me end with a **tl;dr: Reading data from BonsaiDb is still very
 efficient, but due to mistakes in benchmarking, writes are quite slow for
 workflows that insert or update a lot of data in a single collection. I am still
 excited and motivated to build BonsaiDb, but I am currently uncertain whether I
@@ -129,9 +129,8 @@ look at individual iteration times but rather iteration times for a set number
 of iterations.
 
 By logging out each individual iteration time, I can see that there are
-individual iterations that *do* take as long as an `fdatasync` call. Let's
-simplify and just look at the performance of `fdatasync()` and
-`sync_file_range()`. I created three tests to benchmark:
+individual iterations that *do* take as long as an `fdatasync` call. To
+simplify, I created three tests to benchmark:
 
 - `append`: Write to the end of the file and call `fdatasync`.
 - `preappend`: When a write needs more space in the file, extend the file using
@@ -158,10 +157,10 @@ know that it calls `fdatasync`, so what's happening? Let's open up Criterion's r
 | writes | syncrange |  |  |  | 5,701,286.0 | ns | 18 |
 | writes | syncrange |  |  |  | 5,788,786.0 | ns | 24 |
 
-Criterion isn't keeping track of every iteration, it keeps track of batches.
-Because of this, when the final statistics are tallied, we only see what can be
-gathered from these batch results. Let's run the same benchmark in my own
-benchmarking harness:
+Criterion isn't keeping track of every iteration. It keeps track of batches.
+Because of this, the final statistics tallied aren't able to see the true
+maximum iteration time. Let's run the same benchmark in my own benchmarking
+harness:
 
 |    Label    |   avg   |   min   |   max   | stddev  |  out%  |
 |-------------|---------|---------|---------|---------|--------|
@@ -293,7 +292,7 @@ qemu-system-x86_64 \
     -netdev user,id=net0,hostfwd=tcp::2222-:22
 ```
 
-In another terminal, I executed the various examples from the repository over
+In another terminal, I executed the various examples from [the repository][sync-tests] over
 `ssh`. After each example executed, the virtual machine would automatically
 reboot. By executing examples in a loop, I was able to run these commands for
 extended periods of time. My results are:
@@ -305,7 +304,7 @@ extended periods of time. My results are:
 | xfs        | Yes |
 | zfs        | No    |
 
-### {{ anchor(text = "Safely extending a file's length with sync_file_range" )}}
+### {{ anchor(text = "Safely extending a file's length while using sync_file_range" )}}
 
 My original testing of `sync_file_range` showed some failures, but after some
 additional testing, I noticed it was only happening with either the first or
