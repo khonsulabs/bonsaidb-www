@@ -18,6 +18,8 @@ skip_anchor_prefixes = [
     "https://github.com/khonsulabs/nebari/blob/a6894b7c04938c35d4c69b161ae6985cf9de3ea5/nebari/src/tree/mod.rs",
     "https://github.com/khonsulabs/dossier/blob/7b5d1d393cab65cef633ec36b0ab7a7a37f2aacf/src/api.rs",
     "https://en.wikipedia.org/wiki/Cache_replacement_policies",
+    "https://github.com/facebook/rocksdb/blob/bed40e7266b55349ce9d2dce27aeb2055813a5fe/env/io_posix.cc",
+    "https://github.com/cockroachdb/pebble/blob/3355a02e7cec7a4cbf775421a89dfbe833818266/vfs/syncing_file_linux.go",
 ]
 
 [extra]
