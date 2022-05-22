@@ -4,8 +4,474 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-05-02T00:00:00+00:00</updated>
+	<updated>2022-05-22T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>BonsaiDb performance update: A deep-dive on file synchronization</title>
+		<published>2022-05-22T00:00:00+00:00</published>
+		<updated>2022-05-22T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/durable-writes/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/durable-writes/</id>
+		<content type="html">&lt;blockquote&gt;
+&lt;p&gt;&lt;strong&gt;What is BonsaiDb?&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;about&quot;&gt;What is
+BonsaiDb?&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#tl%3Bdr%3A%20BonsaiDb%20is%20slower%20than%20previously%20reported&quot; name=&quot;tl%3Bdr%3A%20BonsaiDb%20is%20slower%20than%20previously%20reported&quot;&gt;
+    tl;dr: BonsaiDb is slower than previously reported
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;The day after &lt;a href=&quot;&#x2F;blog&#x2F;april-2022-update&quot;&gt;the last post&lt;&#x2F;a&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;justinj&quot;&gt;@justinj&lt;&#x2F;a&gt;
+reported that they traced one of the Nebari examples and did not see any &lt;code&gt;fsync&lt;&#x2F;code&gt;
+syscalls being executed. This was an honest mistake of misunderstanding the term
+&amp;quot;true sink&amp;quot; in &lt;a href=&quot;https:&#x2F;&#x2F;doc.rust-lang.org&#x2F;std&#x2F;io&#x2F;trait.Write.html&quot;&gt;&lt;code&gt;std::io::Write&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. It turns out &lt;code&gt;Write::flush()&lt;&#x2F;code&gt;&#x27;s
+implementation for &lt;code&gt;std::io::File&lt;&#x2F;code&gt; is a no-op, as the &amp;quot;true sink&amp;quot; is the kernel,
+not the disk.&lt;&#x2F;p&gt;
+&lt;p&gt;I released &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;releases&#x2F;tag&#x2F;v0.5.3&quot;&gt;Nebari v0.5.3&lt;&#x2F;a&gt; the same day. I ran the Nebari
+benchmark suite and... nothing changed. I ran the suite on GitHub Actions, no
+change. I ran the suite on my dedicated VPS I use for a more stable benchmarking
+environment than GitHub Actions... no change. I ran the suite on my Mac... huge
+slowdown. I&#x27;ll cover why further in this post, but my initial impression was
+that I dodged a bullet somehow.&lt;&#x2F;p&gt;
+&lt;p&gt;A few days later, I noticed the BonsaiDb Commerce Benchmark was running slowly.
+I quickly realized it was due to the synchronization changes and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;pull&#x2F;250&quot;&gt;began an
+entire rewrite of the view indexer and document storage&lt;&#x2F;a&gt;. A
+few days ago, I reached a stage where I could run the suite with my changes.
+Excited to see if it was enough to catch back up to PostgreSQL, I ran it and...
+it was a little faster but was still very slow.&lt;&#x2F;p&gt;
+&lt;p&gt;The rest of this post explores everything I&#x27;ve learned since then. Since this a
+summary, let me end with a &lt;strong&gt;tl;dr: Reading data from BonsaiDb is still very
+efficient, but due to mistakes in benchmarking, writes are quite slow for
+workflows that insert or update a lot of data in a single collection. I am still
+excited and motivated to build BonsaiDb, but I am currently uncertain whether I
+will still write my own low-level database layer. All assumptions about
+BonsaiDb&#x27;s performance must be reset.&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#Why%20didn%27t%20my%20refactor%20help%3F&quot; name=&quot;Why%20didn%27t%20my%20refactor%20help%3F&quot;&gt;
+    Why didn&amp;#x27;t my refactor help?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;The rest of that day and the next two days were spent profiling and trying to
+understand the results. I would then try to test my assumptions in an isolated
+test, and I wasn&#x27;t able to make significant progress.&lt;&#x2F;p&gt;
+&lt;p&gt;The following day as I was sipping coffee, I ran &lt;code&gt;df&lt;&#x2F;code&gt; to check my disk&#x27;s free
+space. I realized that each time I ran that command, &lt;code&gt;&#x2F;tmp&lt;&#x2F;code&gt; was always listed as
+a separate mountpoint. I use Manjaro Linux (based on Arch), and while I can
+generally solve any problems I have with my computer, I never considered the
+implications of &lt;code&gt;&#x2F;tmp&lt;&#x2F;code&gt; listed.&lt;&#x2F;p&gt;
+&lt;p&gt;Given that it&#x27;s a separate mountpoint than my main filesystem, the next logical
+question is: what filesystem does it use? The answer: &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Tmpfs&quot;&gt;tmpfs&lt;&#x2F;a&gt;, a
+filesystem that acts like a RAM-disk and never persists your files except
+through memory paging. &lt;code&gt;fsync&lt;&#x2F;code&gt; is essentially a no-op on such a filesystem. Many
+of my benchmarks and tests used the excellent &lt;a href=&quot;https:&#x2F;&#x2F;crates.io&#x2F;crates&#x2F;tempfile&quot;&gt;&lt;code&gt;tempfile&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; crate.&lt;&#x2F;p&gt;
+&lt;p&gt;Despite having worked with Linux off and on since the early 2000s, I never
+noticed this detail. The temporary directory is not a different filesystem on
+the Mac, which is one factor in why Nebari&#x27;s benchmarks exhibited a major change
+on the Mac while no change on Linux.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Should%20I%20continue%20Nebari%3F&quot; name=&quot;Should%20I%20continue%20Nebari%3F&quot;&gt;
+    Should I continue Nebari?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;The realization that all of my testing of other database&#x27;s performance was
+severely flawed meant that I needed to recheck everything. There is a real
+question: should I just ditch Nebari and use another database to back BonsaiDb?
+Thinking about my motivations, I&#x27;ve never wanted to create &amp;quot;the fastest
+database.&amp;quot;&lt;&#x2F;p&gt;
+&lt;p&gt;My pitch for BonsaiDb has always been about developer experience and being &amp;quot;good
+enough&amp;quot; for &amp;quot;most people.&amp;quot; I believe there are a lot of developers who waste a
+lot of development cycles building apps that are more concerned about
+high-availability than being able to scale to be the next Google. At that scale,
+a one-size-fits-all solution is almost never the solution. If I can simplify
+scaling from a test project to a highly-available solution and do it with
+&amp;quot;reasonable&amp;quot; performance, I&#x27;ve met my goals for BonsaiDb.&lt;&#x2F;p&gt;
+&lt;p&gt;The benefits of Nebari come down to it being tailor-fit to BonsaiDb&#x27;s needs.
+With my new approach to document and view storage that leverages Nebari&#x27;s
+ability to embed custom stats within its B+Tree, it meant I could build and
+query map-reduce views in a very efficient manner. I have yet to see another
+low-level database written in Rust that enables embedding custom information
+inside of the B+Tree structure to enable these capabilities.&lt;&#x2F;p&gt;
+&lt;p&gt;Because a tailor-fit solution is so attractive, I wanted to explore what it
+might take to make Nebari faster.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-3&quot;&gt;
+
+
+&lt;a href=&quot;#Why%20is%20Nebari%20slow%3F&quot; name=&quot;Why%20is%20Nebari%20slow%3F&quot;&gt;
+    Why is Nebari slow?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;To answer that question, I needed to fix my usage of &lt;code&gt;tempfile&lt;&#x2F;code&gt; in the Nebari
+benchmark. After doing that, Nebari still competed with
+&lt;a href=&quot;https:&#x2F;&#x2F;sqlite.org&#x2F;&quot;&gt;SQLite&lt;&#x2F;a&gt; on many benchmarks, but &lt;a href=&quot;https:&#x2F;&#x2F;sled.rs&quot;&gt;Sled&lt;&#x2F;a&gt;
+was reporting astonishing numbers. This led me to question whether Sled&#x27;s
+transactions are actually ACID-compliant when explicitly asking for them to be
+flushed.&lt;&#x2F;p&gt;
+&lt;p&gt;See, in my testing, I was able to determine that &lt;code&gt;fdatasync()&lt;&#x2F;code&gt; was unable to
+return in less than 1 millisecond on my machine. Here&#x27;s the output if the
+transactional insert benchmark measuring the time it takes to do an
+ACID-complaint insert of 1KB of data to a new key:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;blobs-insert&#x2F;nebari-versioned&#x2F;1KiB
+&lt;&#x2F;span&gt;&lt;span&gt;                        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;time:   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;2.6591 ms 2.6920 ms 2.7348 ms&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;                        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;thrpt:  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;365.66 KiB&#x2F;s 371.47 KiB&#x2F;s 376.07 KiB&#x2F;s&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;blobs-insert&#x2F;nebari&#x2F;1KiB
+&lt;&#x2F;span&gt;&lt;span&gt;                        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;time:   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;2.6415 ms 2.6671 ms 2.7023 ms&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;                        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;thrpt:  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;370.05 KiB&#x2F;s 374.93 KiB&#x2F;s 378.57 KiB&#x2F;s&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;blobs-insert&#x2F;sled&#x2F;1KiB&lt;&#x2F;span&gt;&lt;span&gt;  time:   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;38.438 us 38.894 us 39.376 us&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]                                    
+&lt;&#x2F;span&gt;&lt;span&gt;                        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;thrpt:  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;24.801 MiB&#x2F;s 25.108 MiB&#x2F;s 25.406 MiB&#x2F;s&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;blobs-insert&#x2F;sqlite&#x2F;1KiB
+&lt;&#x2F;span&gt;&lt;span&gt;                        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;time:   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;4.0630 ms 4.1192 ms 4.1913 ms&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span&gt;                        &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;thrpt:  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;238.59 KiB&#x2F;s 242.76 KiB&#x2F;s 246.12 KiB&#x2F;s&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;As you can see, Nebari sits in the middle with 2.6ms, SQLite is the slowest with
+4.11ms, and Sled reports an incredibly short 38.9μs. After a quick skim of
+Sled&#x27;s source, Sled isn&#x27;t calling &lt;code&gt;fdatasync()&lt;&#x2F;code&gt; most of the time when you ask it
+to flush its buffers. It&#x27;s using a different API: &lt;code&gt;sync_file_range()&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;Does that mean Sled isn&#x27;t persisting changes completely? No. Instead, this is an
+example of how to misunderstand statistics. From the output above, you might be
+tempted to infer that since the max single iteration time for Sled is 39.4μs.
+However, Criterion uses sampling-based statistics, which means that it doesn&#x27;t
+look at individual iteration times but rather iteration times for a set number
+of iterations.&lt;&#x2F;p&gt;
+&lt;p&gt;By logging out each individual iteration time, I can see that there are
+individual iterations that &lt;em&gt;do&lt;&#x2F;em&gt; take as long as an &lt;code&gt;fdatasync&lt;&#x2F;code&gt; call. To
+simplify, I created three tests to benchmark:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;append&lt;&#x2F;code&gt;: Write to the end of the file and call &lt;code&gt;fdatasync&lt;&#x2F;code&gt;.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;preappend&lt;&#x2F;code&gt;: When a write needs more space in the file, extend the file using
+&lt;code&gt;ftruncate&lt;&#x2F;code&gt; before writing. Call &lt;code&gt;fdatasync&lt;&#x2F;code&gt; after each write.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;syncrange&lt;&#x2F;code&gt;: When a write needs more space, extend the file using &lt;code&gt;ftruncate&lt;&#x2F;code&gt;
+and calling &lt;code&gt;fdatasync&lt;&#x2F;code&gt; after the write. When a write does not need more
+space, call &lt;code&gt;sync_file_range&lt;&#x2F;code&gt; to persist the newly written data.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;The output of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ecton&#x2F;sync-tests&#x2F;blob&#x2F;main&#x2F;benches&#x2F;durable-writes.rs&quot;&gt;this benchmark&lt;&#x2F;a&gt; is:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;writes&#x2F;append&lt;&#x2F;span&gt;&lt;span&gt;           time:   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;2.6211 ms 2.6585 ms 2.7058 ms&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;writes&#x2F;preallocate&lt;&#x2F;span&gt;&lt;span&gt;      time:   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;1.2467 ms 1.2675 ms 1.2923 ms&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;writes&#x2F;syncrange&lt;&#x2F;span&gt;&lt;span&gt;        time:   &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;[&lt;&#x2F;span&gt;&lt;span&gt;190.59 us 193.03 us 195.83 us&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;]
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;Our &lt;code&gt;syncrange&lt;&#x2F;code&gt; benchmark appears to not ever take longer than 195.8μs. But, we
+know that it calls &lt;code&gt;fdatasync&lt;&#x2F;code&gt;, so what&#x27;s happening? Let&#x27;s open up Criterion&#x27;s raw.csv report for &lt;code&gt;syncrange&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;group&lt;&#x2F;th&gt;&lt;th&gt;function&lt;&#x2F;th&gt;&lt;th&gt;value&lt;&#x2F;th&gt;&lt;th&gt;throughput_num&lt;&#x2F;th&gt;&lt;th&gt;throughput_type&lt;&#x2F;th&gt;&lt;th&gt;sample_measured_value&lt;&#x2F;th&gt;&lt;th&gt;unit&lt;&#x2F;th&gt;&lt;th&gt;iteration_count&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;writes&lt;&#x2F;td&gt;&lt;td&gt;syncrange&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;2,929,333.0&lt;&#x2F;td&gt;&lt;td&gt;ns&lt;&#x2F;td&gt;&lt;td&gt;6&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;writes&lt;&#x2F;td&gt;&lt;td&gt;syncrange&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;2,932,484.0&lt;&#x2F;td&gt;&lt;td&gt;ns&lt;&#x2F;td&gt;&lt;td&gt;12&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;writes&lt;&#x2F;td&gt;&lt;td&gt;syncrange&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;5,701,286.0&lt;&#x2F;td&gt;&lt;td&gt;ns&lt;&#x2F;td&gt;&lt;td&gt;18&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;writes&lt;&#x2F;td&gt;&lt;td&gt;syncrange&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;&lt;&#x2F;td&gt;&lt;td&gt;5,788,786.0&lt;&#x2F;td&gt;&lt;td&gt;ns&lt;&#x2F;td&gt;&lt;td&gt;24&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;p&gt;Criterion isn&#x27;t keeping track of every iteration. It keeps track of batches.
+Because of this, the final statistics tallied aren&#x27;t able to see the true
+maximum iteration time. Let&#x27;s run the same benchmark in my own benchmarking
+harness:&lt;&#x2F;p&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Label&lt;&#x2F;th&gt;&lt;th&gt;avg&lt;&#x2F;th&gt;&lt;th&gt;min&lt;&#x2F;th&gt;&lt;th&gt;max&lt;&#x2F;th&gt;&lt;th&gt;stddev&lt;&#x2F;th&gt;&lt;th&gt;out%&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;append&lt;&#x2F;td&gt;&lt;td&gt;2.628ms&lt;&#x2F;td&gt;&lt;td&gt;2.095ms&lt;&#x2F;td&gt;&lt;td&gt;5.702ms&lt;&#x2F;td&gt;&lt;td&gt;147.0us&lt;&#x2F;td&gt;&lt;td&gt;0.004%&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;preallocate&lt;&#x2F;td&gt;&lt;td&gt;1.243ms&lt;&#x2F;td&gt;&lt;td&gt;612.3us&lt;&#x2F;td&gt;&lt;td&gt;4.042ms&lt;&#x2F;td&gt;&lt;td&gt;859.3us&lt;&#x2F;td&gt;&lt;td&gt;0.004%&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;syncrange&lt;&#x2F;td&gt;&lt;td&gt;189.1us&lt;&#x2F;td&gt;&lt;td&gt;12.83us&lt;&#x2F;td&gt;&lt;td&gt;2.847ms&lt;&#x2F;td&gt;&lt;td&gt;653.6us&lt;&#x2F;td&gt;&lt;td&gt;0.063%&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;p&gt;Using this harness, I can see now see results that make sense. The averages
+match what we see from Criterion, but now our min and max show a wider range. We
+can now see that even for the &lt;code&gt;syncrange&lt;&#x2F;code&gt; benchmark, some writes will take
+2.8ms.&lt;&#x2F;p&gt;
+&lt;p&gt;The takeaway is very important: using &lt;code&gt;sync_file_range&lt;&#x2F;code&gt;, Sled is able to make
+the average write&#x27;s time take 38.9μs, even though occasionally there will be
+write operations that are longer due to the need for an &lt;code&gt;fdatasync&lt;&#x2F;code&gt;
+when the file&#x27;s size changes.&lt;&#x2F;p&gt;
+&lt;p&gt;Given how much faster &lt;code&gt;sync_file_range()&lt;&#x2F;code&gt; is, is it safe to use to achieve
+durable writes?&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-4&quot;&gt;
+
+
+&lt;a href=&quot;#What%20does%20sync_file_range%20do%3F&quot; name=&quot;What%20does%20sync_file_range%20do%3F&quot;&gt;
+    What does sync_file_range do?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;code&gt;sync_file_range()&lt;&#x2F;code&gt; has many modes of operation. At its core, it offers the
+ability to ask the kernel to commit any dirty cached data to the filesystem. For
+the purposes of this post, we are most interested in the mode of operation when
+&lt;code&gt;SYNC_FILE_RANGE_WAIT_BEFORE&lt;&#x2F;code&gt;,  &lt;code&gt;SYNC_FILE_RANGE_WRITE&lt;&#x2F;code&gt;, and
+&lt;code&gt;SYNC_FILE_RANGE_WAIT_AFTER&lt;&#x2F;code&gt; are passed.&lt;&#x2F;p&gt;
+&lt;p&gt;With these flags, &lt;code&gt;sync_file_range()&lt;&#x2F;code&gt; is documented to wait for all dirty pages
+within the range provided to be flushed to disk. However, the documentation for
+this function advises that it is &amp;quot;extremely dangerous.&amp;quot;&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-5&quot;&gt;
+
+
+&lt;a href=&quot;#What%20are%20%27durable%20writes%27%3F&quot; name=&quot;What%20are%20%27durable%20writes%27%3F&quot;&gt;
+    What are &amp;#x27;durable writes&amp;#x27;?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;When writing data to a file, the operating system does not immediately write the
+bits to the phsysical disk. This would be incredibly slow, even with modern
+SSDs. Instead, operating systems will typically manage a cache of the underlying
+storage and occasionally flush the updated information to the storage. This
+allows writes to be fast and enables the operating system to attempt to schedule
+and reorder operations for efficiency.&lt;&#x2F;p&gt;
+&lt;p&gt;The problem with this approach occurs when the power suddenly is cut to the
+machine. Imagine a user hits &amp;quot;Save&amp;quot; in their program, the program confirmed it
+was saved, and suddenly the building&#x27;s power dies. The program claimed it saved
+the file, but upon rebooting, the file is missing or corrupt. How does that
+happen? The file may have only been saved to the kernel&#x27;s cache and never
+written to the physical disk.&lt;&#x2F;p&gt;
+&lt;p&gt;The solution is called flushing or syncing. Each operating system exposes one or
+more functions to ensure all writes to a file have successfully been persisted
+to the physical media:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;On Linux, it&#x27;s &lt;a href=&quot;https:&#x2F;&#x2F;man.archlinux.org&#x2F;man&#x2F;fsync.2&quot;&gt;&lt;code&gt;fsync()&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;man.archlinux.org&#x2F;man&#x2F;fdatasync.2&quot;&gt;&lt;code&gt;fdatasync()&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, and
+&lt;a href=&quot;https:&#x2F;&#x2F;man.archlinux.org&#x2F;man&#x2F;sync_file_range.2&quot;&gt;&lt;code&gt;sync_file_range()&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;.&lt;&#x2F;li&gt;
+&lt;li&gt;On Windows, it&#x27;s &lt;a href=&quot;https:&#x2F;&#x2F;docs.microsoft.com&#x2F;en-us&#x2F;windows&#x2F;win32&#x2F;api&#x2F;fileapi&#x2F;nf-fileapi-flushfilebuffers&quot;&gt;&lt;code&gt;FlushFileBuffers&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;.&lt;&#x2F;li&gt;
+&lt;li&gt;On Mac&#x2F;iOS, &lt;code&gt;fsync()&lt;&#x2F;code&gt; is available but does not provide the same guarantees as
+Linux. Instead, a call to &lt;code&gt;fcntl&lt;&#x2F;code&gt; with the &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; option must be used
+to trigger a write to physical media.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Rust uses the correct APIs for each platform when calling &lt;code&gt;File::sync_all&lt;&#x2F;code&gt; or
+&lt;code&gt;File::sync_data&lt;&#x2F;code&gt; to provide durable writes. The standard library does not
+provide APIs to invoke the underlying APIs mentioned above. Thankfully, the
+&lt;code&gt;libc&lt;&#x2F;code&gt; crate makes it easy to call the APIs we are interested in for this post.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-6&quot;&gt;
+
+
+&lt;a href=&quot;#Linux%3A%20Is%20sync_file_range%20viable%20for%20durable%20writes%3F&quot; name=&quot;Linux%3A%20Is%20sync_file_range%20viable%20for%20durable%20writes%3F&quot;&gt;
+    Linux: Is sync_file_range viable for durable writes?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;The &lt;a href=&quot;https:&#x2F;&#x2F;man.archlinux.org&#x2F;man&#x2F;sync_file_range.2&quot;&gt;man page for &lt;code&gt;sync_file_range()&lt;&#x2F;code&gt;&lt;&#x2F;a&gt; includes this warning
+(emphasis mine):&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;This system call is &lt;strong&gt;extremely dangerous and should not be used in portable
+programs&lt;&#x2F;strong&gt;. None of these operations writes out the file&#x27;s metadata.
+Therefore, unless the application is strictly performing overwrites of
+already-instantiated disk blocks, there are no guarantees that the data will
+be available after a crash. There is no user interface to know if a write is
+purely an overwrite. On filesystems using copy-on-write semantics (e.g.,
+&lt;em&gt;btrfs&lt;&#x2F;em&gt;) an overwrite of existing allocated blocks is impossible. &lt;strong&gt;When
+writing into preallocated space, many filesystems also require calls into the
+block allocator, which this system call does not sync out to disk&lt;&#x2F;strong&gt;. This
+system call does not flush disk write caches and thus does not provide any
+data integrity on systems with volatile disk write caches.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Sled is using it to achieve it&#x27;s incredible speed, and &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;spacejam&#x2F;sled&#x2F;issues&#x2F;1351&quot;&gt;the author is
+aware&lt;&#x2F;a&gt; of this warning. One of the commentors on the linked page
+points out that RocksDB &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;facebook&#x2F;rocksdb&#x2F;blob&#x2F;bed40e7266b55349ce9d2dce27aeb2055813a5fe&#x2F;env&#x2F;io_posix.cc#L160-L166&quot;&gt;has special code to disable using the API on
+&lt;code&gt;zfs&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. Pebble, which is a Go port&#x2F;spinoff of RocksDB, takes the
+approach of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;cockroachdb&#x2F;pebble&#x2F;blob&#x2F;3355a02e7cec7a4cbf775421a89dfbe833818266&#x2F;vfs&#x2F;syncing_file_linux.go#L34-L36&quot;&gt;opting-in &lt;code&gt;ext4&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;. Both RocksDB and Pebble seem to
+still use &lt;code&gt;fsync&lt;&#x2F;code&gt;&#x2F;&lt;code&gt;fdatasync&lt;&#x2F;code&gt; at various locations to ensure durability.&lt;&#x2F;p&gt;
+&lt;p&gt;I decided to look at PostgreSQL&#x27;s source as well. They use &lt;code&gt;sync_file_range()&lt;&#x2F;code&gt;&#x27;s
+asynchronous mode to &lt;a href=&quot;https:&#x2F;&#x2F;git.postgresql.org&#x2F;gitweb&#x2F;?p=postgresql.git;a=blob;f=src&#x2F;backend&#x2F;storage&#x2F;file&#x2F;fd.c;hb=e19272ef603bdb11a09e7f8500dc4e0fb4ec73de#l493&quot;&gt;hint to the OS&lt;&#x2F;a&gt; that the writes
+need to be flushed, but they still issue &lt;code&gt;fsync&lt;&#x2F;code&gt; or &lt;code&gt;fdatasync&lt;&#x2F;code&gt; as needed.&lt;&#x2F;p&gt;
+&lt;p&gt;I also looked to SQLite&#x27;s source: no references. I could not find any relevant
+discussion threads either.&lt;&#x2F;p&gt;
+&lt;p&gt;I&#x27;m not an expert on any of these databases, so my skim of their codebases
+should be taken with a grain of salt.&lt;&#x2F;p&gt;
+&lt;p&gt;I tried finding any information about the reliability of &lt;code&gt;sync_file_range&lt;&#x2F;code&gt; for
+durable overwrites on various filesystems, and I couldn&#x27;t find anything except
+these little bits already linked.&lt;&#x2F;p&gt;
+&lt;p&gt;Lacking any definitive answer regarding whether it&#x27;s able to provide durability
+on any filesystems, I set out to test this myself.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;-7&quot;&gt;
+
+
+&lt;a href=&quot;#Testing%20sync_file_range%27s%20durability&quot; name=&quot;Testing%20sync_file_range%27s%20durability&quot;&gt;
+    Testing sync_file_range&amp;#x27;s durability
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;I set up an Ubuntu 20.04 Server virtual machine running kernel
+5.4.0-110-generic. While pondering how to best shut the machine down after the
+call to &lt;code&gt;sync_file_range&lt;&#x2F;code&gt;, &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;justinj&quot;&gt;@justinj&lt;&#x2F;a&gt; came to the rescue again by
+pointing out that &lt;code&gt;&#x2F;proc&#x2F;sysrq-trigger&lt;&#x2F;code&gt; exists. He also shared &lt;a href=&quot;http:&#x2F;&#x2F;justinjaffray.com&#x2F;durability-and-redo-logging&#x2F;&quot;&gt;his blog
+post&lt;&#x2F;a&gt; where he performed similar tests against &lt;code&gt;fsync&lt;&#x2F;code&gt; while
+exploring how to build a durable database log.&lt;&#x2F;p&gt;
+&lt;p&gt;It turns out if you write &lt;code&gt;o&lt;&#x2F;code&gt; to &lt;code&gt;&#x2F;proc&#x2F;sysrq-trigger&lt;&#x2F;code&gt; on a Linux machine
+(requires permissions), it will immediately power off. This greatly simplified
+my testing setup.&lt;&#x2F;p&gt;
+&lt;p&gt;I executed a VM using this command:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;qemu-system-x86_64 &lt;&#x2F;span&gt;&lt;span&gt;\
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;    -drive&lt;&#x2F;span&gt;&lt;span&gt; file=ubuntu-server,format=qcow2 \
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;    -drive&lt;&#x2F;span&gt;&lt;span&gt; file=extra,format=qcow2 \
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;    -enable-kvm &lt;&#x2F;span&gt;&lt;span&gt;\
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;    -m&lt;&#x2F;span&gt;&lt;span&gt; 2G \
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;    -smp&lt;&#x2F;span&gt;&lt;span&gt; 1 \
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;    -device&lt;&#x2F;span&gt;&lt;span&gt; e1000,netdev=net0 \
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;    -netdev&lt;&#x2F;span&gt;&lt;span&gt; user,id=net0,hostfwd=tcp::2222-:22
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;In another terminal, I executed the various examples from &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ecton&#x2F;sync-tests&quot;&gt;the repository&lt;&#x2F;a&gt; over
+&lt;code&gt;ssh&lt;&#x2F;code&gt;. After each example executed, the virtual machine would automatically
+reboot. By executing examples in a loop, I was able to run these commands for
+extended periods of time. My results are:&lt;&#x2F;p&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Filesystem&lt;&#x2F;th&gt;&lt;th&gt;is &lt;code&gt;sync_file_range&lt;&#x2F;code&gt; durable?&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;tr&gt;&lt;td&gt;btrfs&lt;&#x2F;td&gt;&lt;td&gt;No&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;ext4&lt;&#x2F;td&gt;&lt;td&gt;Yes&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;xfs&lt;&#x2F;td&gt;&lt;td&gt;Yes&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;tr&gt;&lt;td&gt;zfs&lt;&#x2F;td&gt;&lt;td&gt;No&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
+&lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
+&lt;h3 id=&quot;-8&quot;&gt;
+
+
+&lt;a href=&quot;#Safely%20extending%20a%20file%27s%20length%20while%20using%20sync_file_range&quot; name=&quot;Safely%20extending%20a%20file%27s%20length%20while%20using%20sync_file_range&quot;&gt;
+    Safely extending a file&amp;#x27;s length while using sync_file_range
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;My original testing of &lt;code&gt;sync_file_range&lt;&#x2F;code&gt; showed some failures, but after some
+additional testing, I noticed it was only happening with either the first or
+second test, but never on subsequent tests for filesystems I&#x27;ve labeled durable
+above.&lt;&#x2F;p&gt;
+&lt;p&gt;There are two examples that test &lt;code&gt;sync_file_range&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ecton&#x2F;sync-tests&#x2F;blob&#x2F;main&#x2F;examples&#x2F;sync_file_range.rs&quot;&gt;&lt;code&gt;sync_file_range.rs&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;: When initializing the data file, zeroes are manually
+written to the file.&lt;&#x2F;p&gt;
+&lt;&#x2F;li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;ecton&#x2F;sync-tests&#x2F;blob&#x2F;main&#x2F;examples&#x2F;sync_file_range_set_len.rs&quot;&gt;&lt;code&gt;sync_file_range_set_len.rs&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;: When
+initializing the data file, &lt;code&gt;File::set_len()&lt;&#x2F;code&gt; is called to extend the file,
+which is documented currently as:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If it is greater than the current file’s size, then the file will be
+extended to size and have all of the intermediate data filled in with 0s.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;p&gt;Both examples use &lt;code&gt;File::sync_all()&lt;&#x2F;code&gt;, and both examples call &lt;code&gt;File::sync_all&lt;&#x2F;code&gt; on
+the containing directories to sync the file length change.&lt;&#x2F;p&gt;
+&lt;p&gt;On ext4 and xfs, my testing showed that I could reliably reproduce data loss on
+the initial run in the &lt;code&gt;sync_file_range_set_len&lt;&#x2F;code&gt; example but not the
+&lt;code&gt;sync_file_range&lt;&#x2F;code&gt; example. Subsequent runs were durable. Why is that?&lt;&#x2F;p&gt;
+&lt;p&gt;Despite what the Rust documentation states, under the hood, &lt;code&gt;File::set_len&lt;&#x2F;code&gt; uses
+&lt;code&gt;ftruncate&lt;&#x2F;code&gt;, which is documented as:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;If the file size is increased, the extended area shall appear as if it were
+zero-filled.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;The distinction between &amp;quot;shall appear as if it were zero-filled&amp;quot; and &amp;quot;will be
+extended to size and have all of the intermediate data filled in with 0s&amp;quot; is
+subtle, but very important when considering the safety of &lt;code&gt;sync_file_range&lt;&#x2F;code&gt;. In
+my earlier quote of &lt;code&gt;sync_file_range&lt;&#x2F;code&gt;&#x27;s warning, the second emphasis also seems
+to relate to these findings.&lt;&#x2F;p&gt;
+&lt;p&gt;From my testing, using &lt;code&gt;ftruncate&lt;&#x2F;code&gt; to fill pages with 0 will conflict with
+&lt;code&gt;sync_file_range&lt;&#x2F;code&gt; on the first operation, but will likely succeed on future
+tests on ext4 and xfs.&lt;&#x2F;p&gt;
+&lt;h3 id=&quot;-9&quot;&gt;
+
+
+&lt;a href=&quot;#Conclusions%20about%20sync_file_range&quot; name=&quot;Conclusions%20about%20sync_file_range&quot;&gt;
+    Conclusions about sync_file_range
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;code&gt;sync_file_range&lt;&#x2F;code&gt; is only safe to use on specific filesystems. Of the four I tested, &lt;code&gt;xfs&lt;&#x2F;code&gt;
+and &lt;code&gt;ext4&lt;&#x2F;code&gt; appear to be completely reliable in their implementations, and
+&lt;code&gt;zfs&lt;&#x2F;code&gt; and &lt;code&gt;btrfs&lt;&#x2F;code&gt; both are completely unreliable in their implementations.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;sync_file_range&lt;&#x2F;code&gt; is only safe to use on fully initialized pages.&lt;&#x2F;li&gt;
+&lt;li&gt;&lt;code&gt;ftruncate&lt;&#x2F;code&gt; to extend a file does not fully initialize newly allocated pages
+with zeroes and may take shortcuts instead. This makes using &lt;code&gt;sync_file_range&lt;&#x2F;code&gt;
+on space allocated with &lt;code&gt;ftruncate&lt;&#x2F;code&gt; or similar operations unsafe to use.&lt;&#x2F;li&gt;
+&lt;&#x2F;ul&gt;
+&lt;h2 id=&quot;-10&quot;&gt;
+
+
+&lt;a href=&quot;#Mac%20OS&amp;#x2F;iOS%3A%20Does%20F_BARRIERFSYNC%20provide%20durable%20writes%3F&quot; name=&quot;Mac%20OS&amp;#x2F;iOS%3A%20Does%20F_BARRIERFSYNC%20provide%20durable%20writes%3F&quot;&gt;
+    Mac OS&amp;#x2F;iOS: Does F_BARRIERFSYNC provide durable writes?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;No. Apple&#x27;s own &lt;a href=&quot;https:&#x2F;&#x2F;developer.apple.com&#x2F;documentation&#x2F;xcode&#x2F;reducing-disk-writes&quot;&gt;documentation makes this clear&lt;&#x2F;a&gt;:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Some apps require a write barrier to ensure data persistence before subsequent
+operations can proceed. Most apps can use the fcntl(&lt;em&gt;:&lt;&#x2F;em&gt;:) F_BARRIERFSYNC for
+this.&lt;&#x2F;p&gt;
+&lt;p&gt;Only use F_FULLFSYNC when your app requires a strong expectation of data
+persistence.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Great, so &lt;code&gt;fnctl&lt;&#x2F;code&gt; with &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; is what is used to instead of &lt;code&gt;fsync&lt;&#x2F;code&gt;.
+Let&#x27;s keep reading.&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Note that F_FULLFSYNC represents a best-effort guarantee that iOS writes data
+to the disk, but data can still be lost in the case of sudden power loss.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Apple really dropped the ball here. According to all available documentation I
+can find: there is no way to run a truly ACID-compliant database on Mac OS. You
+can get close, but a power loss could still result in a write being reported as
+successfully persisted being gone after a power outage.&lt;&#x2F;p&gt;
+&lt;p&gt;One interesting note is that SQLite uses &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; by default for all of
+its file synchronization on Mac&#x2F;iOS. Optionally, you can use a &lt;code&gt;#pragma&lt;&#x2F;code&gt; to
+enable usage of &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt;. Given the relative overhead of the two APIs in my
+limited testing, I can understand their decision, but I&#x27;m not sure it&#x27;s the best
+default.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-11&quot;&gt;
+
+
+&lt;a href=&quot;#Windows%3A%20Are%20there%20any%20APIs%20for%20partially%20syncing%20files%3F&quot; name=&quot;Windows%3A%20Are%20there%20any%20APIs%20for%20partially%20syncing%20files%3F&quot;&gt;
+    Windows: Are there any APIs for partially syncing files?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;No. Unless you are utilizing memory mapped files, the only API avialable on
+Windows is &lt;a href=&quot;https:&#x2F;&#x2F;docs.microsoft.com&#x2F;en-us&#x2F;windows&#x2F;win32&#x2F;api&#x2F;fileapi&#x2F;nf-fileapi-flushfilebuffers&quot;&gt;&lt;code&gt;FlushFileBuffers&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-12&quot;&gt;
+
+
+&lt;a href=&quot;#What%20does%20all%20of%20this%20mean%20for%20BonsaiDb%3F&quot; name=&quot;What%20does%20all%20of%20this%20mean%20for%20BonsaiDb%3F&quot;&gt;
+    What does all of this mean for BonsaiDb?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;Astute readers may have noticed that the Nebari benchmarks claimed to be similar
+in performance to SQLite even post-sync changes. This is true on many metrics,
+but it&#x27;s not an apples-to-apples comparison, and the difference is the primary
+reason BonsaiDb slowed down.&lt;&#x2F;p&gt;
+&lt;p&gt;SQLite has many approaches to persistence, but let&#x27;s look at the journaled
+version as it&#x27;s fairly straightforward. When using a journal, SQLite creates a
+file that contains information needed to undo the changes its about to make to
+the database file. To ensure a consistent state that can be recovered after a
+power outage at any point in this process, it must make at least two &lt;code&gt;fsync&lt;&#x2F;code&gt;
+calls.&lt;&#x2F;p&gt;
+&lt;p&gt;Nebari gets away with one &lt;code&gt;fsync&lt;&#x2F;code&gt; operation due to its append-only nature.
+However, the moment you use the &lt;code&gt;Roots&lt;&#x2F;code&gt; type, there&#x27;s one more &lt;code&gt;fsync&lt;&#x2F;code&gt; operation:
+the transaction log. Thus, Nebari isn&#x27;t actually faster than SQLite when a
+transaction log is used, which is a requirement for multi-tree transactions.&lt;&#x2F;p&gt;
+&lt;p&gt;This is further exacerbated by Nebari&#x27;s Multi-Reader, Single-Writer model of
+transactions. If two threads are trying to write to the same tree, one will
+begin its transaction and finish it while the other has to wait patiently for
+the lock on the tree to be released.&lt;&#x2F;p&gt;
+&lt;p&gt;This two-step sync method combined with contention over a few collections is
+what caused the Commerce Benchmark to grind to a halt after &lt;code&gt;fsync&lt;&#x2F;code&gt; was actually
+doing real work. Individual worker threads would back up waiting for their turn
+to modify a collection.&lt;&#x2F;p&gt;
+&lt;p&gt;Nebari&#x27;s architecture was designed in October, and I spent countless hours
+profiling and testing its performance. Due to the aforementioned issues with my
+methodology, so many of my performance assumptions were flat out wrong.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-13&quot;&gt;
+
+
+&lt;a href=&quot;#What%27s%20next%3F&quot; name=&quot;What%27s%20next%3F&quot;&gt;
+    What&amp;#x27;s next?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;It&#x27;s clear from these results that whatever solution is picked for BonsaiDb, it
+needs to support a way to allow multiple transactions to proceed at the same
+time. This is a much tougher problem to solve, and I&#x27;m uncertain I want to
+tackle this problem myself.&lt;&#x2F;p&gt;
+&lt;p&gt;For the longest time, I developed BonsaiDb with minimal &amp;quot;advertising.&amp;quot; Imposter
+syndrome prevented me from sharing it for most of 2021. Over the alpha period, I
+finally started feeling confidence in its reliability. Now, I&#x27;m back to
+questioning whether I should attempt a new version of Nebari.&lt;&#x2F;p&gt;
+&lt;p&gt;On one hand, seeing that Nebari is still pretty fast after fixing this bug
+should prove to me that I &lt;em&gt;can&lt;&#x2F;em&gt; write a fast database. On the other hand, I&#x27;m so
+embarrassed I didn&#x27;t notice these issues earlier, and it&#x27;s demoralizing to think
+of all the time spent building upon mistaken assumptions. Nebari will also need
+to transition to a more complex architecture, which makes it lose some of the
+appeal I had for it.&lt;&#x2F;p&gt;
+&lt;p&gt;The only thing I can say with confidence right now is that I still firmly
+believe in my vision of BonsaiDb, regardless of what storage layer powers it. I
+will figure out my plans soon so that existing users aren&#x27;t left in a lurch for
+too long.&lt;&#x2F;p&gt;
+&lt;p&gt;Lastly, I just want to say thank you to everyone who has supported me through
+this journey. Despite the recent stress, BonsaiDb and Nebari have been fun and
+rewarding projects to build.&lt;&#x2F;p&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>BonsaiDb April Update: Dogfooding and Fixing Bugs</title>
 		<published>2022-05-02T00:00:00+00:00</published>

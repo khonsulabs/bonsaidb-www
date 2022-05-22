@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>BonsaiDb performance update: A deep-dive on file synchronization</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="/nodarkreader.min.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/bonsaidb-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+    <meta property="og:title"
+        content="BonsaiDb performance update: A deep-dive on file synchronization" />
+    <meta property="og:image"
+        content="https://bonsaidb.io/apple-touch-icon.png" />
+    <meta property="og:description"
+        content="BonsaiDb is a
+batteries-included
+database
+aimed at being the most developer-friendly database." />
+    <meta property="og:url" content="https://bonsaidb.io/blog/durable-writes/" />
+    <meta property="og:image:width" content="180" />
+    <meta property="og:image:height" content="180" />
+    <meta property="og:type" content='article' />
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <div class="is-hidden-mobile is-flex-tablet">
+                <a class="navbar-item 
+
+
+
+" href="/">
+                    Getting Started
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/about/">
+                    What is BonsaiDb?
+                </a>
+                <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                    Blog
+                </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
+            </div>
+        </div>
+    </nav>
+
+    
+<div class="container content px-4">
+    <h1>BonsaiDb performance update: A deep-dive on file synchronization</h1>
+    
+    <p>
+        
+        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Jonathan Johnson</a>.
+        
+        
+        Published 2022-05-22.
+        
+        
+    </p>
+    
+    <blockquote>
+<p><strong>What is BonsaiDb?</strong></p>
+<p><a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a> is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: <a href="https://bonsaidb.io/about">What is
+BonsaiDb?</a>.</p>
+</blockquote>
+<h2 id="">
+
+
+<a href="#tl%3Bdr%3A%20BonsaiDb%20is%20slower%20than%20previously%20reported" name="tl%3Bdr%3A%20BonsaiDb%20is%20slower%20than%20previously%20reported">
+    tl;dr: BonsaiDb is slower than previously reported
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The day after <a href="/blog/april-2022-update">the last post</a>, <a href="https://github.com/justinj">@justinj</a>
+reported that they traced one of the Nebari examples and did not see any <code>fsync</code>
+syscalls being executed. This was an honest mistake of misunderstanding the term
+&quot;true sink&quot; in <a href="https://doc.rust-lang.org/std/io/trait.Write.html"><code>std::io::Write</code></a>. It turns out <code>Write::flush()</code>'s
+implementation for <code>std::io::File</code> is a no-op, as the &quot;true sink&quot; is the kernel,
+not the disk.</p>
+<p>I released <a href="https://github.com/khonsulabs/nebari/releases/tag/v0.5.3">Nebari v0.5.3</a> the same day. I ran the Nebari
+benchmark suite and... nothing changed. I ran the suite on GitHub Actions, no
+change. I ran the suite on my dedicated VPS I use for a more stable benchmarking
+environment than GitHub Actions... no change. I ran the suite on my Mac... huge
+slowdown. I'll cover why further in this post, but my initial impression was
+that I dodged a bullet somehow.</p>
+<p>A few days later, I noticed the BonsaiDb Commerce Benchmark was running slowly.
+I quickly realized it was due to the synchronization changes and <a href="https://github.com/khonsulabs/bonsaidb/pull/250">began an
+entire rewrite of the view indexer and document storage</a>. A
+few days ago, I reached a stage where I could run the suite with my changes.
+Excited to see if it was enough to catch back up to PostgreSQL, I ran it and...
+it was a little faster but was still very slow.</p>
+<p>The rest of this post explores everything I've learned since then. Since this a
+summary, let me end with a <strong>tl;dr: Reading data from BonsaiDb is still very
+efficient, but due to mistakes in benchmarking, writes are quite slow for
+workflows that insert or update a lot of data in a single collection. I am still
+excited and motivated to build BonsaiDb, but I am currently uncertain whether I
+will still write my own low-level database layer. All assumptions about
+BonsaiDb's performance must be reset.</strong></p>
+<h2 id="-1">
+
+
+<a href="#Why%20didn%27t%20my%20refactor%20help%3F" name="Why%20didn%27t%20my%20refactor%20help%3F">
+    Why didn&#x27;t my refactor help?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The rest of that day and the next two days were spent profiling and trying to
+understand the results. I would then try to test my assumptions in an isolated
+test, and I wasn't able to make significant progress.</p>
+<p>The following day as I was sipping coffee, I ran <code>df</code> to check my disk's free
+space. I realized that each time I ran that command, <code>/tmp</code> was always listed as
+a separate mountpoint. I use Manjaro Linux (based on Arch), and while I can
+generally solve any problems I have with my computer, I never considered the
+implications of <code>/tmp</code> listed.</p>
+<p>Given that it's a separate mountpoint than my main filesystem, the next logical
+question is: what filesystem does it use? The answer: <a href="https://en.wikipedia.org/wiki/Tmpfs">tmpfs</a>, a
+filesystem that acts like a RAM-disk and never persists your files except
+through memory paging. <code>fsync</code> is essentially a no-op on such a filesystem. Many
+of my benchmarks and tests used the excellent <a href="https://crates.io/crates/tempfile"><code>tempfile</code></a> crate.</p>
+<p>Despite having worked with Linux off and on since the early 2000s, I never
+noticed this detail. The temporary directory is not a different filesystem on
+the Mac, which is one factor in why Nebari's benchmarks exhibited a major change
+on the Mac while no change on Linux.</p>
+<h2 id="-2">
+
+
+<a href="#Should%20I%20continue%20Nebari%3F" name="Should%20I%20continue%20Nebari%3F">
+    Should I continue Nebari?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The realization that all of my testing of other database's performance was
+severely flawed meant that I needed to recheck everything. There is a real
+question: should I just ditch Nebari and use another database to back BonsaiDb?
+Thinking about my motivations, I've never wanted to create &quot;the fastest
+database.&quot;</p>
+<p>My pitch for BonsaiDb has always been about developer experience and being &quot;good
+enough&quot; for &quot;most people.&quot; I believe there are a lot of developers who waste a
+lot of development cycles building apps that are more concerned about
+high-availability than being able to scale to be the next Google. At that scale,
+a one-size-fits-all solution is almost never the solution. If I can simplify
+scaling from a test project to a highly-available solution and do it with
+&quot;reasonable&quot; performance, I've met my goals for BonsaiDb.</p>
+<p>The benefits of Nebari come down to it being tailor-fit to BonsaiDb's needs.
+With my new approach to document and view storage that leverages Nebari's
+ability to embed custom stats within its B+Tree, it meant I could build and
+query map-reduce views in a very efficient manner. I have yet to see another
+low-level database written in Rust that enables embedding custom information
+inside of the B+Tree structure to enable these capabilities.</p>
+<p>Because a tailor-fit solution is so attractive, I wanted to explore what it
+might take to make Nebari faster.</p>
+<h2 id="-3">
+
+
+<a href="#Why%20is%20Nebari%20slow%3F" name="Why%20is%20Nebari%20slow%3F">
+    Why is Nebari slow?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>To answer that question, I needed to fix my usage of <code>tempfile</code> in the Nebari
+benchmark. After doing that, Nebari still competed with
+<a href="https://sqlite.org/">SQLite</a> on many benchmarks, but <a href="https://sled.rs">Sled</a>
+was reporting astonishing numbers. This led me to question whether Sled's
+transactions are actually ACID-compliant when explicitly asking for them to be
+flushed.</p>
+<p>See, in my testing, I was able to determine that <code>fdatasync()</code> was unable to
+return in less than 1 millisecond on my machine. Here's the output if the
+transactional insert benchmark measuring the time it takes to do an
+ACID-complaint insert of 1KB of data to a new key:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">blobs-insert/nebari-versioned/1KiB
+</span><span>                        </span><span style="color:#bf616a;">time:   </span><span style="color:#b48ead;">[</span><span>2.6591 ms 2.6920 ms 2.7348 ms</span><span style="color:#b48ead;">]
+</span><span>                        </span><span style="color:#bf616a;">thrpt:  </span><span style="color:#b48ead;">[</span><span>365.66 KiB/s 371.47 KiB/s 376.07 KiB/s</span><span style="color:#b48ead;">]
+</span><span style="color:#bf616a;">blobs-insert/nebari/1KiB
+</span><span>                        </span><span style="color:#bf616a;">time:   </span><span style="color:#b48ead;">[</span><span>2.6415 ms 2.6671 ms 2.7023 ms</span><span style="color:#b48ead;">]
+</span><span>                        </span><span style="color:#bf616a;">thrpt:  </span><span style="color:#b48ead;">[</span><span>370.05 KiB/s 374.93 KiB/s 378.57 KiB/s</span><span style="color:#b48ead;">]
+</span><span style="color:#bf616a;">blobs-insert/sled/1KiB</span><span>  time:   </span><span style="color:#b48ead;">[</span><span>38.438 us 38.894 us 39.376 us</span><span style="color:#b48ead;">]                                    
+</span><span>                        </span><span style="color:#bf616a;">thrpt:  </span><span style="color:#b48ead;">[</span><span>24.801 MiB/s 25.108 MiB/s 25.406 MiB/s</span><span style="color:#b48ead;">]
+</span><span style="color:#bf616a;">blobs-insert/sqlite/1KiB
+</span><span>                        </span><span style="color:#bf616a;">time:   </span><span style="color:#b48ead;">[</span><span>4.0630 ms 4.1192 ms 4.1913 ms</span><span style="color:#b48ead;">]
+</span><span>                        </span><span style="color:#bf616a;">thrpt:  </span><span style="color:#b48ead;">[</span><span>238.59 KiB/s 242.76 KiB/s 246.12 KiB/s</span><span style="color:#b48ead;">]
+</span></code></pre>
+<p>As you can see, Nebari sits in the middle with 2.6ms, SQLite is the slowest with
+4.11ms, and Sled reports an incredibly short 38.9μs. After a quick skim of
+Sled's source, Sled isn't calling <code>fdatasync()</code> most of the time when you ask it
+to flush its buffers. It's using a different API: <code>sync_file_range()</code>.</p>
+<p>Does that mean Sled isn't persisting changes completely? No. Instead, this is an
+example of how to misunderstand statistics. From the output above, you might be
+tempted to infer that since the max single iteration time for Sled is 39.4μs.
+However, Criterion uses sampling-based statistics, which means that it doesn't
+look at individual iteration times but rather iteration times for a set number
+of iterations.</p>
+<p>By logging out each individual iteration time, I can see that there are
+individual iterations that <em>do</em> take as long as an <code>fdatasync</code> call. To
+simplify, I created three tests to benchmark:</p>
+<ul>
+<li><code>append</code>: Write to the end of the file and call <code>fdatasync</code>.</li>
+<li><code>preappend</code>: When a write needs more space in the file, extend the file using
+<code>ftruncate</code> before writing. Call <code>fdatasync</code> after each write.</li>
+<li><code>syncrange</code>: When a write needs more space, extend the file using <code>ftruncate</code>
+and calling <code>fdatasync</code> after the write. When a write does not need more
+space, call <code>sync_file_range</code> to persist the newly written data.</li>
+</ul>
+<p>The output of <a href="https://github.com/ecton/sync-tests/blob/main/benches/durable-writes.rs">this benchmark</a> is:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">writes/append</span><span>           time:   </span><span style="color:#b48ead;">[</span><span>2.6211 ms 2.6585 ms 2.7058 ms</span><span style="color:#b48ead;">]
+</span><span style="color:#bf616a;">writes/preallocate</span><span>      time:   </span><span style="color:#b48ead;">[</span><span>1.2467 ms 1.2675 ms 1.2923 ms</span><span style="color:#b48ead;">]
+</span><span style="color:#bf616a;">writes/syncrange</span><span>        time:   </span><span style="color:#b48ead;">[</span><span>190.59 us 193.03 us 195.83 us</span><span style="color:#b48ead;">]
+</span></code></pre>
+<p>Our <code>syncrange</code> benchmark appears to not ever take longer than 195.8μs. But, we
+know that it calls <code>fdatasync</code>, so what's happening? Let's open up Criterion's raw.csv report for <code>syncrange</code>:</p>
+<table><thead><tr><th>group</th><th>function</th><th>value</th><th>throughput_num</th><th>throughput_type</th><th>sample_measured_value</th><th>unit</th><th>iteration_count</th></tr></thead><tbody>
+<tr><td>writes</td><td>syncrange</td><td></td><td></td><td></td><td>2,929,333.0</td><td>ns</td><td>6</td></tr>
+<tr><td>writes</td><td>syncrange</td><td></td><td></td><td></td><td>2,932,484.0</td><td>ns</td><td>12</td></tr>
+<tr><td>writes</td><td>syncrange</td><td></td><td></td><td></td><td>5,701,286.0</td><td>ns</td><td>18</td></tr>
+<tr><td>writes</td><td>syncrange</td><td></td><td></td><td></td><td>5,788,786.0</td><td>ns</td><td>24</td></tr>
+</tbody></table>
+<p>Criterion isn't keeping track of every iteration. It keeps track of batches.
+Because of this, the final statistics tallied aren't able to see the true
+maximum iteration time. Let's run the same benchmark in my own benchmarking
+harness:</p>
+<table><thead><tr><th>Label</th><th>avg</th><th>min</th><th>max</th><th>stddev</th><th>out%</th></tr></thead><tbody>
+<tr><td>append</td><td>2.628ms</td><td>2.095ms</td><td>5.702ms</td><td>147.0us</td><td>0.004%</td></tr>
+<tr><td>preallocate</td><td>1.243ms</td><td>612.3us</td><td>4.042ms</td><td>859.3us</td><td>0.004%</td></tr>
+<tr><td>syncrange</td><td>189.1us</td><td>12.83us</td><td>2.847ms</td><td>653.6us</td><td>0.063%</td></tr>
+</tbody></table>
+<p>Using this harness, I can see now see results that make sense. The averages
+match what we see from Criterion, but now our min and max show a wider range. We
+can now see that even for the <code>syncrange</code> benchmark, some writes will take
+2.8ms.</p>
+<p>The takeaway is very important: using <code>sync_file_range</code>, Sled is able to make
+the average write's time take 38.9μs, even though occasionally there will be
+write operations that are longer due to the need for an <code>fdatasync</code>
+when the file's size changes.</p>
+<p>Given how much faster <code>sync_file_range()</code> is, is it safe to use to achieve
+durable writes?</p>
+<h2 id="-4">
+
+
+<a href="#What%20does%20sync_file_range%20do%3F" name="What%20does%20sync_file_range%20do%3F">
+    What does sync_file_range do?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p><code>sync_file_range()</code> has many modes of operation. At its core, it offers the
+ability to ask the kernel to commit any dirty cached data to the filesystem. For
+the purposes of this post, we are most interested in the mode of operation when
+<code>SYNC_FILE_RANGE_WAIT_BEFORE</code>,  <code>SYNC_FILE_RANGE_WRITE</code>, and
+<code>SYNC_FILE_RANGE_WAIT_AFTER</code> are passed.</p>
+<p>With these flags, <code>sync_file_range()</code> is documented to wait for all dirty pages
+within the range provided to be flushed to disk. However, the documentation for
+this function advises that it is &quot;extremely dangerous.&quot;</p>
+<h2 id="-5">
+
+
+<a href="#What%20are%20%27durable%20writes%27%3F" name="What%20are%20%27durable%20writes%27%3F">
+    What are &#x27;durable writes&#x27;?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>When writing data to a file, the operating system does not immediately write the
+bits to the phsysical disk. This would be incredibly slow, even with modern
+SSDs. Instead, operating systems will typically manage a cache of the underlying
+storage and occasionally flush the updated information to the storage. This
+allows writes to be fast and enables the operating system to attempt to schedule
+and reorder operations for efficiency.</p>
+<p>The problem with this approach occurs when the power suddenly is cut to the
+machine. Imagine a user hits &quot;Save&quot; in their program, the program confirmed it
+was saved, and suddenly the building's power dies. The program claimed it saved
+the file, but upon rebooting, the file is missing or corrupt. How does that
+happen? The file may have only been saved to the kernel's cache and never
+written to the physical disk.</p>
+<p>The solution is called flushing or syncing. Each operating system exposes one or
+more functions to ensure all writes to a file have successfully been persisted
+to the physical media:</p>
+<ul>
+<li>On Linux, it's <a href="https://man.archlinux.org/man/fsync.2"><code>fsync()</code></a>, <a href="https://man.archlinux.org/man/fdatasync.2"><code>fdatasync()</code></a>, and
+<a href="https://man.archlinux.org/man/sync_file_range.2"><code>sync_file_range()</code></a>.</li>
+<li>On Windows, it's <a href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers"><code>FlushFileBuffers</code></a>.</li>
+<li>On Mac/iOS, <code>fsync()</code> is available but does not provide the same guarantees as
+Linux. Instead, a call to <code>fcntl</code> with the <code>F_FULLFSYNC</code> option must be used
+to trigger a write to physical media.</li>
+</ul>
+<p>Rust uses the correct APIs for each platform when calling <code>File::sync_all</code> or
+<code>File::sync_data</code> to provide durable writes. The standard library does not
+provide APIs to invoke the underlying APIs mentioned above. Thankfully, the
+<code>libc</code> crate makes it easy to call the APIs we are interested in for this post.</p>
+<h2 id="-6">
+
+
+<a href="#Linux%3A%20Is%20sync_file_range%20viable%20for%20durable%20writes%3F" name="Linux%3A%20Is%20sync_file_range%20viable%20for%20durable%20writes%3F">
+    Linux: Is sync_file_range viable for durable writes?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The <a href="https://man.archlinux.org/man/sync_file_range.2">man page for <code>sync_file_range()</code></a> includes this warning
+(emphasis mine):</p>
+<blockquote>
+<p>This system call is <strong>extremely dangerous and should not be used in portable
+programs</strong>. None of these operations writes out the file's metadata.
+Therefore, unless the application is strictly performing overwrites of
+already-instantiated disk blocks, there are no guarantees that the data will
+be available after a crash. There is no user interface to know if a write is
+purely an overwrite. On filesystems using copy-on-write semantics (e.g.,
+<em>btrfs</em>) an overwrite of existing allocated blocks is impossible. <strong>When
+writing into preallocated space, many filesystems also require calls into the
+block allocator, which this system call does not sync out to disk</strong>. This
+system call does not flush disk write caches and thus does not provide any
+data integrity on systems with volatile disk write caches.</p>
+</blockquote>
+<p>Sled is using it to achieve it's incredible speed, and <a href="https://github.com/spacejam/sled/issues/1351">the author is
+aware</a> of this warning. One of the commentors on the linked page
+points out that RocksDB <a href="https://github.com/facebook/rocksdb/blob/bed40e7266b55349ce9d2dce27aeb2055813a5fe/env/io_posix.cc#L160-L166">has special code to disable using the API on
+<code>zfs</code></a>. Pebble, which is a Go port/spinoff of RocksDB, takes the
+approach of <a href="https://github.com/cockroachdb/pebble/blob/3355a02e7cec7a4cbf775421a89dfbe833818266/vfs/syncing_file_linux.go#L34-L36">opting-in <code>ext4</code></a>. Both RocksDB and Pebble seem to
+still use <code>fsync</code>/<code>fdatasync</code> at various locations to ensure durability.</p>
+<p>I decided to look at PostgreSQL's source as well. They use <code>sync_file_range()</code>'s
+asynchronous mode to <a href="https://git.postgresql.org/gitweb/?p=postgresql.git;a=blob;f=src/backend/storage/file/fd.c;hb=e19272ef603bdb11a09e7f8500dc4e0fb4ec73de#l493">hint to the OS</a> that the writes
+need to be flushed, but they still issue <code>fsync</code> or <code>fdatasync</code> as needed.</p>
+<p>I also looked to SQLite's source: no references. I could not find any relevant
+discussion threads either.</p>
+<p>I'm not an expert on any of these databases, so my skim of their codebases
+should be taken with a grain of salt.</p>
+<p>I tried finding any information about the reliability of <code>sync_file_range</code> for
+durable overwrites on various filesystems, and I couldn't find anything except
+these little bits already linked.</p>
+<p>Lacking any definitive answer regarding whether it's able to provide durability
+on any filesystems, I set out to test this myself.</p>
+<h3 id="-7">
+
+
+<a href="#Testing%20sync_file_range%27s%20durability" name="Testing%20sync_file_range%27s%20durability">
+    Testing sync_file_range&#x27;s durability
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>I set up an Ubuntu 20.04 Server virtual machine running kernel
+5.4.0-110-generic. While pondering how to best shut the machine down after the
+call to <code>sync_file_range</code>, <a href="https://github.com/justinj">@justinj</a> came to the rescue again by
+pointing out that <code>/proc/sysrq-trigger</code> exists. He also shared <a href="http://justinjaffray.com/durability-and-redo-logging/">his blog
+post</a> where he performed similar tests against <code>fsync</code> while
+exploring how to build a durable database log.</p>
+<p>It turns out if you write <code>o</code> to <code>/proc/sysrq-trigger</code> on a Linux machine
+(requires permissions), it will immediately power off. This greatly simplified
+my testing setup.</p>
+<p>I executed a VM using this command:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">qemu-system-x86_64 </span><span>\
+</span><span style="color:#bf616a;">    -drive</span><span> file=ubuntu-server,format=qcow2 \
+</span><span style="color:#bf616a;">    -drive</span><span> file=extra,format=qcow2 \
+</span><span style="color:#bf616a;">    -enable-kvm </span><span>\
+</span><span style="color:#bf616a;">    -m</span><span> 2G \
+</span><span style="color:#bf616a;">    -smp</span><span> 1 \
+</span><span style="color:#bf616a;">    -device</span><span> e1000,netdev=net0 \
+</span><span style="color:#bf616a;">    -netdev</span><span> user,id=net0,hostfwd=tcp::2222-:22
+</span></code></pre>
+<p>In another terminal, I executed the various examples from <a href="https://github.com/ecton/sync-tests">the repository</a> over
+<code>ssh</code>. After each example executed, the virtual machine would automatically
+reboot. By executing examples in a loop, I was able to run these commands for
+extended periods of time. My results are:</p>
+<table><thead><tr><th>Filesystem</th><th>is <code>sync_file_range</code> durable?</th></tr></thead><tbody>
+<tr><td>btrfs</td><td>No</td></tr>
+<tr><td>ext4</td><td>Yes</td></tr>
+<tr><td>xfs</td><td>Yes</td></tr>
+<tr><td>zfs</td><td>No</td></tr>
+</tbody></table>
+<h3 id="-8">
+
+
+<a href="#Safely%20extending%20a%20file%27s%20length%20while%20using%20sync_file_range" name="Safely%20extending%20a%20file%27s%20length%20while%20using%20sync_file_range">
+    Safely extending a file&#x27;s length while using sync_file_range
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p>My original testing of <code>sync_file_range</code> showed some failures, but after some
+additional testing, I noticed it was only happening with either the first or
+second test, but never on subsequent tests for filesystems I've labeled durable
+above.</p>
+<p>There are two examples that test <code>sync_file_range</code>:</p>
+<ul>
+<li>
+<p><a href="https://github.com/ecton/sync-tests/blob/main/examples/sync_file_range.rs"><code>sync_file_range.rs</code></a>: When initializing the data file, zeroes are manually
+written to the file.</p>
+</li>
+<li>
+<p><a href="https://github.com/ecton/sync-tests/blob/main/examples/sync_file_range_set_len.rs"><code>sync_file_range_set_len.rs</code></a>: When
+initializing the data file, <code>File::set_len()</code> is called to extend the file,
+which is documented currently as:</p>
+<blockquote>
+<p>If it is greater than the current file’s size, then the file will be
+extended to size and have all of the intermediate data filled in with 0s.</p>
+</blockquote>
+</li>
+</ul>
+<p>Both examples use <code>File::sync_all()</code>, and both examples call <code>File::sync_all</code> on
+the containing directories to sync the file length change.</p>
+<p>On ext4 and xfs, my testing showed that I could reliably reproduce data loss on
+the initial run in the <code>sync_file_range_set_len</code> example but not the
+<code>sync_file_range</code> example. Subsequent runs were durable. Why is that?</p>
+<p>Despite what the Rust documentation states, under the hood, <code>File::set_len</code> uses
+<code>ftruncate</code>, which is documented as:</p>
+<blockquote>
+<p>If the file size is increased, the extended area shall appear as if it were
+zero-filled.</p>
+</blockquote>
+<p>The distinction between &quot;shall appear as if it were zero-filled&quot; and &quot;will be
+extended to size and have all of the intermediate data filled in with 0s&quot; is
+subtle, but very important when considering the safety of <code>sync_file_range</code>. In
+my earlier quote of <code>sync_file_range</code>'s warning, the second emphasis also seems
+to relate to these findings.</p>
+<p>From my testing, using <code>ftruncate</code> to fill pages with 0 will conflict with
+<code>sync_file_range</code> on the first operation, but will likely succeed on future
+tests on ext4 and xfs.</p>
+<h3 id="-9">
+
+
+<a href="#Conclusions%20about%20sync_file_range" name="Conclusions%20about%20sync_file_range">
+    Conclusions about sync_file_range
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<ul>
+<li><code>sync_file_range</code> is only safe to use on specific filesystems. Of the four I tested, <code>xfs</code>
+and <code>ext4</code> appear to be completely reliable in their implementations, and
+<code>zfs</code> and <code>btrfs</code> both are completely unreliable in their implementations.</li>
+<li><code>sync_file_range</code> is only safe to use on fully initialized pages.</li>
+<li><code>ftruncate</code> to extend a file does not fully initialize newly allocated pages
+with zeroes and may take shortcuts instead. This makes using <code>sync_file_range</code>
+on space allocated with <code>ftruncate</code> or similar operations unsafe to use.</li>
+</ul>
+<h2 id="-10">
+
+
+<a href="#Mac%20OS&#x2F;iOS%3A%20Does%20F_BARRIERFSYNC%20provide%20durable%20writes%3F" name="Mac%20OS&#x2F;iOS%3A%20Does%20F_BARRIERFSYNC%20provide%20durable%20writes%3F">
+    Mac OS&#x2F;iOS: Does F_BARRIERFSYNC provide durable writes?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>No. Apple's own <a href="https://developer.apple.com/documentation/xcode/reducing-disk-writes">documentation makes this clear</a>:</p>
+<blockquote>
+<p>Some apps require a write barrier to ensure data persistence before subsequent
+operations can proceed. Most apps can use the fcntl(<em>:</em>:) F_BARRIERFSYNC for
+this.</p>
+<p>Only use F_FULLFSYNC when your app requires a strong expectation of data
+persistence.</p>
+</blockquote>
+<p>Great, so <code>fnctl</code> with <code>F_FULLFSYNC</code> is what is used to instead of <code>fsync</code>.
+Let's keep reading.</p>
+<blockquote>
+<p>Note that F_FULLFSYNC represents a best-effort guarantee that iOS writes data
+to the disk, but data can still be lost in the case of sudden power loss.</p>
+</blockquote>
+<p>Apple really dropped the ball here. According to all available documentation I
+can find: there is no way to run a truly ACID-compliant database on Mac OS. You
+can get close, but a power loss could still result in a write being reported as
+successfully persisted being gone after a power outage.</p>
+<p>One interesting note is that SQLite uses <code>F_BARRIERFSYNC</code> by default for all of
+its file synchronization on Mac/iOS. Optionally, you can use a <code>#pragma</code> to
+enable usage of <code>F_FULLFSYNC</code>. Given the relative overhead of the two APIs in my
+limited testing, I can understand their decision, but I'm not sure it's the best
+default.</p>
+<h2 id="-11">
+
+
+<a href="#Windows%3A%20Are%20there%20any%20APIs%20for%20partially%20syncing%20files%3F" name="Windows%3A%20Are%20there%20any%20APIs%20for%20partially%20syncing%20files%3F">
+    Windows: Are there any APIs for partially syncing files?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>No. Unless you are utilizing memory mapped files, the only API avialable on
+Windows is <a href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers"><code>FlushFileBuffers</code></a>.</p>
+<h2 id="-12">
+
+
+<a href="#What%20does%20all%20of%20this%20mean%20for%20BonsaiDb%3F" name="What%20does%20all%20of%20this%20mean%20for%20BonsaiDb%3F">
+    What does all of this mean for BonsaiDb?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Astute readers may have noticed that the Nebari benchmarks claimed to be similar
+in performance to SQLite even post-sync changes. This is true on many metrics,
+but it's not an apples-to-apples comparison, and the difference is the primary
+reason BonsaiDb slowed down.</p>
+<p>SQLite has many approaches to persistence, but let's look at the journaled
+version as it's fairly straightforward. When using a journal, SQLite creates a
+file that contains information needed to undo the changes its about to make to
+the database file. To ensure a consistent state that can be recovered after a
+power outage at any point in this process, it must make at least two <code>fsync</code>
+calls.</p>
+<p>Nebari gets away with one <code>fsync</code> operation due to its append-only nature.
+However, the moment you use the <code>Roots</code> type, there's one more <code>fsync</code> operation:
+the transaction log. Thus, Nebari isn't actually faster than SQLite when a
+transaction log is used, which is a requirement for multi-tree transactions.</p>
+<p>This is further exacerbated by Nebari's Multi-Reader, Single-Writer model of
+transactions. If two threads are trying to write to the same tree, one will
+begin its transaction and finish it while the other has to wait patiently for
+the lock on the tree to be released.</p>
+<p>This two-step sync method combined with contention over a few collections is
+what caused the Commerce Benchmark to grind to a halt after <code>fsync</code> was actually
+doing real work. Individual worker threads would back up waiting for their turn
+to modify a collection.</p>
+<p>Nebari's architecture was designed in October, and I spent countless hours
+profiling and testing its performance. Due to the aforementioned issues with my
+methodology, so many of my performance assumptions were flat out wrong.</p>
+<h2 id="-13">
+
+
+<a href="#What%27s%20next%3F" name="What%27s%20next%3F">
+    What&#x27;s next?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>It's clear from these results that whatever solution is picked for BonsaiDb, it
+needs to support a way to allow multiple transactions to proceed at the same
+time. This is a much tougher problem to solve, and I'm uncertain I want to
+tackle this problem myself.</p>
+<p>For the longest time, I developed BonsaiDb with minimal &quot;advertising.&quot; Imposter
+syndrome prevented me from sharing it for most of 2021. Over the alpha period, I
+finally started feeling confidence in its reliability. Now, I'm back to
+questioning whether I should attempt a new version of Nebari.</p>
+<p>On one hand, seeing that Nebari is still pretty fast after fixing this bug
+should prove to me that I <em>can</em> write a fast database. On the other hand, I'm so
+embarrassed I didn't notice these issues earlier, and it's demoralizing to think
+of all the time spent building upon mistaken assumptions. Nebari will also need
+to transition to a more complex architecture, which makes it lose some of the
+appeal I had for it.</p>
+<p>The only thing I can say with confidence right now is that I still firmly
+believe in my vision of BonsaiDb, regardless of what storage layer powers it. I
+will figure out my plans soon so that existing users aren't left in a lurch for
+too long.</p>
+<p>Lastly, I just want to say thank you to everyone who has supported me through
+this journey. Despite the recent stress, BonsaiDb and Nebari have been fun and
+rewarding projects to build.</p>
+
+</div>
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <iframe src="https://github.com/sponsors/ecton/button" title="Sponsor ecton" height="35" width="116"
+                style="border: 0;"></iframe>
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                website content
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/site.js"></script>
+</body>
+
+</html>
