@@ -174,7 +174,7 @@ harness:&lt;&#x2F;p&gt;
 &lt;tr&gt;&lt;td&gt;preallocate&lt;&#x2F;td&gt;&lt;td&gt;1.243ms&lt;&#x2F;td&gt;&lt;td&gt;612.3us&lt;&#x2F;td&gt;&lt;td&gt;4.042ms&lt;&#x2F;td&gt;&lt;td&gt;859.3us&lt;&#x2F;td&gt;&lt;td&gt;0.004%&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;tr&gt;&lt;td&gt;syncrange&lt;&#x2F;td&gt;&lt;td&gt;189.1us&lt;&#x2F;td&gt;&lt;td&gt;12.83us&lt;&#x2F;td&gt;&lt;td&gt;2.847ms&lt;&#x2F;td&gt;&lt;td&gt;653.6us&lt;&#x2F;td&gt;&lt;td&gt;0.063%&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
-&lt;p&gt;Using this harness, I can see now see results that make sense. The averages
+&lt;p&gt;Using this harness, I can now see results that make sense. The averages
 match what we see from Criterion, but now our min and max show a wider range. We
 can now see that even for the &lt;code&gt;syncrange&lt;&#x2F;code&gt; benchmark, some writes will take
 2.8ms.&lt;&#x2F;p&gt;
