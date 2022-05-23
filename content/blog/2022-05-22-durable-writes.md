@@ -1,5 +1,6 @@
 +++
 title = "BonsaiDb performance update: A deep-dive on file synchronization"
+updated = "2022-05-23"
 
 [extra]
 author = "Jonathan Johnson"
@@ -121,12 +122,12 @@ As you can see, Nebari sits in the middle with 2.6ms, SQLite is the slowest with
 Sled's source, Sled isn't calling `fdatasync()` most of the time when you ask it
 to flush its buffers. It's using a different API: `sync_file_range()`.
 
-Does that mean Sled isn't persisting changes completely? No. Instead, this is an
-example of how to misunderstand statistics. From the output above, you might be
-tempted to infer that since the max single iteration time for Sled is 39.4μs.
-However, Criterion uses sampling-based statistics, which means that it doesn't
-look at individual iteration times but rather iteration times for a set number
-of iterations.
+From the output above, you might be tempted to infer that Sled never calls
+`fsdatasync`, since the max single iteration time for Sled is 39.4μs, and I
+claim that `fdatasync` never completes in under 1ms on my machine. However,
+Criterion uses sampling-based statistics, which means that it doesn't look at
+individual iteration times but rather iteration times for a set number of
+iterations.
 
 By logging out each individual iteration time, I can see that there are
 individual iterations that *do* take as long as an `fdatasync` call. To
@@ -345,6 +346,46 @@ From my testing, using `ftruncate` to fill pages with 0 will conflict with
 `sync_file_range` on the first operation, but will likely succeed on future
 tests on ext4 and xfs.
 
+### {{ anchor(text = "Volatile Write Caches" )}}
+
+**Update 2022-05-23**: A [comment on Reddit][volatile-comment] correctly pointed
+out I skipped discussing this portion of the `sync_file_range` warning:
+
+> This system call does not flush disk write caches and thus does not provide
+> any data integrity on systems with volatile disk write caches.
+
+Even with all of the aforementioned preconditions being true, we can't guarantee
+that `sync_file_range` if write caching is enabled. This is because the device
+itself may have a write cache that is volatile. Unless write caching is
+explicitly disabled, the only way for `sync_file_range` to be safe on ext4 and
+xfs is for the user to verify that the devices being used do not have volatile
+write caches.
+
+For my NVME boot drive, I'm able to see that it has a volatile write cache:
+
+```sh
+$ sudo nvme get-feature -f 6 /dev/nvme0n1
+get-feature:0x06 (Volatile Write Cache), Current value:0x00000001
+```
+
+Let's turn it off and run our benchmark again:
+
+```sh
+$ sudo nvme set-feature -f 6 -v 0 /dev/nvme0n1
+set-feature:0x06 (Volatile Write Cache), value:00000000, cdw12:00000000, save:0
+```
+
+|    Label    |   avg   |   min   |   max   | stddev  |  out%  |
+|-------------|---------|---------|---------|---------|--------|
+|   append    | 5.492ms | 5.123ms | 12.75ms | 564.1us | 0.016% |
+| preallocate | 2.763ms | 1.665ms | 11.75ms | 1.685ms | 0.006% |
+|  syncrange  | 2.025ms | 1.592ms | 5.723ms | 910.1us | 0.064% |
+
+Our sub-millisecond times have vanished. The only reason `sync_file_range` was
+faster was because it was only writing to the volatile write cache. By disabling
+the volatile write cache, the benefits of `sync_file_range` compared to the
+preallocation strategy diminish.
+
 ### {{ anchor(text = "Conclusions about sync_file_range" )}}
 
 - `sync_file_range` is only safe to use on specific filesystems. Of the four I tested, `xfs`
@@ -354,6 +395,8 @@ tests on ext4 and xfs.
 - `ftruncate` to extend a file does not fully initialize newly allocated pages
   with zeroes and may take shortcuts instead. This makes using `sync_file_range`
   on space allocated with `ftruncate` or similar operations unsafe to use.
+- Even with all of these conditions being met, volatile write caches on the disk
+  must be disabled to ensure full durability.
 
 ## {{ anchor(text = "Mac OS/iOS: Does F_BARRIERFSYNC provide durable writes?" )}}
 
@@ -474,3 +517,4 @@ rewarding projects to build.
 [durable-writes-bench]: https://github.com/ecton/sync-tests/blob/main/benches/durable-writes.rs
 [sync-file-range-test]: https://github.com/ecton/sync-tests/blob/main/examples/sync_file_range.rs
 [sync-file-range-set-len-test]: https://github.com/ecton/sync-tests/blob/main/examples/sync_file_range_set_len.rs
+[volatile-comment]: https://www.reddit.com/r/rust/comments/uvlu5y/bonsaidb_performance_update_a_deepdive_on_file/i9nvftm/
