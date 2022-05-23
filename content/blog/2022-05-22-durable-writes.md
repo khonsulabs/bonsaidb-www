@@ -168,7 +168,7 @@ harness:
 | preallocate | 1.243ms | 612.3us | 4.042ms | 859.3us | 0.004% |
 |  syncrange  | 189.1us | 12.83us | 2.847ms | 653.6us | 0.063% |
 
-Using this harness, I can see now see results that make sense. The averages
+Using this harness, I can now see results that make sense. The averages
 match what we see from Criterion, but now our min and max show a wider range. We
 can now see that even for the `syncrange` benchmark, some writes will take
 2.8ms.
