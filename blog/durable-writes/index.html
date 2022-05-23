@@ -125,6 +125,8 @@ is-active
         
         Published 2022-05-22.
         
+        Last updated 2022-05-23.
+        
         
     </p>
     
@@ -251,12 +253,12 @@ ACID-complaint insert of 1KB of data to a new key:</p>
 4.11ms, and Sled reports an incredibly short 38.9μs. After a quick skim of
 Sled's source, Sled isn't calling <code>fdatasync()</code> most of the time when you ask it
 to flush its buffers. It's using a different API: <code>sync_file_range()</code>.</p>
-<p>Does that mean Sled isn't persisting changes completely? No. Instead, this is an
-example of how to misunderstand statistics. From the output above, you might be
-tempted to infer that since the max single iteration time for Sled is 39.4μs.
-However, Criterion uses sampling-based statistics, which means that it doesn't
-look at individual iteration times but rather iteration times for a set number
-of iterations.</p>
+<p>From the output above, you might be tempted to infer that Sled never calls
+<code>fsdatasync</code>, since the max single iteration time for Sled is 39.4μs, and I
+claim that <code>fdatasync</code> never completes in under 1ms on my machine. However,
+Criterion uses sampling-based statistics, which means that it doesn't look at
+individual iteration times but rather iteration times for a set number of
+iterations.</p>
 <p>By logging out each individual iteration time, I can see that there are
 individual iterations that <em>do</em> take as long as an <code>fdatasync</code> call. To
 simplify, I created three tests to benchmark:</p>
@@ -474,6 +476,42 @@ tests on ext4 and xfs.</p>
 <h3 id="-9">
 
 
+<a href="#Volatile%20Write%20Caches" name="Volatile%20Write%20Caches">
+    Volatile Write Caches
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h3>
+<p><strong>Update 2022-05-23</strong>: A <a href="https://www.reddit.com/r/rust/comments/uvlu5y/bonsaidb_performance_update_a_deepdive_on_file/i9nvftm/">comment on Reddit</a> correctly pointed
+out I skipped discussing this portion of the <code>sync_file_range</code> warning:</p>
+<blockquote>
+<p>This system call does not flush disk write caches and thus does not provide
+any data integrity on systems with volatile disk write caches.</p>
+</blockquote>
+<p>Even with all of the aforementioned preconditions being true, we can't guarantee
+that <code>sync_file_range</code> if write caching is enabled. This is because the device
+itself may have a write cache that is volatile. Unless write caching is
+explicitly disabled, the only way for <code>sync_file_range</code> to be safe on ext4 and
+xfs is for the user to verify that the devices being used do not have volatile
+write caches.</p>
+<p>For my NVME boot drive, I'm able to see that it has a volatile write cache:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> sudo nvme get-feature</span><span style="color:#bf616a;"> -f</span><span> 6 /dev/nvme0n1
+</span><span style="color:#bf616a;">get-feature:0x06</span><span> (Volatile Write Cache)</span><span style="color:#bf616a;">,</span><span> Current value:0x00000001
+</span></code></pre>
+<p>Let's turn it off and run our benchmark again:</p>
+<pre data-lang="sh" style="background-color:#2b303b;color:#c0c5ce;" class="language-sh "><code class="language-sh" data-lang="sh"><span style="color:#bf616a;">$</span><span> sudo nvme set-feature</span><span style="color:#bf616a;"> -f</span><span> 6</span><span style="color:#bf616a;"> -v</span><span> 0 /dev/nvme0n1
+</span><span style="color:#bf616a;">set-feature:0x06</span><span> (Volatile Write Cache)</span><span style="color:#bf616a;">,</span><span> value:00000000, cdw12:00000000, save:0
+</span></code></pre>
+<table><thead><tr><th>Label</th><th>avg</th><th>min</th><th>max</th><th>stddev</th><th>out%</th></tr></thead><tbody>
+<tr><td>append</td><td>5.492ms</td><td>5.123ms</td><td>12.75ms</td><td>564.1us</td><td>0.016%</td></tr>
+<tr><td>preallocate</td><td>2.763ms</td><td>1.665ms</td><td>11.75ms</td><td>1.685ms</td><td>0.006%</td></tr>
+<tr><td>syncrange</td><td>2.025ms</td><td>1.592ms</td><td>5.723ms</td><td>910.1us</td><td>0.064%</td></tr>
+</tbody></table>
+<p>Our sub-millisecond times have vanished. The only reason <code>sync_file_range</code> was
+faster was because it was only writing to the volatile write cache. By disabling
+the volatile write cache, the benefits of <code>sync_file_range</code> compared to the
+preallocation strategy diminish.</p>
+<h3 id="-10">
+
+
 <a href="#Conclusions%20about%20sync_file_range" name="Conclusions%20about%20sync_file_range">
     Conclusions about sync_file_range
     <i class="bi bi-link-45deg hoverable"></i>
@@ -486,8 +524,10 @@ and <code>ext4</code> appear to be completely reliable in their implementations,
 <li><code>ftruncate</code> to extend a file does not fully initialize newly allocated pages
 with zeroes and may take shortcuts instead. This makes using <code>sync_file_range</code>
 on space allocated with <code>ftruncate</code> or similar operations unsafe to use.</li>
+<li>Even with all of these conditions being met, volatile write caches on the disk
+must be disabled to ensure full durability.</li>
 </ul>
-<h2 id="-10">
+<h2 id="-11">
 
 
 <a href="#Mac%20OS&#x2F;iOS%3A%20Does%20F_BARRIERFSYNC%20provide%20durable%20writes%3F" name="Mac%20OS&#x2F;iOS%3A%20Does%20F_BARRIERFSYNC%20provide%20durable%20writes%3F">
@@ -517,7 +557,7 @@ its file synchronization on Mac/iOS. Optionally, you can use a <code>#pragma</co
 enable usage of <code>F_FULLFSYNC</code>. Given the relative overhead of the two APIs in my
 limited testing, I can understand their decision, but I'm not sure it's the best
 default.</p>
-<h2 id="-11">
+<h2 id="-12">
 
 
 <a href="#Windows%3A%20Are%20there%20any%20APIs%20for%20partially%20syncing%20files%3F" name="Windows%3A%20Are%20there%20any%20APIs%20for%20partially%20syncing%20files%3F">
@@ -526,7 +566,7 @@ default.</p>
 </a></h2>
 <p>No. Unless you are utilizing memory mapped files, the only API avialable on
 Windows is <a href="https://docs.microsoft.com/en-us/windows/win32/api/fileapi/nf-fileapi-flushfilebuffers"><code>FlushFileBuffers</code></a>.</p>
-<h2 id="-12">
+<h2 id="-13">
 
 
 <a href="#What%20does%20all%20of%20this%20mean%20for%20BonsaiDb%3F" name="What%20does%20all%20of%20this%20mean%20for%20BonsaiDb%3F">
@@ -558,7 +598,7 @@ to modify a collection.</p>
 <p>Nebari's architecture was designed in October, and I spent countless hours
 profiling and testing its performance. Due to the aforementioned issues with my
 methodology, so many of my performance assumptions were flat out wrong.</p>
-<h2 id="-13">
+<h2 id="-14">
 
 
 <a href="#What%27s%20next%3F" name="What%27s%20next%3F">
