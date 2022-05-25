@@ -4,7 +4,7 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-05-23T00:00:00+00:00</updated>
+	<updated>2022-05-24T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
 	<entry xml:lang="en">
 		<title>BonsaiDb performance update: A deep-dive on file synchronization</title>
@@ -1963,7 +1963,7 @@ ecosystem up to the current draft spec:&lt;&#x2F;p&gt;
 	<entry xml:lang="en">
 		<title>BonsaiDb January update: Alpha Next Week</title>
 		<published>2022-01-27T00:00:00+00:00</published>
-		<updated>2022-01-27T00:00:00+00:00</updated>
+		<updated>2022-05-24T00:00:00+00:00</updated>
 		<link href="https://bonsaidb.io/blog/january-2022-update/" type="text/html"/>
 		<id>https://bonsaidb.io/blog/january-2022-update/</id>
 		<content type="html">&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&quot;&gt;BonsaiDb&lt;&#x2F;a&gt; is a pure Rust database that grows with you. It already is &lt;a href=&quot;&#x2F;about&quot;&gt;feature-rich&lt;&#x2F;a&gt;, but we are still working towards our initial alpha. This month&#x27;s update will highlight the changes since the last update and cover what&#x27;s remaining before our alpha release.&lt;&#x2F;p&gt;
@@ -2001,6 +2001,8 @@ ecosystem up to the current draft spec:&lt;&#x2F;p&gt;
     Collection Benchmarks
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h3&gt;
+&lt;p&gt;&lt;strong&gt;Edit 2022-05-25: These benchmarks were discovered to have serious problems.
+Read more &lt;a href=&quot;&#x2F;blog&#x2F;durable-writes&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;My last &lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;blog post&lt;&#x2F;a&gt; goes into detail about a new benchmark I wrote to attempt to simulate a simple relational database workload. The results were staggering to me.&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;bonsaidb.io&#x2F;blog&#x2F;commerce-benchmark&#x2F;&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find prodcut by id graph&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;Nearly every operation across every workload showed all ways of accessing BonsaiDb outperforming PostgreSQL significantly.&lt;&#x2F;p&gt;
@@ -2091,7 +2093,7 @@ ecosystem up to the current draft spec:&lt;&#x2F;p&gt;
 	<entry xml:lang="en">
 		<title>Benchmarking relational data in BonsaiDb</title>
 		<published>2022-01-18T00:00:00+00:00</published>
-		<updated>2022-01-18T00:00:00+00:00</updated>
+		<updated>2022-05-24T00:00:00+00:00</updated>
 		<link href="https://bonsaidb.io/blog/commerce-benchmark/" type="text/html"/>
 		<id>https://bonsaidb.io/blog/commerce-benchmark/</id>
 		<content type="html">&lt;blockquote&gt;
@@ -2153,6 +2155,8 @@ README&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
     BonsaiDb is faster than I had hoped!
     &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;strong&gt;Edit 2022-05-25: These benchmarks were discovered to have serious problems.
+Read more &lt;a href=&quot;&#x2F;blog&#x2F;durable-writes&#x2F;&quot;&gt;here&lt;&#x2F;a&gt;.&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;These graphs show the accumulated execution time of each operation:&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#LookupProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;LookupProduct.png&quot; class=&quot;block-image&quot; alt=&quot;lookup product by id&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;
 &lt;a href=&quot;https:&#x2F;&#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&#x2F;bonsaidb-scaleway-gp1-xs&#x2F;commerce&#x2F;large-writeheavy&#x2F;8&#x2F;index.html#FindProduct&quot;&gt;&lt;img src=&quot;https:&amp;#x2F;&amp;#x2F;khonsulabs-storage.s3.us-west-000.backblazeb2.com&amp;#x2F;bonsaidb-scaleway-gp1-xs&amp;#x2F;commerce&amp;#x2F;large-writeheavy&amp;#x2F;8&amp;#x2F;FindProduct.png&quot; class=&quot;block-image&quot; alt=&quot;find product by name&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;
