@@ -1,5 +1,6 @@
 +++
 title = "BonsaiDb January update: Alpha Next Week"
+updated = "2022-05-24"
 
 [extra]
 author = "Jonathan Johnson"
@@ -44,6 +45,9 @@ Well, as you might expect, if you don't have network access, things go very fast
 My profiling has led me to believe that [switching to Socketto][soketto] will bring the WebSocket implementation closer by reducing the number of allocations. Only time will tell if that will match Redis's performance, but I'm hopeful it will be close enough to not care. For the QUIC connection, our [other major contributor][daxpedda] has plans to dig in and see what can be done to reduce some of the allocations we saw in the profiling we did.
 
 ### {{ anchor(text = "Collection Benchmarks") }}
+
+**Edit 2022-05-25: These benchmarks were discovered to have serious problems.
+Read more [here](/blog/durable-writes/).**
 
 My last [blog post][commerce-blog] goes into detail about a new benchmark I wrote to attempt to simulate a simple relational database workload. The results were staggering to me.
 

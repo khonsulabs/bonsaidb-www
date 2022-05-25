@@ -1,5 +1,6 @@
 +++
 title = "Benchmarking relational data in BonsaiDb"
+updated = "2022-05-24"
 
 [extra]
 author = "Jonathan Johnson"
@@ -59,6 +60,9 @@ as how aggregation of ratings is handled, in the [benchmark's
 README][commerce-bench].
 
 ## {{ anchor(text = "BonsaiDb is faster than I had hoped!") }}
+
+**Edit 2022-05-25: These benchmarks were discovered to have serious problems.
+Read more [here](/blog/durable-writes/).**
 
 These graphs show the accumulated execution time of each operation:
 
