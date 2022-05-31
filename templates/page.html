@@ -29,17 +29,29 @@ aimed at being the most developer-friendly database.{% endif %}{% endblock ogdes
     </p>
     {% endif %}
     {{ page.content | safe }}
-    {% if page.earlier or page.later %}
-    <hr />
-    <nav class="pagination" role="navigation">
+</div>
+{% if page.earlier or page.later %}
+<hr />
+<div class="px-4">
+    <aside class="menu" role="navigation">
         {% if page.earlier %}
-        <a href="{{ page.earlier.path }}" class="pagination-previous">&lt; {{ page.earlier.title }}</a>
+        <p class="menu-label">Previous Post</p>
+        <ul class="menu-list">
+            <li>
+                <a href="{{ page.earlier.path }}">{{ page.earlier.title }}</a>
+            </li>
+        </ul>
         {% endif %}
 
         {% if page.later %}
-        <a href="{{ page.later.path }}" class="pagination-next">{{ page.later.title }} &gt;</a>
+        <p class="menu-label">Next Post</p>
+        <ul class="menu-list">
+            <li>
+                <a href="{{ page.later.path }}">{{ page.later.title }} &gt;</a>
+            </li>
+        </ul>
         {% endif %}
-    </nav>
-    {% endif %}
+    </aside>
 </div>
+{% endif %}
 {% endblock content %}

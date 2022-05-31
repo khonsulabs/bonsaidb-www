@@ -418,7 +418,8 @@ Let's keep reading.
 Apple really dropped the ball here. According to all available documentation I
 can find: there is no way to run a truly ACID-compliant database on Mac OS. You
 can get close, but a power loss could still result in a write being reported as
-successfully persisted being gone after a power outage.
+successfully persisted being gone after a power outage. A [post on Michael
+Tsai's blog][mjtsai-blog] covers the investigation into this in more detail.
 
 One interesting note is that SQLite uses `F_BARRIERFSYNC` by default for all of
 its file synchronization on Mac/iOS. Optionally, you can use a `#pragma` to
@@ -518,3 +519,4 @@ rewarding projects to build.
 [sync-file-range-test]: https://github.com/ecton/sync-tests/blob/main/examples/sync_file_range.rs
 [sync-file-range-set-len-test]: https://github.com/ecton/sync-tests/blob/main/examples/sync_file_range_set_len.rs
 [volatile-comment]: https://www.reddit.com/r/rust/comments/uvlu5y/bonsaidb_performance_update_a_deepdive_on_file/i9nvftm/
+[mjtsai-blog]: https://mjtsai.com/blog/2022/02/17/apple-ssd-benchmarks-and-f_fullsync/
