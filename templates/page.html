@@ -29,5 +29,17 @@ aimed at being the most developer-friendly database.{% endif %}{% endblock ogdes
     </p>
     {% endif %}
     {{ page.content | safe }}
+    {% if page.earlier or page.later %}
+    <hr />
+    <nav class="pagination" role="navigation">
+        {% if page.earlier %}
+        <a href="{{ page.earlier.path }}" class="pagination-previous">&lt; {{ page.earlier.title }}</a>
+        {% endif %}
+
+        {% if page.later %}
+        <a href="{{ page.later.path }}" class="pagination-next">{{ page.later.title }} &gt;</a>
+        {% endif %}
+    </nav>
+    {% endif %}
 </div>
 {% endblock content %}
