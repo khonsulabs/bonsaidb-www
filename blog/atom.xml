@@ -70,9 +70,21 @@ blocked waiting on other transactions to complete -- often serially.&lt;&#x2F;p&
 &lt;p&gt;The above sequence of operations still only allows each thread access to the
 tree for writing one at a time, perserving Nebari&#x27;s current single-writer
 philosophy. The transactional guarantees are still the same: no transaction is
-confirmed complete until it is fully synchronized. The change is that there&#x27;s
-now a little more state in-memory to keep track of multiple versions of the
-state -- enabling true &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Multiversion_concurrency_control&quot;&gt;Multi-Version Concurrency Control (MVCC)&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+confirmed complete until it is fully synchronized. The change is in how Nebari is keeping track of the tree states.&lt;&#x2F;p&gt;
+&lt;p&gt;Currently, Nebari has a Read and a Write state. The Write state is what is
+mutated during a transaction. Once a transaction is confirmed, the Write state
+is published to the Read state. The new method introduces a third state: the
+committed state. Before unlocking the tree, a clone of the tree&#x27;s Write state is
+stored. When the transaction is confirmed, instead of publishing the Write
+state, the cloned state is published.&lt;&#x2F;p&gt;
+&lt;p&gt;This subtle change allows a second transaction to acquire the lock and update
+the Write state. It too will clone the state and release the tree. If this
+happened more quickly than the first transaction took to synchronize, even more
+transactions may proceed and be batched. The only edge case to worry about is
+that an older state being published should not be able to overwrite a newer
+state.&lt;&#x2F;p&gt;
+&lt;p&gt;This change would enable true &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Multiversion_concurrency_control&quot;&gt;Multi-Version Concurrency Control (MVCC)&lt;&#x2F;a&gt;
+in Nebari&#x27;s transactions.&lt;&#x2F;p&gt;
 &lt;p&gt;I set out on Sunday afternoon to try this new approach.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;-2&quot;&gt;
 
@@ -95,7 +107,8 @@ database is trying to process requests from 16 threads simultaneously.&lt;&#x2F;
 changes, BonsaiDb is able to complete the bechmark in ~45 seconds&lt;&#x2F;strong&gt;. This is
 clearly a &lt;em&gt;huge win&lt;&#x2F;em&gt;. However, PostgreSQL still takes less than half the time,
 so there&#x27;s still room for improvement. For those who are curious to dive in
-beyond the summary, I&#x27;ve uploaded the &lt;a href=&quot;&#x2F;parallel-tx-p1-commerce-bench&#x2F;&quot;&gt;benchmark report&lt;&#x2F;a&gt; of the new approach.&lt;&#x2F;p&gt;
+beyond the summary, I&#x27;ve uploaded the &lt;a href=&quot;&#x2F;parallel-tx-p1-commerce-bench&#x2F;&quot;&gt;benchmark
+report&lt;&#x2F;a&gt; of the new approach.&lt;&#x2F;p&gt;
 &lt;p&gt;I compared the timeline view of profiling data in &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;KDAB&#x2F;hotspot&quot;&gt;Hotspot&lt;&#x2F;a&gt;:&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-writes-before-after.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-writes-before-after.png&quot; class=&quot;block-image&quot; alt=&quot;Commerce Benchmark Overview from Scaleway&quot;  width=&quot;75%&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;I recognize this image might be hard to read on mobile devices. Clicking the

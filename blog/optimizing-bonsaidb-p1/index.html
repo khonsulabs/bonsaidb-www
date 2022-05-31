@@ -186,9 +186,21 @@ blocked waiting on other transactions to complete -- often serially.</p>
 <p>The above sequence of operations still only allows each thread access to the
 tree for writing one at a time, perserving Nebari's current single-writer
 philosophy. The transactional guarantees are still the same: no transaction is
-confirmed complete until it is fully synchronized. The change is that there's
-now a little more state in-memory to keep track of multiple versions of the
-state -- enabling true <a href="https://en.wikipedia.org/wiki/Multiversion_concurrency_control">Multi-Version Concurrency Control (MVCC)</a>.</p>
+confirmed complete until it is fully synchronized. The change is in how Nebari is keeping track of the tree states.</p>
+<p>Currently, Nebari has a Read and a Write state. The Write state is what is
+mutated during a transaction. Once a transaction is confirmed, the Write state
+is published to the Read state. The new method introduces a third state: the
+committed state. Before unlocking the tree, a clone of the tree's Write state is
+stored. When the transaction is confirmed, instead of publishing the Write
+state, the cloned state is published.</p>
+<p>This subtle change allows a second transaction to acquire the lock and update
+the Write state. It too will clone the state and release the tree. If this
+happened more quickly than the first transaction took to synchronize, even more
+transactions may proceed and be batched. The only edge case to worry about is
+that an older state being published should not be able to overwrite a newer
+state.</p>
+<p>This change would enable true <a href="https://en.wikipedia.org/wiki/Multiversion_concurrency_control">Multi-Version Concurrency Control (MVCC)</a>
+in Nebari's transactions.</p>
 <p>I set out on Sunday afternoon to try this new approach.</p>
 <h2 id="-2">
 
@@ -211,7 +223,8 @@ database is trying to process requests from 16 threads simultaneously.</p>
 changes, BonsaiDb is able to complete the bechmark in ~45 seconds</strong>. This is
 clearly a <em>huge win</em>. However, PostgreSQL still takes less than half the time,
 so there's still room for improvement. For those who are curious to dive in
-beyond the summary, I've uploaded the <a href="/parallel-tx-p1-commerce-bench/">benchmark report</a> of the new approach.</p>
+beyond the summary, I've uploaded the <a href="/parallel-tx-p1-commerce-bench/">benchmark
+report</a> of the new approach.</p>
 <p>I compared the timeline view of profiling data in <a href="https://github.com/KDAB/hotspot">Hotspot</a>:</p>
 <p><a href="/images/parallel-writes-before-after.png"><img src="&#x2F;images&#x2F;parallel-writes-before-after.png" class="block-image" alt="Commerce Benchmark Overview from Scaleway"  width="75%"  /></a></p>
 <p>I recognize this image might be hard to read on mobile devices. Clicking the
