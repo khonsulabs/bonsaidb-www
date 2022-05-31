@@ -110,7 +110,7 @@ I compared the timeline view of profiling data in [Hotspot][hotspot]:
 
 I recognize this image might be hard to read on mobile devices. Clicking the
 image will allow you to see it at full resolution. Both timelines are zoomed in
-to show 100ms of activityq. On the left is BonsaiDb v0.4.1 and on the right is
+to show 100ms of activity. On the left is BonsaiDb v0.4.1 and on the right is
 the updated code.
 
 The orange colored parts are where CPU samples were taken. The green areas are
@@ -217,8 +217,8 @@ immediately freed, however. Instead, Sediment assigns each commit a
 replication log. To ensure data is not overwritten before a consumer of the log,
 Sediment will allow the user to checkpoint the log to a specific `SequenceId`.
 
-Once the `SequenceId` of a given archive operation has elapsed, the `GrainId`s
-will be marked as free and be able to be reused.
+Once the `SequenceId` of a given archive operation has been checkpointed, the
+`GrainId`s will be marked as free and be able to be reused.
 
 ## {{ anchor(text = "Will this make BonsaiDb fast again?")}}
 
