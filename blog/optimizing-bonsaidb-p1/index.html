@@ -229,7 +229,7 @@ report</a> of the new approach.</p>
 <p><a href="/images/parallel-writes-before-after.png"><img src="&#x2F;images&#x2F;parallel-writes-before-after.png" class="block-image" alt="Commerce Benchmark Overview from Scaleway"  width="75%"  /></a></p>
 <p>I recognize this image might be hard to read on mobile devices. Clicking the
 image will allow you to see it at full resolution. Both timelines are zoomed in
-to show 100ms of activityq. On the left is BonsaiDb v0.4.1 and on the right is
+to show 100ms of activity. On the left is BonsaiDb v0.4.1 and on the right is
 the updated code.</p>
 <p>The orange colored parts are where CPU samples were taken. The green areas are
 where those threads have no samples -- they were blocked. It's clear at a quick
@@ -334,8 +334,8 @@ immediately freed, however. Instead, Sediment assigns each commit a
 <code>SequenceId</code>. Sediment supports a built-in log that could be used to power a
 replication log. To ensure data is not overwritten before a consumer of the log,
 Sediment will allow the user to checkpoint the log to a specific <code>SequenceId</code>.</p>
-<p>Once the <code>SequenceId</code> of a given archive operation has elapsed, the <code>GrainId</code>s
-will be marked as free and be able to be reused.</p>
+<p>Once the <code>SequenceId</code> of a given archive operation has been checkpointed, the
+<code>GrainId</code>s will be marked as free and be able to be reused.</p>
 <h2 id="-6">
 
 
