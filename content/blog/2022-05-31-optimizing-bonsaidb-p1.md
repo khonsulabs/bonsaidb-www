@@ -62,9 +62,24 @@ What if we could enable this sort of pipelining:
 The above sequence of operations still only allows each thread access to the
 tree for writing one at a time, perserving Nebari's current single-writer
 philosophy. The transactional guarantees are still the same: no transaction is
-confirmed complete until it is fully synchronized. The change is that there's
-now a little more state in-memory to keep track of multiple versions of the
-state -- enabling true [Multi-Version Concurrency Control (MVCC)][mvcc].
+confirmed complete until it is fully synchronized. The change is in how Nebari is keeping track of the tree states.
+
+Currently, Nebari has a Read and a Write state. The Write state is what is
+mutated during a transaction. Once a transaction is confirmed, the Write state
+is published to the Read state. The new method introduces a third state: the
+committed state. Before unlocking the tree, a clone of the tree's Write state is
+stored. When the transaction is confirmed, instead of publishing the Write
+state, the cloned state is published.
+
+This subtle change allows a second transaction to acquire the lock and update
+the Write state. It too will clone the state and release the tree. If this
+happened more quickly than the first transaction took to synchronize, even more
+transactions may proceed and be batched. The only edge case to worry about is
+that an older state being published should not be able to overwrite a newer
+state.
+
+This change would enable true [Multi-Version Concurrency Control (MVCC)][mvcc]
+in Nebari's transactions.
 
 I set out on Sunday afternoon to try this new approach.
 
@@ -86,7 +101,8 @@ database is trying to process requests from 16 threads simultaneously.
 changes, BonsaiDb is able to complete the bechmark in ~45 seconds**. This is
 clearly a *huge win*. However, PostgreSQL still takes less than half the time,
 so there's still room for improvement. For those who are curious to dive in
-beyond the summary, I've uploaded the [benchmark report](/parallel-tx-p1-commerce-bench/) of the new approach.
+beyond the summary, I've uploaded the [benchmark
+report](/parallel-tx-p1-commerce-bench/) of the new approach.
 
 I compared the timeline view of profiling data in [Hotspot][hotspot]:
 
