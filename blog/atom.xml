@@ -718,7 +718,8 @@ to the disk, but data can still be lost in the case of sudden power loss.&lt;&#x
 &lt;p&gt;Apple really dropped the ball here. According to all available documentation I
 can find: there is no way to run a truly ACID-compliant database on Mac OS. You
 can get close, but a power loss could still result in a write being reported as
-successfully persisted being gone after a power outage.&lt;&#x2F;p&gt;
+successfully persisted being gone after a power outage. A &lt;a href=&quot;https:&#x2F;&#x2F;mjtsai.com&#x2F;blog&#x2F;2022&#x2F;02&#x2F;17&#x2F;apple-ssd-benchmarks-and-f_fullsync&#x2F;&quot;&gt;post on Michael
+Tsai&#x27;s blog&lt;&#x2F;a&gt; covers the investigation into this in more detail.&lt;&#x2F;p&gt;
 &lt;p&gt;One interesting note is that SQLite uses &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; by default for all of
 its file synchronization on Mac&#x2F;iOS. Optionally, you can use a &lt;code&gt;#pragma&lt;&#x2F;code&gt; to
 enable usage of &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt;. Given the relative overhead of the two APIs in my

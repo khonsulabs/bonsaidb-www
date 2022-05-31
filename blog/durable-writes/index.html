@@ -551,7 +551,8 @@ to the disk, but data can still be lost in the case of sudden power loss.</p>
 <p>Apple really dropped the ball here. According to all available documentation I
 can find: there is no way to run a truly ACID-compliant database on Mac OS. You
 can get close, but a power loss could still result in a write being reported as
-successfully persisted being gone after a power outage.</p>
+successfully persisted being gone after a power outage. A <a href="https://mjtsai.com/blog/2022/02/17/apple-ssd-benchmarks-and-f_fullsync/">post on Michael
+Tsai's blog</a> covers the investigation into this in more detail.</p>
 <p>One interesting note is that SQLite uses <code>F_BARRIERFSYNC</code> by default for all of
 its file synchronization on Mac/iOS. Optionally, you can use a <code>#pragma</code> to
 enable usage of <code>F_FULLFSYNC</code>. Given the relative overhead of the two APIs in my
@@ -627,19 +628,31 @@ too long.</p>
 this journey. Despite the recent stress, BonsaiDb and Nebari have been fun and
 rewarding projects to build.</p>
 
-    
-    <hr />
-    <nav class="pagination" role="navigation">
+</div>
+
+<hr />
+<div class="px-4">
+    <aside class="menu" role="navigation">
         
-        <a href="&#x2F;blog&#x2F;april-2022-update&#x2F;" class="pagination-previous">&lt; BonsaiDb April Update: Dogfooding and Fixing Bugs</a>
+        <p class="menu-label">Previous Post</p>
+        <ul class="menu-list">
+            <li>
+                <a href="&#x2F;blog&#x2F;april-2022-update&#x2F;">BonsaiDb April Update: Dogfooding and Fixing Bugs</a>
+            </li>
+        </ul>
         
 
         
-        <a href="&#x2F;blog&#x2F;optimizing-bonsaidb-p1&#x2F;" class="pagination-next">Optimizing BonsaiDb: Improving Transaction Batching (Part 1 of ?) &gt;</a>
+        <p class="menu-label">Next Post</p>
+        <ul class="menu-list">
+            <li>
+                <a href="&#x2F;blog&#x2F;optimizing-bonsaidb-p1&#x2F;">Optimizing BonsaiDb: Improving Transaction Batching (Part 1 of ?) &gt;</a>
+            </li>
+        </ul>
         
-    </nav>
-    
+    </aside>
 </div>
+
 
 
     <footer class="footer">
