@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Optimizing BonsaiDb: Improving Transaction Batching (Part 1 of ?)</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="/nodarkreader.min.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/bonsaidb-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+    <meta property="og:title"
+        content="Optimizing BonsaiDb: Improving Transaction Batching (Part 1 of ?)" />
+    <meta property="og:image"
+        content="https://bonsaidb.io/apple-touch-icon.png" />
+    <meta property="og:description"
+        content="BonsaiDb is a
+batteries-included
+database
+aimed at being the most developer-friendly database." />
+    <meta property="og:url" content="https://bonsaidb.io/blog/optimizing-bonsaidb-p1/" />
+    <meta property="og:image:width" content="180" />
+    <meta property="og:image:height" content="180" />
+    <meta property="og:type" content='article' />
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <div class="is-hidden-mobile is-flex-tablet">
+                <a class="navbar-item 
+
+
+
+" href="/">
+                    Getting Started
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/about/">
+                    What is BonsaiDb?
+                </a>
+                <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                    Blog
+                </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
+            </div>
+        </div>
+    </nav>
+
+    
+<div class="container content px-4">
+    <h1>Optimizing BonsaiDb: Improving Transaction Batching (Part 1 of ?)</h1>
+    
+    <p>
+        
+        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Jonathan Johnson</a>.
+        
+        
+        Published 2022-05-31.
+        
+        
+    </p>
+    
+    <blockquote>
+<p><strong>What is BonsaiDb?</strong></p>
+<p><a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a> is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: <a href="https://bonsaidb.io/about">What is
+BonsaiDb?</a>.</p>
+</blockquote>
+<h2 id="">
+
+
+<a href="#First%2C%20a%20Thank%20You" name="First%2C%20a%20Thank%20You">
+    First, a Thank You
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>My <a href="/blog/durable-writes/">last post</a> covered how a couple of small but
+impactful mistakes severely impacted <a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a>'s performance. The
+numerous supportive messages and comments I received was truly humbling. Thank
+you everyone who took the time to reach out in any way.</p>
+<p>I had two goals with that post: to let anyone using or considering BonsaiDb
+know of the issue, and to reassure any users or potential users that I was
+confident in improving BonsaiDb's performance.</p>
+<p>At the time of writing that post, my ideas on how to improve performance were
+half-formed, and I didn't have any confidence in what sort of speedups I could
+achieve. I was excited to experiment, but I wasn't ready to share my thoughts.</p>
+<p>There are two things that have helped me gain enough confidence to start sharing
+what I've been working on: the numerous heartwarming messages and comments, and
+making meaningful progress in testing my ideas.</p>
+<p>Today's post covers how I've improved <a href="https://github.com/khonsulabs/nebari">Nebari</a>'s transaction batching to
+be able to achieve a higher number of transactions per second. I will then
+follow up by discussing how a new format for Nebari might be able to close the
+remaining performance gap between BonsaiDb and PostgreSQL.</p>
+<h2 id="-1">
+
+
+<a href="#The%20goal%20of%20improving%20batching" name="The%20goal%20of%20improving%20batching">
+    The goal of improving batching
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Nebari's current transaction batching supports multiple transactions against
+different trees (a, b, and c):</p>
+<p><a href="/images/parallel-tx-now-multi.png"><img src="&#x2F;images&#x2F;parallel-tx-now-multi.png" class="block-image" alt="Nebari v0.5 Multi-tree Transaction Batching"   /></a></p>
+<p>In the above example, threads 1, 2 and 3 all begin a transaction against
+different trees. Because they are all different trees, all threads are able to
+operate simultaneously. Once a transaction is committed, it must be added to the
+transaction log. The transaction manager automatically will batch multiple
+transactions together.</p>
+<p>Let's see what happens when these threads all try to modify the same tree instead (a):</p>
+<p><a href="/images/parallel-tx-now-single.png"><img src="&#x2F;images&#x2F;parallel-tx-now-single.png" class="block-image" alt="Nebari v0.5 Single-tree Transaction Batching"   /></a></p>
+<p>Thread 1 acquires the lock on tree a, causing the other two threads to wait
+until its released. This doesn't happen in Nebari today until the transaction is
+fully confirmed. This is the problem that the Commerce Benchmark is BonsaiDb was
+exhibiting: transactions would cause backlogs to form until most workers were
+blocked waiting on other transactions to complete -- often serially.</p>
+<p>What if we could enable this sort of pipelining:</p>
+<p><a href="/images/parallel-tx-new.png"><img src="&#x2F;images&#x2F;parallel-tx-new.png" class="block-image" alt="New Transaction Batching Strategy"   /></a></p>
+<p>The above sequence of operations still only allows each thread access to the
+tree for writing one at a time, perserving Nebari's current single-writer
+philosophy. The transactional guarantees are still the same: no transaction is
+confirmed complete until it is fully synchronized. The change is that there's
+now a little more state in-memory to keep track of multiple versions of the
+state -- enabling true <a href="https://en.wikipedia.org/wiki/Multiversion_concurrency_control">Multi-Version Concurrency Control (MVCC)</a>.</p>
+<p>I set out on Sunday afternoon to try this new approach.</p>
+<h2 id="-2">
+
+
+<a href="#Initial%20Results%3A%20Pretty%20good" name="Initial%20Results%3A%20Pretty%20good">
+    Initial Results: Pretty good
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Yesterday just in time for my lunch break, I reached a point where I could
+benchmark my <a href="https://github.com/khonsulabs/nebari/pull/56">new transaction batching code</a>. I am running a specific
+profile of the Commerce Benchmark using 16 worker agents, which means the
+database is trying to process requests from 16 threads simultaneously.</p>
+<table><thead><tr><th>Backend</th><th>CPU Time</th><th>Wall Time</th></tr></thead><tbody>
+<tr><td>bonsaidb v0.4.1</td><td>377.2s</td><td>23.57s</td></tr>
+<tr><td>refactor from last blog post</td><td>320.1s</td><td>20.01s</td></tr>
+<tr><td>new approach</td><td>44.91s</td><td>2.807s</td></tr>
+<tr><td>postgresql</td><td>18.25s</td><td>1.141s</td></tr>
+</tbody></table>
+<p><strong>BonsaiDb v0.4.1 takes over 6 minutes of CPU time to complete. After these
+changes, BonsaiDb is able to complete the bechmark in ~45 seconds</strong>. This is
+clearly a <em>huge win</em>. However, PostgreSQL still takes less than half the time,
+so there's still room for improvement. For those who are curious to dive in
+beyond the summary, I've uploaded the <a href="/parallel-tx-p1-commerce-bench/">benchmark report</a> of the new approach.</p>
+<p>I compared the timeline view of profiling data in <a href="https://github.com/KDAB/hotspot">Hotspot</a>:</p>
+<p><a href="/images/parallel-writes-before-after.png"><img src="&#x2F;images&#x2F;parallel-writes-before-after.png" class="block-image" alt="Commerce Benchmark Overview from Scaleway"  width="75%"  /></a></p>
+<p>I recognize this image might be hard to read on mobile devices. Clicking the
+image will allow you to see it at full resolution. Both timelines are zoomed in
+to show 100ms of activityq. On the left is BonsaiDb v0.4.1 and on the right is
+the updated code.</p>
+<p>The orange colored parts are where CPU samples were taken. The green areas are
+where those threads have no samples -- they were blocked. It's clear at a quick
+glance that there are a lot more orange areas on the right side, which is what
+we'd expect given the higher throughput.</p>
+<p>The other observation to note is the transaction log's thread activity.
+Theoretically, that thread's activity should be roughtly the same, as it was and
+still will be bottlenecked by file flushing. The thread that is highlighted blue
+is the transaction log thread. While there is variation between the graphs, the
+amount of activity and the space between them is roughly the same on average.
+That is exactly what I was expecting to see.</p>
+<p>Now, Nebari is bottlenecked by the frequency of flushes, and the Commerce
+Benchmark is reaching its performance limit due to only having a fixed number of
+worker agents. Once all agents are waiting on a transaction, everything is
+blocked until the next batch is committed.</p>
+<h2 id="-3">
+
+
+<a href="#Where%27s%20the%20remaining%20performance" name="Where%27s%20the%20remaining%20performance">
+    Where&#x27;s the remaining performance
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>One challenge that Nebari faces with the current format is that the transaction
+log does not record which trees were involved in the transaction. If we can't
+guarantee that all trees are fully flushed before we write the transaction log,
+we need some way to know upon loading the transaction log that the latest log
+entry is valid. Because we don't currently have a list of trees in the log
+itself, there's no way for the log to validate the latest log.</p>
+<p>This is why the transaction log requires that all trees are fully flushed before
+being written itself. If the log format were changed, we could add a list of
+committed trees to each entry. This would be all that's needed to allow Nebari
+to perform a single flush per transaction batch, which should nearly double the
+throughput with the current design. However, I suspect that wouldn't be enough
+to fully match PostgreSQL's performance.</p>
+<p>PostgreSQL, as well as many other database engines, pre-allocate chunks of
+storage rather than appending to the end of the file for each write.
+Additionally, when data is freed, other engines will often reuse that space. In
+the previous <a href="/blog/durable-writes">blog post</a>, I included some results from a
+benchmark showing how preallocating can drastically reduce overall write times.</p>
+<p>Converting Nebari into a format that can preallocate yet still remain
+append-only is one approach, but I'm not certain it's worth the effort. Because
+the above changes necessitate a format upgrade, I feel like my best option would
+be to re-evaluate my options for how Nebari works to try to achieve the best
+results.</p>
+<h2 id="-4">
+
+
+<a href="#Designing%20a%20new%20storage%20format%20for%20Nebari" name="Designing%20a%20new%20storage%20format%20for%20Nebari">
+    Designing a new storage format for Nebari
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Despite Nebari being designed as an append-only format, the majority of the code
+base interacts with the file using two functions: <code>read_chunk()</code> and
+<code>write_chunk()</code>.</p>
+<p><code>write_chunk()</code> writes a series of bytes to the file and returns a <code>u64</code>. This
+number is the offset into the file that the data is stored at, but all of the
+B+Tree code treats this number as an opaque ID. The only way it is used is with
+subsequent calls to <code>read_chunk()</code>.</p>
+<p>Because this abstraction exists, it seems pretty clear that the new format's API
+should look something like:</p>
+<ul>
+<li>Ability to write one or more chunks of data in parallel with other writers,
+with each chunk of data being assigned a unique id.</li>
+<li>Ability to ask for all the pending writes to be flushed.</li>
+<li>Ability to store a &quot;root&quot; header.</li>
+<li>Ability to retrieve a previously stored chunk of data using its id.</li>
+</ul>
+<p>My overall goals of this new underlying storage layer would be:</p>
+<ul>
+<li>Uses a single flush operation for integrity.</li>
+<li>Supports multiple concurrent readers and writers.</li>
+<li>Preallocates disk space in chunks.</li>
+<li>Disk space can be released and reused.</li>
+</ul>
+<p>If such a format could be built, it would be a fairly trivial operation to port
+Nebari to it.</p>
+<h2 id="-5">
+
+
+<a href="#Sediment%3A%20A%20new%20foundation%20for%20Nebari" name="Sediment%3A%20A%20new%20foundation%20for%20Nebari">
+    Sediment: A new foundation for Nebari
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p><a href="https://github.com/khonsulabs/sediment">Sediment</a> is my mostly-still-theorized file format that is aimed at
+providing the API and goals outlined above.</p>
+<p>Sediment will use a single-file architecture that allows storing blobs of data
+with ACID compliance. Each stored blob is assigned a <code>GrainId</code> which can be used
+to retrieve the data or release the data in the future.</p>
+<p>Sediment follows my neverending need to name things in cute but meaningful ways.
+The file is organized into a hierarchy of Basins, Stratum, and Grains. A
+<code>GrainId</code> identifies which grain inside of which stratum inside of which basin
+the data is stored.</p>
+<p>Nearly ever header stored in the file will be stored twice. When a new set of
+updates are being written, new data only touches the outdated copy. There are
+multiple validations that can happen to ensure that each page touched by a
+commit was flushed. This design is how Sediment will be able to use a single
+flush operation to persist a batch of writes to disk.</p>
+<p>Once a <code>GrainId</code> has data, it is immutable. The only two operations that can be
+performed on a <code>GrainId</code> are: <code>get</code> and <code>archive</code>.</p>
+<p>Archiving a grain will prepare the grain to be reused. Grains are not
+immediately freed, however. Instead, Sediment assigns each commit a
+<code>SequenceId</code>. Sediment supports a built-in log that could be used to power a
+replication log. To ensure data is not overwritten before a consumer of the log,
+Sediment will allow the user to checkpoint the log to a specific <code>SequenceId</code>.</p>
+<p>Once the <code>SequenceId</code> of a given archive operation has elapsed, the <code>GrainId</code>s
+will be marked as free and be able to be reused.</p>
+<h2 id="-6">
+
+
+<a href="#Will%20this%20make%20BonsaiDb%20fast%20again%3F" name="Will%20this%20make%20BonsaiDb%20fast%20again%3F">
+    Will this make BonsaiDb fast again?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>I don't expect the result of this to be that BonsaiDb is suddenly <em>faster</em> than
+PostgreSQL. The reason is simple: when I first saw the benchmark results in
+January, it took me a very long time convincing myself the PostgreSQL numbers
+were correct before I allowed myself to get excited.</p>
+<p>I had never heard that PostgreSQL is slow -- quite the contrary. From my
+understanding, if your workload is properly optimized, it's actually a very
+performant database. I know there are ideas on how to improve its performance,
+but overall, performance is not usually not people's main complaint with
+PostgreSQL and performance is continually improving with each release.</p>
+<p>I'm not going to be able to achieve anywhere near the numbers reported in
+January -- they were based on truly flawed processes and methodology. But, I'm
+hopeful I can get close enough to other ACID-compliant database engines that
+most users shouldn't have issues with BonsaiDb's performance moving forward.</p>
+<h2 id="-7">
+
+
+<a href="#Why%20not%20ship%20what%20I%20have%3F" name="Why%20not%20ship%20what%20I%20have%3F">
+    Why not ship what I have?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The problem with the current set of changes is that they are a complete format
+change from v0.4.1. While Nebari's format hasn't changed today, BonsaiDb is now
+using Nebari completely differently. This means that I need to design an upgrade
+process to migrate the file format.</p>
+<p>With my confidence level gaining in my new format's design, I am not very
+tempted to subject users to two format upgrades. While this decision means that
+these performance updates will take longer to get into users hands, it means
+less legacy code for me to support during the alpha period. At this stage in
+BonsaiDb's development, I have to prioritize maintainability.</p>
+<h2 id="-8">
+
+
+<a href="#I%27m%20excited" name="I%27m%20excited">
+    I&#x27;m excited
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>While it would have been nice to have been able to work on other features the
+last few weeks, I'm truly excited by the prospect of this new format. One of the
+biggest gotchas of benchmarking BonsaiDb (before the recent issues) was the
+caveat that a &quot;compact&quot; operation had to be performed to reclaim disk space.</p>
+<p>With this new format, there will no longer be that caveat. There will still be
+maintenance tasks that can be performed to try to optimize storage, but they
+will be optional and shouldn't be necessary in normal operation.</p>
+<p>I'm simultaneously relieved and excited that I should be able to stick with
+Nebari. The changes in <a href="https://github.com/khonsulabs/bonsaidb/pull/250">my pending view and document storage
+rewrite</a> enable some really cool features:</p>
+<ul>
+<li>When indexing a view, Nebari's B+Tree now embeds a the view's reduced value at
+each B+Tree node. This will enable reduce queries across ranges to be
+optimized and not require accessing as much data when computing the results.</li>
+<li>Document revisions are now based on Nebari's SequenceId. This change opens the
+path for exposing full document revision history, including a list of every
+change across the entire collection -- a feature Nebari supported but BonsaiDb
+did not have a way to expose efficiently.</li>
+</ul>
+<p>Nebari's ability to embed your own indexes in the B+Tree nodes and create custom
+tree roots make it a unique low-level database offering.</p>
+<h2 id="-9">
+
+
+<a href="#What%27s%20next%3F" name="What%27s%20next%3F">
+    What&#x27;s next?
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>This post and the last post provide a good summary of what I've been up to for
+the past month, so I'm skipping a &quot;This Month in BonsaiDb&quot; post for May. If I
+don't have any news before the end of June rolls around, I'll make sure to write
+an update covering my progress.</p>
+<p>In the meantime, if you'd like to try the current alpha of BonsaiDb, the
+<a href="https://bonsaidb.io/">homepage</a> has basic setup instructions and a list of
+examples. I have started writing a <a href="https://dev.bonsaidb.io/release/guide/">user's
+guide</a>, but I think <a href="https://docs.rs/bonsaidb/">the
+documentation</a> is in a better state at the moment.</p>
+<p>Thank you again to everyone who took the time to write a note after last week's
+blog post. I'm thankful to be part of such a supportive community.</p>
+
+    
+    <hr />
+    <nav class="pagination" role="navigation">
+        
+        <a href="&#x2F;blog&#x2F;durable-writes&#x2F;" class="pagination-previous">&lt; BonsaiDb performance update: A deep-dive on file synchronization</a>
+        
+
+        
+    </nav>
+    
+</div>
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <iframe src="https://github.com/sponsors/ecton/button" title="Sponsor ecton" height="35" width="116"
+                style="border: 0;"></iframe>
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                <a href="https://github.com/khonsulabs/bonsaidb-www/">website content</a>
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/site.js"></script>
+</body>
+
+</html>
