@@ -168,21 +168,21 @@ remaining performance gap between BonsaiDb and PostgreSQL.</p>
 </a></h2>
 <p>Nebari's current transaction batching supports multiple transactions against
 different trees (a, b, and c):</p>
-<p><a href="/images/parallel-tx-now-multi.png"><img src="&#x2F;images&#x2F;parallel-tx-now-multi.png" class="block-image" alt="Nebari v0.5 Multi-tree Transaction Batching"   /></a></p>
+<p><a href="/images/parallel-tx-now-multi.svg"><img src="&#x2F;images&#x2F;parallel-tx-now-multi.svg" class="block-image" alt="Nebari v0.5 Multi-tree Transaction Batching"   /></a></p>
 <p>In the above example, threads 1, 2 and 3 all begin a transaction against
 different trees. Because they are all different trees, all threads are able to
 operate simultaneously. Once a transaction is committed, it must be added to the
 transaction log. The transaction manager automatically will batch multiple
 transactions together.</p>
 <p>Let's see what happens when these threads all try to modify the same tree instead (a):</p>
-<p><a href="/images/parallel-tx-now-single.png"><img src="&#x2F;images&#x2F;parallel-tx-now-single.png" class="block-image" alt="Nebari v0.5 Single-tree Transaction Batching"   /></a></p>
+<p><a href="/images/parallel-tx-now-single.svg"><img src="&#x2F;images&#x2F;parallel-tx-now-single.svg" class="block-image" alt="Nebari v0.5 Single-tree Transaction Batching"   /></a></p>
 <p>Thread 1 acquires the lock on tree a, causing the other two threads to wait
 until its released. This doesn't happen in Nebari today until the transaction is
 fully confirmed. This is the problem that the Commerce Benchmark is BonsaiDb was
 exhibiting: transactions would cause backlogs to form until most workers were
 blocked waiting on other transactions to complete -- often serially.</p>
 <p>What if we could enable this sort of pipelining:</p>
-<p><a href="/images/parallel-tx-new.png"><img src="&#x2F;images&#x2F;parallel-tx-new.png" class="block-image" alt="New Transaction Batching Strategy"   /></a></p>
+<p><a href="/images/parallel-tx-new.svg"><img src="&#x2F;images&#x2F;parallel-tx-new.svg" class="block-image" alt="New Transaction Batching Strategy"   /></a></p>
 <p>The above sequence of operations still only allows each thread access to the
 tree for writing one at a time, perserving Nebari's current single-writer
 philosophy. The transactional guarantees are still the same: no transaction is

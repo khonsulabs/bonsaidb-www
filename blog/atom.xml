@@ -52,21 +52,21 @@ remaining performance gap between BonsaiDb and PostgreSQL.&lt;&#x2F;p&gt;
 &lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
 &lt;p&gt;Nebari&#x27;s current transaction batching supports multiple transactions against
 different trees (a, b, and c):&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-tx-now-multi.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-tx-now-multi.png&quot; class=&quot;block-image&quot; alt=&quot;Nebari v0.5 Multi-tree Transaction Batching&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-tx-now-multi.svg&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-tx-now-multi.svg&quot; class=&quot;block-image&quot; alt=&quot;Nebari v0.5 Multi-tree Transaction Batching&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;In the above example, threads 1, 2 and 3 all begin a transaction against
 different trees. Because they are all different trees, all threads are able to
 operate simultaneously. Once a transaction is committed, it must be added to the
 transaction log. The transaction manager automatically will batch multiple
 transactions together.&lt;&#x2F;p&gt;
 &lt;p&gt;Let&#x27;s see what happens when these threads all try to modify the same tree instead (a):&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-tx-now-single.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-tx-now-single.png&quot; class=&quot;block-image&quot; alt=&quot;Nebari v0.5 Single-tree Transaction Batching&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-tx-now-single.svg&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-tx-now-single.svg&quot; class=&quot;block-image&quot; alt=&quot;Nebari v0.5 Single-tree Transaction Batching&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;Thread 1 acquires the lock on tree a, causing the other two threads to wait
 until its released. This doesn&#x27;t happen in Nebari today until the transaction is
 fully confirmed. This is the problem that the Commerce Benchmark is BonsaiDb was
 exhibiting: transactions would cause backlogs to form until most workers were
 blocked waiting on other transactions to complete -- often serially.&lt;&#x2F;p&gt;
 &lt;p&gt;What if we could enable this sort of pipelining:&lt;&#x2F;p&gt;
-&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-tx-new.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-tx-new.png&quot; class=&quot;block-image&quot; alt=&quot;New Transaction Batching Strategy&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-tx-new.svg&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-tx-new.svg&quot; class=&quot;block-image&quot; alt=&quot;New Transaction Batching Strategy&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;The above sequence of operations still only allows each thread access to the
 tree for writing one at a time, perserving Nebari&#x27;s current single-writer
 philosophy. The transactional guarantees are still the same: no transaction is
