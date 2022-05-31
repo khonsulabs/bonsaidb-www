@@ -37,7 +37,7 @@ remaining performance gap between BonsaiDb and PostgreSQL.
 Nebari's current transaction batching supports multiple transactions against
 different trees (a, b, and c):
 
-[{{ blockimage(alt="Nebari v0.5 Multi-tree Transaction Batching", src="/images/parallel-tx-now-multi.png")}}](/images/parallel-tx-now-multi.png)
+[{{ blockimage(alt="Nebari v0.5 Multi-tree Transaction Batching", src="/images/parallel-tx-now-multi.svg")}}](/images/parallel-tx-now-multi.svg)
 
 In the above example, threads 1, 2 and 3 all begin a transaction against
 different trees. Because they are all different trees, all threads are able to
@@ -47,7 +47,7 @@ transactions together.
 
 Let's see what happens when these threads all try to modify the same tree instead (a):
 
-[{{ blockimage(alt="Nebari v0.5 Single-tree Transaction Batching", src="/images/parallel-tx-now-single.png")}}](/images/parallel-tx-now-single.png)
+[{{ blockimage(alt="Nebari v0.5 Single-tree Transaction Batching", src="/images/parallel-tx-now-single.svg")}}](/images/parallel-tx-now-single.svg)
 
 Thread 1 acquires the lock on tree a, causing the other two threads to wait
 until its released. This doesn't happen in Nebari today until the transaction is
@@ -57,7 +57,7 @@ blocked waiting on other transactions to complete -- often serially.
 
 What if we could enable this sort of pipelining:
 
-[{{ blockimage(alt="New Transaction Batching Strategy", src="/images/parallel-tx-new.png")}}](/images/parallel-tx-new.png)
+[{{ blockimage(alt="New Transaction Batching Strategy", src="/images/parallel-tx-new.svg")}}](/images/parallel-tx-new.svg)
 
 The above sequence of operations still only allows each thread access to the
 tree for writing one at a time, perserving Nebari's current single-writer
