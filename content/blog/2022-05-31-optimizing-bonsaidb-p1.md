@@ -90,19 +90,19 @@ benchmark my [new transaction batching code][nebari-pr]. I am running a specific
 profile of the Commerce Benchmark using 16 worker agents, which means the
 database is trying to process requests from 16 threads simultaneously.
 
-| Backend | CPU Time | Wall Time |
+| Backend | Total Time | Wall Time |
 |---------|------------|-----------|
 | bonsaidb v0.4.1 | 377.2s | 23.57s |
 | refactor from last blog post | 320.1s | 20.01s |
 | new approach | 44.91s | 2.807s |
 | postgresql | 18.25s | 1.141s |
 
-**BonsaiDb v0.4.1 takes over 6 minutes of CPU time to complete. After these
-changes, BonsaiDb is able to complete the bechmark in ~45 seconds**. This is
-clearly a *huge win*. However, PostgreSQL still takes less than half the time,
-so there's still room for improvement. For those who are curious to dive in
-beyond the summary, I've uploaded the [benchmark
-report](/parallel-tx-p1-commerce-bench/) of the new approach.
+**BonsaiDb v0.4.1 takes ~23 seconds to complete the benchmark. After these
+changes, it now takes just shy of 3 seconds.** This is clearly a *huge win*.
+However, PostgreSQL still takes less than half the time, so there's still room
+for improvement. For those who are curious to dive in beyond the summary, I've
+uploaded the [benchmark report](/parallel-tx-p1-commerce-bench/) of the new
+approach.
 
 I compared the timeline view of profiling data in [Hotspot][hotspot]:
 
