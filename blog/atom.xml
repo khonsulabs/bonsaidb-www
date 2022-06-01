@@ -97,18 +97,18 @@ in Nebari&#x27;s transactions.&lt;&#x2F;p&gt;
 benchmark my &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;nebari&#x2F;pull&#x2F;56&quot;&gt;new transaction batching code&lt;&#x2F;a&gt;. I am running a specific
 profile of the Commerce Benchmark using 16 worker agents, which means the
 database is trying to process requests from 16 threads simultaneously.&lt;&#x2F;p&gt;
-&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Backend&lt;&#x2F;th&gt;&lt;th&gt;CPU Time&lt;&#x2F;th&gt;&lt;th&gt;Wall Time&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
+&lt;table&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Backend&lt;&#x2F;th&gt;&lt;th&gt;Total Time&lt;&#x2F;th&gt;&lt;th&gt;Wall Time&lt;&#x2F;th&gt;&lt;&#x2F;tr&gt;&lt;&#x2F;thead&gt;&lt;tbody&gt;
 &lt;tr&gt;&lt;td&gt;bonsaidb v0.4.1&lt;&#x2F;td&gt;&lt;td&gt;377.2s&lt;&#x2F;td&gt;&lt;td&gt;23.57s&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;tr&gt;&lt;td&gt;refactor from last blog post&lt;&#x2F;td&gt;&lt;td&gt;320.1s&lt;&#x2F;td&gt;&lt;td&gt;20.01s&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;tr&gt;&lt;td&gt;new approach&lt;&#x2F;td&gt;&lt;td&gt;44.91s&lt;&#x2F;td&gt;&lt;td&gt;2.807s&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;tr&gt;&lt;td&gt;postgresql&lt;&#x2F;td&gt;&lt;td&gt;18.25s&lt;&#x2F;td&gt;&lt;td&gt;1.141s&lt;&#x2F;td&gt;&lt;&#x2F;tr&gt;
 &lt;&#x2F;tbody&gt;&lt;&#x2F;table&gt;
-&lt;p&gt;&lt;strong&gt;BonsaiDb v0.4.1 takes over 6 minutes of CPU time to complete. After these
-changes, BonsaiDb is able to complete the bechmark in ~45 seconds&lt;&#x2F;strong&gt;. This is
-clearly a &lt;em&gt;huge win&lt;&#x2F;em&gt;. However, PostgreSQL still takes less than half the time,
-so there&#x27;s still room for improvement. For those who are curious to dive in
-beyond the summary, I&#x27;ve uploaded the &lt;a href=&quot;&#x2F;parallel-tx-p1-commerce-bench&#x2F;&quot;&gt;benchmark
-report&lt;&#x2F;a&gt; of the new approach.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;strong&gt;BonsaiDb v0.4.1 takes ~23 seconds to complete the benchmark. After these
+changes, it now takes just shy of 3 seconds.&lt;&#x2F;strong&gt; This is clearly a &lt;em&gt;huge win&lt;&#x2F;em&gt;.
+However, PostgreSQL still takes less than half the time, so there&#x27;s still room
+for improvement. For those who are curious to dive in beyond the summary, I&#x27;ve
+uploaded the &lt;a href=&quot;&#x2F;parallel-tx-p1-commerce-bench&#x2F;&quot;&gt;benchmark report&lt;&#x2F;a&gt; of the new
+approach.&lt;&#x2F;p&gt;
 &lt;p&gt;I compared the timeline view of profiling data in &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;KDAB&#x2F;hotspot&quot;&gt;Hotspot&lt;&#x2F;a&gt;:&lt;&#x2F;p&gt;
 &lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;parallel-writes-before-after.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;parallel-writes-before-after.png&quot; class=&quot;block-image&quot; alt=&quot;Commerce Benchmark Overview from Scaleway&quot;  width=&quot;75%&quot;  &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
 &lt;p&gt;I recognize this image might be hard to read on mobile devices. Clicking the

@@ -213,18 +213,18 @@ in Nebari's transactions.</p>
 benchmark my <a href="https://github.com/khonsulabs/nebari/pull/56">new transaction batching code</a>. I am running a specific
 profile of the Commerce Benchmark using 16 worker agents, which means the
 database is trying to process requests from 16 threads simultaneously.</p>
-<table><thead><tr><th>Backend</th><th>CPU Time</th><th>Wall Time</th></tr></thead><tbody>
+<table><thead><tr><th>Backend</th><th>Total Time</th><th>Wall Time</th></tr></thead><tbody>
 <tr><td>bonsaidb v0.4.1</td><td>377.2s</td><td>23.57s</td></tr>
 <tr><td>refactor from last blog post</td><td>320.1s</td><td>20.01s</td></tr>
 <tr><td>new approach</td><td>44.91s</td><td>2.807s</td></tr>
 <tr><td>postgresql</td><td>18.25s</td><td>1.141s</td></tr>
 </tbody></table>
-<p><strong>BonsaiDb v0.4.1 takes over 6 minutes of CPU time to complete. After these
-changes, BonsaiDb is able to complete the bechmark in ~45 seconds</strong>. This is
-clearly a <em>huge win</em>. However, PostgreSQL still takes less than half the time,
-so there's still room for improvement. For those who are curious to dive in
-beyond the summary, I've uploaded the <a href="/parallel-tx-p1-commerce-bench/">benchmark
-report</a> of the new approach.</p>
+<p><strong>BonsaiDb v0.4.1 takes ~23 seconds to complete the benchmark. After these
+changes, it now takes just shy of 3 seconds.</strong> This is clearly a <em>huge win</em>.
+However, PostgreSQL still takes less than half the time, so there's still room
+for improvement. For those who are curious to dive in beyond the summary, I've
+uploaded the <a href="/parallel-tx-p1-commerce-bench/">benchmark report</a> of the new
+approach.</p>
 <p>I compared the timeline view of profiling data in <a href="https://github.com/KDAB/hotspot">Hotspot</a>:</p>
 <p><a href="/images/parallel-writes-before-after.png"><img src="&#x2F;images&#x2F;parallel-writes-before-after.png" class="block-image" alt="Commerce Benchmark Overview from Scaleway"  width="75%"  /></a></p>
 <p>I recognize this image might be hard to read on mobile devices. Clicking the
