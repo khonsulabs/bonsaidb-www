@@ -11,8 +11,8 @@ $grey-light: hsl(120, 10%, 29%);
 $grey-lighter: hsl(120, 10%, 14%);
 $grey-lightest: hsl(120, 10%, 7%);
 
-$white-ter: hsl(120, 100%, 10%);
-$white-bis: hsl(120, 100%, 6%);
+$white-ter: hsl(120, 100%, 6%);
+$white-bis: hsl(120, 100%, 4%);
 $white: hsl(120, 100%, 2%);
 
 nav .navbar-brand h1 {
@@ -81,4 +81,13 @@ a code {
 
 .footnote-definition p {
     display: inline-block;
+}
+
+.content blockquote {
+    background-color: $grey-lightest,
+}
+
+span.hljs-comment,
+span.hljs-meta {
+    color: $black-ter
 }

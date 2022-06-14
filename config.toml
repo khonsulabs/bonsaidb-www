@@ -20,6 +20,7 @@ skip_anchor_prefixes = [
     "https://en.wikipedia.org/wiki/Cache_replacement_policies",
     "https://github.com/facebook/rocksdb/blob/bed40e7266b55349ce9d2dce27aeb2055813a5fe/env/io_posix.cc",
     "https://github.com/cockroachdb/pebble/blob/3355a02e7cec7a4cbf775421a89dfbe833818266/vfs/syncing_file_linux.go",
+    "https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/bsd/sys/fcntl.h",
 ]
 
 [extra]
