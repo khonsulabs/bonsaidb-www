@@ -4,8 +4,256 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-05-31T00:00:00+00:00</updated>
+	<updated>2022-06-14T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>SQLite on macOS: Not ACID unless you build it yourself</title>
+		<published>2022-06-14T00:00:00+00:00</published>
+		<updated>2022-06-14T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/acid-on-apple/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/acid-on-apple/</id>
+		<content type="html">&lt;p&gt;I&#x27;m building &lt;a href=&quot;&#x2F;about&quot;&gt;a database&lt;&#x2F;a&gt;, and I consider SQLite a &amp;quot;gold standard&amp;quot; to
+compare my database against. While benchmarking new code recently, I noticed
+Apple&#x27;s bundled version of SQLite is not ACID compliant, and from my
+understanding, cannot be made to be ACID compliant even when enabling &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;I do not consider myself an expert on these topics. If there are any errors in
+my analysis, please reach out to me, and I will correct them immediately. I&#x27;m
+learning by doing, and as evidenced by &lt;a href=&quot;&#x2F;blog&#x2F;durable-writes&quot;&gt;my last post on this
+topic&lt;&#x2F;a&gt;, I have made my own fair share of mistakes in
+trying to implement a fast, ACID-compliant database.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;&quot;&gt;
+
+
+&lt;a href=&quot;#Confusion%20about%20SQLite%20and%20F_BARRIERFSYNC&quot; name=&quot;Confusion%20about%20SQLite%20and%20F_BARRIERFSYNC&quot;&gt;
+    Confusion about SQLite and F_BARRIERFSYNC
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;On February 17, 2022, &lt;a href=&quot;https:&#x2F;&#x2F;twitter.com&#x2F;numist&#x2F;status&#x2F;1494392674014531593&quot;&gt;Scott Perry wrote this in a conversation on
+Twitter:&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;There&#x27;s a third sync operation that lets you have your performance and write
+ordering too: F_BARRIERFSYNC. SQLite already uses it on Darwin, and it&#x27;s part
+of the best practices guide for I&#x2F;O reduction.
+&lt;a href=&quot;https:&#x2F;&#x2F;developer.apple.com&#x2F;documentation&#x2F;xcode&#x2F;reducing-disk-writes&quot;&gt;https:&#x2F;&#x2F;developer.apple.com&#x2F;documentation&#x2F;xcode&#x2F;reducing-disk-writes&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Some people (myself included) interpretted the statement &amp;quot;SQLite already uses it
+on Darwin&amp;quot; to mean that it&#x27;s the default behavior. My post will show that this
+is not the case. By default, the bundled version of SQLite distributed in macOS
+12.4 (21F79) relies on &lt;code&gt;fsync()&lt;&#x2F;code&gt; for synchronization.&lt;&#x2F;p&gt;
+&lt;p&gt;From my investigation, Apple&#x27;s version of SQLite instead replaces &lt;code&gt;PRAGMA fullfsync = on&lt;&#x2F;code&gt;&#x27;s implementation to use &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;SQLite users who are expecting &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; to provide durability
+guarantees in the event of power failures or kernel panics &lt;strong&gt;must build their
+own version of SQLite on macOS for those durability guarantees to be implemented
+as documented by SQLite.&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;To understand why, let&#x27;s review how to ensure persistent writes on Apple&#x27;s
+operating systems.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-1&quot;&gt;
+
+
+&lt;a href=&quot;#Recap%3A%20How%20to%20guarantee%20data%20is%20saved%20to%20disk%20on%20Mac&amp;#x2F;iOS%3F&quot; name=&quot;Recap%3A%20How%20to%20guarantee%20data%20is%20saved%20to%20disk%20on%20Mac&amp;#x2F;iOS%3F&quot;&gt;
+    Recap: How to guarantee data is saved to disk on Mac&amp;#x2F;iOS?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;There are two APIs we need to cover: &lt;code&gt;fsync()&lt;&#x2F;code&gt; and &lt;code&gt;fcntl()&lt;&#x2F;code&gt;. On Linux,
+&lt;code&gt;fsync()&lt;&#x2F;code&gt; is the system call that is tells the kernel to fully synchronize its
+file state with the disk. It is debatable whether the original POSIX
+specification intends for this level of durability guarantees of &lt;code&gt;fsync()&lt;&#x2F;code&gt;, but
+on Linux it tries its best to guarantee all bits changed have been synchronized
+to the disk including issuing a flush of any affected volatile write caches.&lt;&#x2F;p&gt;
+&lt;p&gt;However, on macOS, the man page for &lt;code&gt;fsync()&lt;&#x2F;code&gt; reads:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Note that while fsync() will flush all data from the host to the drive (i.e.
+the &amp;quot;permanent storage device&amp;quot;), the drive itself may not physically write the
+data to the platters for quite some time and it may be written in an
+out-of-order sequence.&lt;&#x2F;p&gt;
+&lt;p&gt;Specifically, if the drive loses power or the OS crashes, the application may
+find that only some or none of their data was written.  The disk drive may
+also re-order the data so that later writes may be present, while earlier
+writes are not.&lt;&#x2F;p&gt;
+&lt;p&gt;This is not a theoretical edge case.  This scenario is easily reproduced with
+real world workloads and drive power failures.&lt;&#x2F;p&gt;
+&lt;p&gt;For applications that require tighter guarantees about the integrity of their
+data, Mac OS X provides the F_FULLFSYNC fcntl.  The F_FULLFSYNC fcntl asks the
+drive to flush all buffered data to permanent storage.  Applications, such as
+databases, that require a strict ordering of writes should use F_FULLFSYNC to
+ensure that their data is written in the order they expect.  Please see
+fcntl(2) for more detail.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;Apple&#x27;s documentation clearly states that for any guarantees about data loss due
+to power loss or kernel panic, you must use the &lt;code&gt;fcntl()&lt;&#x2F;code&gt; API with the
+&lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; command.&lt;&#x2F;p&gt;
+&lt;p&gt;Back in February of this year, this topic circulated fairly widely, and &lt;a href=&quot;https:&#x2F;&#x2F;mjtsai.com&#x2F;blog&#x2F;2022&#x2F;02&#x2F;17&#x2F;apple-ssd-benchmarks-and-f_fullsync&#x2F;&quot;&gt;this
+post from Michael Tsai&lt;&#x2F;a&gt; has a summary of the findings. In short, it was
+noted that &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; is incredibly slow in its current implementation. It
+was noted that Apple points users to another &lt;code&gt;fcntl()&lt;&#x2F;code&gt; command in its &lt;a href=&quot;https:&#x2F;&#x2F;developer.apple.com&#x2F;documentation&#x2F;xcode&#x2F;reducing-disk-writes&quot;&gt;&amp;quot;Reducing
+Disk Writes&amp;quot;&lt;&#x2F;a&gt; article:&lt;&#x2F;p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;Some apps require a write barrier to ensure data persistence before subsequent
+operations can proceed. Most apps can use the fcntl(&lt;em&gt;:&lt;&#x2F;em&gt;:) F_BARRIERFSYNC for
+this.&lt;&#x2F;p&gt;
+&lt;p&gt;Only use F_FULLFSYNC when your app requires a strong expectation of data
+persistence. Note that F_FULLFSYNC represents a best-effort guarantee that iOS
+writes data to the disk, but data can still be lost in the case of sudden
+power loss.&lt;&#x2F;p&gt;
+&lt;&#x2F;blockquote&gt;
+&lt;p&gt;&lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; issues an IO barrier such that all subsequent IO operations
+must wait for all current writes to succeed. The &lt;code&gt;fcntl()&lt;&#x2F;code&gt; call returns after
+issuing the barrier, but before the data is synchronized. This is why using
+&lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; isn&#x27;t durable: the write is confirmed before the data is fully
+synchronized.&lt;&#x2F;p&gt;
+&lt;p&gt;I should note that while &lt;code&gt;fcntl()&lt;&#x2F;code&gt; is an API that is available on Linux,
+&lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; and &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; are specific to Apple OSes. Linux has no need
+for these options as &lt;code&gt;fsync()&lt;&#x2F;code&gt; provides the guarantees needed.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-2&quot;&gt;
+
+
+&lt;a href=&quot;#Does%20SQLite%20use%20F_BARRIERFSYNC%20on%20Apple%20OSes%3F&quot; name=&quot;Does%20SQLite%20use%20F_BARRIERFSYNC%20on%20Apple%20OSes%3F&quot;&gt;
+    Does SQLite use F_BARRIERFSYNC on Apple OSes?
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;When starting my new low-level storage layer (&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;sediment&quot;&gt;Sediment&lt;&#x2F;a&gt;), I added
+support to optionally use &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; instead of &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; on Mac OS.
+By default, &lt;code&gt;F_FULLSYNC&lt;&#x2F;code&gt; would still be used as I wanted the user to explicitly
+opt-out of ACID if they needed the extra performance on Apple hardware. This was
+based on the idea that SQLite was using this same approach to achieve its very
+fast speed on macOS.&lt;&#x2F;p&gt;
+&lt;p&gt;Yesterday, I created a simple benchmark to see where Sediment&#x27;s performance was
+currently at. I&#x27;m not ready to share numbers, and that&#x27;s not the point of this
+post. The summary, however, is that Sediment was faster than SQLite on Linux,
+but slower than SQLite on my M1 Macbook Air.&lt;&#x2F;p&gt;
+&lt;p&gt;That puzzled me, because if both SQLite and Sediment are using the same
+synchronization primitives, how could the performance difference be inverted
+between the libraries by switching operating systems? I decided to investigate
+how SQLite utilized &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;My first stop was the documentation. SQLite has a pragma to &lt;a href=&quot;http:&#x2F;&#x2F;www3.sqlite.org&#x2F;pragma.html#pragma_fullfsync&quot;&gt;enable
+&lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt;&lt;&#x2F;a&gt;, but I could not find any documentation talking
+about &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;. The documentation for &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; states that the
+default value is off.&lt;&#x2F;p&gt;
+&lt;p&gt;My next stop was the SQLite source code: &lt;code&gt;full_fsync()&lt;&#x2F;code&gt; is defined in
+&lt;a href=&quot;https:&#x2F;&#x2F;sqlite.org&#x2F;src&#x2F;file?name=src&#x2F;os_unix.c&amp;amp;ci=b1be2259&quot;&gt;os_unix.c&lt;&#x2F;a&gt;. Its responsibility is to perform a full fsync based
+on the available and configured options. This section is what is relevant for
+Apple OSes:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-c &quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;#elif&lt;&#x2F;span&gt;&lt;span&gt; HAVE_FULLFSYNC
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if&lt;&#x2F;span&gt;&lt;span&gt;( fullSync ){
+&lt;&#x2F;span&gt;&lt;span&gt;    rc = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;osFcntl&lt;&#x2F;span&gt;&lt;span&gt;(fd, F_FULLFSYNC, &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt;);
+&lt;&#x2F;span&gt;&lt;span&gt;  }&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;else&lt;&#x2F;span&gt;&lt;span&gt;{
+&lt;&#x2F;span&gt;&lt;span&gt;    rc = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;1&lt;&#x2F;span&gt;&lt;span&gt;;
+&lt;&#x2F;span&gt;&lt;span&gt;  }
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;* If the FULLFSYNC failed, fall back to attempting an fsync().
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  ** It shouldn&amp;#39;t be possible for fullfsync to fail on the local 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  ** file system (on OSX), so failure indicates that FULLFSYNC
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  ** isn&amp;#39;t supported for this file system. So, attempt an fsync 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  ** and (for now) ignore the overhead of a superfluous fcntl call.  
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  ** It&amp;#39;d be better to detect fullfsync support once and avoid 
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  ** the fcntl call every time sync is called.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  *&#x2F;
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;if&lt;&#x2F;span&gt;&lt;span&gt;( rc ) rc = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fsync&lt;&#x2F;span&gt;&lt;span&gt;(fd);
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;#elif defined&lt;&#x2F;span&gt;&lt;span&gt;(__APPLE__)
+&lt;&#x2F;span&gt;&lt;span&gt;  &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;* fdatasync() on HFS+ doesn&amp;#39;t yet flush the file size if it changed correctly
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  ** so currently we default to the macro that redefines fdatasync to fsync
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;  *&#x2F;
+&lt;&#x2F;span&gt;&lt;span&gt;  rc = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fsync&lt;&#x2F;span&gt;&lt;span&gt;(fd);
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The SQLite source code shows the implementation for calling &lt;code&gt;fcntl()&lt;&#x2F;code&gt; with
+&lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt;, but has no mention of &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;There&#x27;s one last thing to check: maybe Apple ships a custom build of SQLite that
+utilizes &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;. The best way to verify is to use dtrace to log out
+the system calls the process makes.&lt;&#x2F;p&gt;
+&lt;p&gt;I disabled System Integrity Protection so that I could trace the &lt;code&gt;sqlite3&lt;&#x2F;code&gt;
+executable that ships with macOS 12.4 (21F79):&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;~ &lt;&#x2F;span&gt;&lt;span&gt;% sudo dtruss&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt; -t&lt;&#x2F;span&gt;&lt;span&gt; fcntl sqlite3 test.sqlite
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;SYSCALL&lt;&#x2F;span&gt;&lt;span&gt;(args)    = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;return
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;SQLite&lt;&#x2F;span&gt;&lt;span&gt; version 3.37.0 2021-12-09 01:34:53
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;Enter &lt;&#x2F;span&gt;&lt;span&gt;&amp;quot;&lt;&#x2F;span&gt;&lt;span style=&quot;color:#a3be8c;&quot;&gt;.help&lt;&#x2F;span&gt;&lt;span&gt;&amp;quot; for usage hints.
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x3F, 0x6BDBD9C0)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x4, 0x32, 0x16BDBDDA8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span&gt;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;sqlite&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; insert into test (a) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;values&lt;&#x2F;span&gt;&lt;span&gt; (1);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBD0B8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBD0B8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBD0B8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBCBA8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDE98)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDE98)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDE98)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDF08)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x4, 0x5F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x4, 0x3F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x5, 0x5F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDEE8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDEE8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x5, 0x5F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDE88)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDE88)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16BDBDEB8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;This log shows all of the &lt;code&gt;fcntl()&lt;&#x2F;code&gt; calls issued by SQLite to perform the
+&lt;code&gt;insert into test (a) values (1);&lt;&#x2F;code&gt; statement. The second argument is the
+command. We can see SQLite is using commands 0x3F, 0x5A, and 0x5F. In decimal,
+those are 63, 90, and 95 respectively. Looking in &lt;code&gt;fcntl.h&lt;&#x2F;code&gt;, we see these values:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-c &quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;#define &lt;&#x2F;span&gt;&lt;span&gt;F_FULLFSYNC             &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;51      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;* fsync + ask the drive to flush to the media *&#x2F;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;#define &lt;&#x2F;span&gt;&lt;span&gt;F_GETPROTECTIONCLASS    &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;63      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;* Get the protection class of a file from the EA, returns int *&#x2F;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;#define &lt;&#x2F;span&gt;&lt;span&gt;F_BARRIERFSYNC          &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;85      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;* fsync + issue barrier to drive *&#x2F;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;The commands for 90 and 95 &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;apple&#x2F;darwin-xnu&#x2F;blob&#x2F;2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32&#x2F;bsd&#x2F;sys&#x2F;fcntl.h#L360-L370&quot;&gt;are private&lt;&#x2F;a&gt;:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;c&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-c &quot;&gt;&lt;code class=&quot;language-c&quot; data-lang=&quot;c&quot;&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;#define &lt;&#x2F;span&gt;&lt;span&gt;F_OFD_SETLK             &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;90      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;* Acquire or release open file description lock *&#x2F;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#b48ead;&quot;&gt;#define &lt;&#x2F;span&gt;&lt;span&gt;F_SETCONFINED           &lt;&#x2F;span&gt;&lt;span style=&quot;color:#d08770;&quot;&gt;95      &lt;&#x2F;span&gt;&lt;span style=&quot;color:#65737e;&quot;&gt;&#x2F;* &amp;quot;confine&amp;quot; OFD to process *&#x2F;
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;We did not see any &lt;code&gt;fcntl()&lt;&#x2F;code&gt; calls with the command argument being 85 (0x55).
+Let&#x27;s try enabling &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt;:&lt;&#x2F;p&gt;
+&lt;pre data-lang=&quot;sh&quot; style=&quot;background-color:#2b303b;color:#c0c5ce;&quot; class=&quot;language-sh &quot;&gt;&lt;code class=&quot;language-sh&quot; data-lang=&quot;sh&quot;&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;sqlite&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; pragma fullfsync=on;
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;sqlite&lt;&#x2F;span&gt;&lt;span&gt;&amp;gt; insert into test (a) &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;values&lt;&#x2F;span&gt;&lt;span&gt; (1);
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DEF8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DEF8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DEF8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DF68)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x4, 0x5F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x4, 0x3F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;3&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DF48)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DF48)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x4, 0x55, 0x0)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x5, 0x5F, 0x1)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x4, 0x55, 0x0)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x55, 0x0)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DEE8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DEE8)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;fcntl&lt;&#x2F;span&gt;&lt;span&gt;(0x3, 0x5A, 0x16DD9DF18)   = &lt;&#x2F;span&gt;&lt;span style=&quot;color:#bf616a;&quot;&gt;0&lt;&#x2F;span&gt;&lt;span&gt; 0
+&lt;&#x2F;span&gt;&lt;&#x2F;code&gt;&lt;&#x2F;pre&gt;
+&lt;p&gt;As expected, we have a new &lt;code&gt;fcntl()&lt;&#x2F;code&gt; command: 0x55. Unexpectedly, however,
+instead of enabling &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; (0x33) as we would expect from reading the
+publicly available SQLite code, we see 0x55 instead which is &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;!&lt;&#x2F;p&gt;
+&lt;p&gt;Apple&#x27;s provided SQLite binary replaces &lt;code&gt;fcntl(.., F_FULLFSYNC, ..)&lt;&#x2F;code&gt; with
+&lt;code&gt;fcntl(.., F_BARRIERFSYNC, ..)&lt;&#x2F;code&gt;, and it only uses &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; when &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; is enabled.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;-3&quot;&gt;
+
+
+&lt;a href=&quot;#Conclusion%3A%20Build%20SQLite%20yourself%20if%20ACID%20is%20important%20on%20macOS&quot; name=&quot;Conclusion%3A%20Build%20SQLite%20yourself%20if%20ACID%20is%20important%20on%20macOS&quot;&gt;
+    Conclusion: Build SQLite yourself if ACID is important on macOS
+    &lt;i class=&quot;bi bi-link-45deg hoverable&quot;&gt;&lt;&#x2F;i&gt;
+&lt;&#x2F;a&gt;&lt;&#x2F;h2&gt;
+&lt;p&gt;As Apple&#x27;s own documentation states, the only way to provide truly durable
+writes is to use &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt;. Despite this, the bundled version of SQLite
+replaces &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; with &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; and the only way to enable
+&lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; is to compile your own version of SQLite. The SQLite-maintained
+version will utilize &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; when &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; is on.&lt;&#x2F;p&gt;
+&lt;p&gt;I did not test any of these findings on iOS as I haven&#x27;t touched a debugger and
+my phone in many years. I suspect Apple doesn&#x27;t maintain separate versions of
+SQLite for iOS and macOS, but because their version of SQLite is closed source,
+we cannot verify.&lt;&#x2F;p&gt;
+&lt;p&gt;I understand the practicality of this change given the &lt;a href=&quot;https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=30371857&quot;&gt;performance
+characteristics of Apple SSDs&lt;&#x2F;a&gt;, but I would have instead preferred
+Apple to replace SQLite&#x27;s default behavior with &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; and kept
+&lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; untouched.&lt;&#x2F;p&gt;
+&lt;p&gt;Regardless of what Apple chooses to do in the future, I encourage Apple to
+publish their versions of SQLite alongside their other open source repositories.
+I can&#x27;t imagine the changes made to SQLite would be considered proprietary, and
+the ability to understand what differs between SQLite&#x27;s source code and the
+shipping version in Apple&#x27;s operating systems is important in understanding what
+guarantees SQLite provides on Apple&#x27;s hardware.&lt;&#x2F;p&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>Optimizing BonsaiDb: Improving Transaction Batching (Part 1 of ?)</title>
 		<published>2022-05-31T00:00:00+00:00</published>
