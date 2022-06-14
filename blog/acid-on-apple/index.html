@@ -22,10 +22,7 @@
     <meta property="og:image"
         content="https://bonsaidb.io/apple-touch-icon.png" />
     <meta property="og:description"
-        content="BonsaiDb is a
-batteries-included
-database
-aimed at being the most developer-friendly database." />
+        content="I tested how Apple utilizes F_BARRIERFSYNC in their bundled version of SQLite, and my conclusion is that Apple changed SQLite's ACID guarantees." />
     <meta property="og:url" content="https://bonsaidb.io/blog/acid-on-apple/" />
     <meta property="og:image:width" content="180" />
     <meta property="og:image:height" content="180" />
@@ -340,8 +337,8 @@ Let's try enabling <code>PRAGMA fullfsync</code>:</p>
 <p>As expected, we have a new <code>fcntl()</code> command: 0x55. Unexpectedly, however,
 instead of enabling <code>F_FULLFSYNC</code> (0x33) as we would expect from reading the
 publicly available SQLite code, we see 0x55 instead which is <code>F_BARRIERFSYNC</code>!</p>
-<p>Apple's provided SQLite binary replaces <code>fcntl(.., F_FULLFSYNC, ..)</code> with
-<code>fcntl(.., F_BARRIERFSYNC, ..)</code>, and it only uses <code>F_BARRIERFSYNC</code> when <code>PRAGMA fullfsync</code> is enabled.</p>
+<p>To summarize, Apple's SQLite doesn't use <code>F_BARRIERFSYNC</code> or <code>F_FULLFSYNC</code> by
+default, and it replaces <code>fcntl(.., F_FULLFSYNC, ..)</code> with <code>fcntl(.., F_BARRIERFSYNC, ..)</code> when <code>PRAGMA fullfsync</code> is enabled.</p>
 <h2 id="-3">
 
 
@@ -352,16 +349,17 @@ publicly available SQLite code, we see 0x55 instead which is <code>F_BARRIERFSYN
 <p>As Apple's own documentation states, the only way to provide truly durable
 writes is to use <code>F_FULLFSYNC</code>. Despite this, the bundled version of SQLite
 replaces <code>F_FULLFSYNC</code> with <code>F_BARRIERFSYNC</code> and the only way to enable
-<code>F_FULLFSYNC</code> is to compile your own version of SQLite. The SQLite-maintained
-version will utilize <code>F_FULLFSYNC</code> when <code>PRAGMA fullfsync</code> is on.</p>
-<p>I did not test any of these findings on iOS as I haven't touched a debugger and
-my phone in many years. I suspect Apple doesn't maintain separate versions of
-SQLite for iOS and macOS, but because their version of SQLite is closed source,
-we cannot verify.</p>
+<code>F_FULLFSYNC</code> appears to be to compile your own version of SQLite. The
+SQLite-maintained version will utilize <code>F_FULLFSYNC</code> when <code>PRAGMA fullfsync</code> is
+on.</p>
+<p>I did not test any of these findings on iOS, as it's been years since I have
+tried doing any tracing on a device. I suspect Apple doesn't maintain separate
+versions of SQLite for iOS and macOS, but because their version of SQLite is
+closed source, we cannot verify easily.</p>
 <p>I understand the practicality of this change given the <a href="https://news.ycombinator.com/item?id=30371857">performance
 characteristics of Apple SSDs</a>, but I would have instead preferred
-Apple to replace SQLite's default behavior with <code>F_BARRIERFSYNC</code> and kept
-<code>PRAGMA fullfsync</code> untouched.</p>
+Apple to replace SQLite's default synchronization behavior with <code>F_BARRIERFSYNC</code>
+and kept <code>PRAGMA fullfsync</code> untouched.</p>
 <p>Regardless of what Apple chooses to do in the future, I encourage Apple to
 publish their versions of SQLite alongside their other open source repositories.
 I can't imagine the changes made to SQLite would be considered proprietary, and

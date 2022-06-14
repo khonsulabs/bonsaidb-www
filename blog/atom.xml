@@ -224,8 +224,8 @@ Let&#x27;s try enabling &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt;:&lt;&#x2F
 &lt;p&gt;As expected, we have a new &lt;code&gt;fcntl()&lt;&#x2F;code&gt; command: 0x55. Unexpectedly, however,
 instead of enabling &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; (0x33) as we would expect from reading the
 publicly available SQLite code, we see 0x55 instead which is &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;!&lt;&#x2F;p&gt;
-&lt;p&gt;Apple&#x27;s provided SQLite binary replaces &lt;code&gt;fcntl(.., F_FULLFSYNC, ..)&lt;&#x2F;code&gt; with
-&lt;code&gt;fcntl(.., F_BARRIERFSYNC, ..)&lt;&#x2F;code&gt;, and it only uses &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; when &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; is enabled.&lt;&#x2F;p&gt;
+&lt;p&gt;To summarize, Apple&#x27;s SQLite doesn&#x27;t use &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; or &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; by
+default, and it replaces &lt;code&gt;fcntl(.., F_FULLFSYNC, ..)&lt;&#x2F;code&gt; with &lt;code&gt;fcntl(.., F_BARRIERFSYNC, ..)&lt;&#x2F;code&gt; when &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; is enabled.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;-3&quot;&gt;
 
 
@@ -236,16 +236,17 @@ publicly available SQLite code, we see 0x55 instead which is &lt;code&gt;F_BARRI
 &lt;p&gt;As Apple&#x27;s own documentation states, the only way to provide truly durable
 writes is to use &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt;. Despite this, the bundled version of SQLite
 replaces &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; with &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; and the only way to enable
-&lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; is to compile your own version of SQLite. The SQLite-maintained
-version will utilize &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; when &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; is on.&lt;&#x2F;p&gt;
-&lt;p&gt;I did not test any of these findings on iOS as I haven&#x27;t touched a debugger and
-my phone in many years. I suspect Apple doesn&#x27;t maintain separate versions of
-SQLite for iOS and macOS, but because their version of SQLite is closed source,
-we cannot verify.&lt;&#x2F;p&gt;
+&lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; appears to be to compile your own version of SQLite. The
+SQLite-maintained version will utilize &lt;code&gt;F_FULLFSYNC&lt;&#x2F;code&gt; when &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; is
+on.&lt;&#x2F;p&gt;
+&lt;p&gt;I did not test any of these findings on iOS, as it&#x27;s been years since I have
+tried doing any tracing on a device. I suspect Apple doesn&#x27;t maintain separate
+versions of SQLite for iOS and macOS, but because their version of SQLite is
+closed source, we cannot verify easily.&lt;&#x2F;p&gt;
 &lt;p&gt;I understand the practicality of this change given the &lt;a href=&quot;https:&#x2F;&#x2F;news.ycombinator.com&#x2F;item?id=30371857&quot;&gt;performance
 characteristics of Apple SSDs&lt;&#x2F;a&gt;, but I would have instead preferred
-Apple to replace SQLite&#x27;s default behavior with &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt; and kept
-&lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; untouched.&lt;&#x2F;p&gt;
+Apple to replace SQLite&#x27;s default synchronization behavior with &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;
+and kept &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; untouched.&lt;&#x2F;p&gt;
 &lt;p&gt;Regardless of what Apple chooses to do in the future, I encourage Apple to
 publish their versions of SQLite alongside their other open source repositories.
 I can&#x27;t imagine the changes made to SQLite would be considered proprietary, and
