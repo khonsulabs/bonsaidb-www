@@ -1,17 +1,15 @@
 +++
-title = "SQLite on macOS: Not ACID unless you build it yourself"
+title = "SQLite on macOS: Not ACID compliant with the bundled version"
 
 [extra]
 author = "Jonathan Johnson"
 author_url = "https://github.com/ecton"
-summary = "I tested how Apple utilizes F_BARRIERFSYNC in their bundled version of SQLite, and my conclusion is that Apple changed SQLite's ACID guarantees."
+summary = "In an effort to understand a benchmark I wrote, I tested how Apple altered SQLite's implementation in macOS."
 +++
 
 I'm building [a database](/about), and I consider SQLite a "gold standard" to
 compare my database against. While benchmarking new code recently, I noticed
-Apple's bundled version of SQLite is not ACID compliant, and from my
-understanding, cannot be made to be ACID compliant even when enabling `PRAGMA
-fullfsync`.
+Apple's bundled version of SQLite is not ACID compliant.
 
 I do not consider myself an expert on these topics. If there are any errors in
 my analysis, please reach out to me, and I will correct them immediately. I'm
@@ -98,8 +96,8 @@ Disk Writes"][reducing-writes] article:
 `F_BARRIERFSYNC` issues an IO barrier such that all subsequent IO operations
 must wait for all current writes to succeed. The `fcntl()` call returns after
 issuing the barrier, but before the data is synchronized. This is why using
-`F_BARRIERFSYNC` isn't durable: the write is confirmed before the data is fully
-synchronized.
+`F_BARRIERFSYNC` doesn't fulfill the durability requirement of ACID: the changes
+are confirmed before the data is fully synchronized.
 
 I should note that while `fcntl()` is an API that is available on Linux,
 `F_FULLFSYNC` and `F_BARRIERFSYNC` are specific to Apple OSes. Linux has no need
@@ -108,7 +106,7 @@ for these options as `fsync()` provides the guarantees needed.
 ## {{ anchor(text = "Does SQLite use F_BARRIERFSYNC on Apple OSes?" )}}
 
 When starting my new low-level storage layer ([Sediment][sediment]), I added
-support to optionally use `F_BARRIERFSYNC` instead of `F_FULLFSYNC` on Mac OS.
+support to optionally use `F_BARRIERFSYNC` instead of `F_FULLFSYNC` on macOS.
 By default, `F_FULLSYNC` would still be used as I wanted the user to explicitly
 opt-out of ACID if they needed the extra performance on Apple hardware. This was
 based on the idea that SQLite was using this same approach to achieve its very
@@ -121,8 +119,8 @@ but slower than SQLite on my M1 Macbook Air.
 
 That puzzled me, because if both SQLite and Sediment are using the same
 synchronization primitives, how could the performance difference be inverted
-between the libraries by switching operating systems? I decided to investigate
-how SQLite utilized `F_BARRIERFSYNC`.
+between by switching operating systems? I decided to investigate how SQLite
+utilized `F_BARRIERFSYNC`.
 
 My first stop was the documentation. SQLite has a pragma to [enable
 `F_FULLFSYNC`][pragma-fullfsync], but I could not find any documentation talking
@@ -240,37 +238,45 @@ fcntl(0x3, 0x5A, 0x16DD9DF18)   = 0 0
 
 As expected, we have a new `fcntl()` command: 0x55. Unexpectedly, however,
 instead of enabling `F_FULLFSYNC` (0x33) as we would expect from reading the
-publicly available SQLite code, we see 0x55 instead which is `F_BARRIERFSYNC`!
+publicly available SQLite code, we see 0x55 instead which is `F_BARRIERFSYNC`.
 
 To summarize, Apple's SQLite doesn't use `F_BARRIERFSYNC` or `F_FULLFSYNC` by
 default, and it replaces `fcntl(.., F_FULLFSYNC, ..)` with `fcntl(..,
 F_BARRIERFSYNC, ..)` when `PRAGMA fullfsync` is enabled.
 
-## {{ anchor(text = "Conclusion: Build SQLite yourself if ACID is important on macOS" )}}
+This behavior was [confirmed by Scott
+Perry](https://twitter.com/numist/status/1536830264214638593) as I was editing
+this post.
 
-As Apple's own documentation states, the only way to provide truly durable
-writes is to use `F_FULLFSYNC`. Despite this, the bundled version of SQLite
-replaces `F_FULLFSYNC` with `F_BARRIERFSYNC` and the only way to enable
-`F_FULLFSYNC` appears to be to compile your own version of SQLite. The
-SQLite-maintained version will utilize `F_FULLFSYNC` when `PRAGMA fullfsync` is
-on.
+## {{ anchor(text = "How important is this?" )}}
 
-I did not test any of these findings on iOS, as it's been years since I have
+For most consumer applications, `F_BARRIERFSYNC` will be enough to provide
+reasonable durability with the benefit of performing much more quickly. However,
+there are some situations where true ACID compliance is desired. Many (but not
+all) of those situations involve server software.
+
+With Apple no longer shipping server hardware and the performance of
+`F_FULLFSYNC` [on Apple's drives][marcan_42], it's hard to fault Apple for
+making the decision to use `F_BARRIERFSYNC` in their version of SQLite. I wish
+they would have opted to do it in a different way, such as a new pragma or
+changing the default `fsync()` behavior instead of replacing `PRAMGA fullfsync`.
+
+It's very confusing when a feature that's [documented to be specific to
+macOS][pragma-fullfsync] doesn't behave as documented on macOS. As it stands, if
+a developer wants the documented behavior, the easiest way probably is to build
+SQLite from source.
+
+I did not test any of these findings on iOS -- it's been years since I have
 tried doing any tracing on a device. I suspect Apple doesn't maintain separate
 versions of SQLite for iOS and macOS, but because their version of SQLite is
 closed source, we cannot verify easily.
 
-I understand the practicality of this change given the [performance
-characteristics of Apple SSDs][marcan_42], but I would have instead preferred
-Apple to replace SQLite's default synchronization behavior with `F_BARRIERFSYNC`
-and kept `PRAGMA fullfsync` untouched.
-
-Regardless of what Apple chooses to do in the future, I encourage Apple to
-publish their versions of SQLite alongside their other open source repositories.
-I can't imagine the changes made to SQLite would be considered proprietary, and
-the ability to understand what differs between SQLite's source code and the
-shipping version in Apple's operating systems is important in understanding what
-guarantees SQLite provides on Apple's hardware.
+Regardless of whether Apple changes how SQLite synchronizes in the future, I
+encourage Apple to publish their updates to SQLite alongside their other open
+source repositories. I can't imagine the changes made to SQLite would be
+considered proprietary, and the ability to understand what differs between
+SQLite's source code and the shipping version in Apple's operating systems is
+important in understanding what guarantees SQLite provides on Apple's hardware.
 
 [reducing-writes]: https://developer.apple.com/documentation/xcode/reducing-disk-writes
 [mjtsai]: https://mjtsai.com/blog/2022/02/17/apple-ssd-benchmarks-and-f_fullsync/
