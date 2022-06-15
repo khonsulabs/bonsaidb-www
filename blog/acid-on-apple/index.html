@@ -154,9 +154,8 @@ is not the case. By default, the bundled version of SQLite distributed in macOS
 12.4 (21F79) relies on <code>fsync()</code> for synchronization.</p>
 <p>From my investigation, Apple's version of SQLite instead replaces <code>PRAGMA fullfsync = on</code>'s implementation to use <code>F_BARRIERFSYNC</code>.</p>
 <p>SQLite users who are expecting <code>PRAGMA fullfsync</code> to provide durability
-guarantees in the event of power failures or kernel panics <strong>must build their
-own version of SQLite on macOS for those durability guarantees to be implemented
-as documented by SQLite.</strong></p>
+guarantees in the event of power failures or kernel panics can <a href="https://twitter.com/numist/status/1536859148897226753">override xSync
+via a custom VFS</a> or build SQLite from source.</p>
 <p>To understand why, let's review how to ensure persistent writes on Apple's
 operating systems.</p>
 <h2 id="-1">

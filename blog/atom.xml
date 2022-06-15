@@ -41,9 +41,8 @@ is not the case. By default, the bundled version of SQLite distributed in macOS
 12.4 (21F79) relies on &lt;code&gt;fsync()&lt;&#x2F;code&gt; for synchronization.&lt;&#x2F;p&gt;
 &lt;p&gt;From my investigation, Apple&#x27;s version of SQLite instead replaces &lt;code&gt;PRAGMA fullfsync = on&lt;&#x2F;code&gt;&#x27;s implementation to use &lt;code&gt;F_BARRIERFSYNC&lt;&#x2F;code&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;SQLite users who are expecting &lt;code&gt;PRAGMA fullfsync&lt;&#x2F;code&gt; to provide durability
-guarantees in the event of power failures or kernel panics &lt;strong&gt;must build their
-own version of SQLite on macOS for those durability guarantees to be implemented
-as documented by SQLite.&lt;&#x2F;strong&gt;&lt;&#x2F;p&gt;
+guarantees in the event of power failures or kernel panics can &lt;a href=&quot;https:&#x2F;&#x2F;twitter.com&#x2F;numist&#x2F;status&#x2F;1536859148897226753&quot;&gt;override xSync
+via a custom VFS&lt;&#x2F;a&gt; or build SQLite from source.&lt;&#x2F;p&gt;
 &lt;p&gt;To understand why, let&#x27;s review how to ensure persistent writes on Apple&#x27;s
 operating systems.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;-1&quot;&gt;
