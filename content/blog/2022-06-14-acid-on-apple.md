@@ -36,9 +36,8 @@ From my investigation, Apple's version of SQLite instead replaces `PRAGMA
 fullfsync = on`'s implementation to use `F_BARRIERFSYNC`.
 
 SQLite users who are expecting `PRAGMA fullfsync` to provide durability
-guarantees in the event of power failures or kernel panics **must build their
-own version of SQLite on macOS for those durability guarantees to be implemented
-as documented by SQLite.**
+guarantees in the event of power failures or kernel panics can [override xSync
+via a custom VFS][numist-tweet2] or build SQLite from source.
 
 To understand why, let's review how to ensure persistent writes on Apple's
 operating systems.
@@ -286,4 +285,5 @@ important in understanding what guarantees SQLite provides on Apple's hardware.
 [private-fcntl]: https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/bsd/sys/fcntl.h#L360-L370
 [sqlite-wal]: http://www3.sqlite.org/wal.html
 [numist-tweet]: https://twitter.com/numist/status/1494392674014531593
+[numist-tweet2]: https://twitter.com/numist/status/1536859148897226753
 [marcan_42]: https://news.ycombinator.com/item?id=30371857
