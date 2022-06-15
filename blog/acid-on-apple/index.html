@@ -6,7 +6,7 @@
     <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SQLite on macOS: Not ACID unless you build it yourself</title>
+    <title>SQLite on macOS: Not ACID compliant with the bundled version</title>
     <link rel="stylesheet" href="/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
@@ -18,11 +18,11 @@
     <link rel="manifest" href="/site.webmanifest">
     <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
     <meta property="og:title"
-        content="SQLite on macOS: Not ACID unless you build it yourself" />
+        content="SQLite on macOS: Not ACID compliant with the bundled version" />
     <meta property="og:image"
         content="https://bonsaidb.io/apple-touch-icon.png" />
     <meta property="og:description"
-        content="I tested how Apple utilizes F_BARRIERFSYNC in their bundled version of SQLite, and my conclusion is that Apple changed SQLite's ACID guarantees." />
+        content="In an effort to understand a benchmark I wrote, I tested how Apple altered SQLite's implementation in macOS." />
     <meta property="og:url" content="https://bonsaidb.io/blog/acid-on-apple/" />
     <meta property="og:image:width" content="180" />
     <meta property="og:image:height" content="180" />
@@ -113,7 +113,7 @@ is-active
 
     
 <div class="container content px-4">
-    <h1>SQLite on macOS: Not ACID unless you build it yourself</h1>
+    <h1>SQLite on macOS: Not ACID compliant with the bundled version</h1>
     
     <p>
         
@@ -127,8 +127,7 @@ is-active
     
     <p>I'm building <a href="/about">a database</a>, and I consider SQLite a &quot;gold standard&quot; to
 compare my database against. While benchmarking new code recently, I noticed
-Apple's bundled version of SQLite is not ACID compliant, and from my
-understanding, cannot be made to be ACID compliant even when enabling <code>PRAGMA fullfsync</code>.</p>
+Apple's bundled version of SQLite is not ACID compliant.</p>
 <p>I do not consider myself an expert on these topics. If there are any errors in
 my analysis, please reach out to me, and I will correct them immediately. I'm
 learning by doing, and as evidenced by <a href="/blog/durable-writes">my last post on this
@@ -212,8 +211,8 @@ power loss.</p>
 <p><code>F_BARRIERFSYNC</code> issues an IO barrier such that all subsequent IO operations
 must wait for all current writes to succeed. The <code>fcntl()</code> call returns after
 issuing the barrier, but before the data is synchronized. This is why using
-<code>F_BARRIERFSYNC</code> isn't durable: the write is confirmed before the data is fully
-synchronized.</p>
+<code>F_BARRIERFSYNC</code> doesn't fulfill the durability requirement of ACID: the changes
+are confirmed before the data is fully synchronized.</p>
 <p>I should note that while <code>fcntl()</code> is an API that is available on Linux,
 <code>F_FULLFSYNC</code> and <code>F_BARRIERFSYNC</code> are specific to Apple OSes. Linux has no need
 for these options as <code>fsync()</code> provides the guarantees needed.</p>
@@ -225,7 +224,7 @@ for these options as <code>fsync()</code> provides the guarantees needed.</p>
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h2>
 <p>When starting my new low-level storage layer (<a href="https://github.com/khonsulabs/sediment">Sediment</a>), I added
-support to optionally use <code>F_BARRIERFSYNC</code> instead of <code>F_FULLFSYNC</code> on Mac OS.
+support to optionally use <code>F_BARRIERFSYNC</code> instead of <code>F_FULLFSYNC</code> on macOS.
 By default, <code>F_FULLSYNC</code> would still be used as I wanted the user to explicitly
 opt-out of ACID if they needed the extra performance on Apple hardware. This was
 based on the idea that SQLite was using this same approach to achieve its very
@@ -236,8 +235,8 @@ post. The summary, however, is that Sediment was faster than SQLite on Linux,
 but slower than SQLite on my M1 Macbook Air.</p>
 <p>That puzzled me, because if both SQLite and Sediment are using the same
 synchronization primitives, how could the performance difference be inverted
-between the libraries by switching operating systems? I decided to investigate
-how SQLite utilized <code>F_BARRIERFSYNC</code>.</p>
+between by switching operating systems? I decided to investigate how SQLite
+utilized <code>F_BARRIERFSYNC</code>.</p>
 <p>My first stop was the documentation. SQLite has a pragma to <a href="http://www3.sqlite.org/pragma.html#pragma_fullfsync">enable
 <code>F_FULLFSYNC</code></a>, but I could not find any documentation talking
 about <code>F_BARRIERFSYNC</code>. The documentation for <code>PRAGMA fullfsync</code> states that the
@@ -336,36 +335,42 @@ Let's try enabling <code>PRAGMA fullfsync</code>:</p>
 </span></code></pre>
 <p>As expected, we have a new <code>fcntl()</code> command: 0x55. Unexpectedly, however,
 instead of enabling <code>F_FULLFSYNC</code> (0x33) as we would expect from reading the
-publicly available SQLite code, we see 0x55 instead which is <code>F_BARRIERFSYNC</code>!</p>
+publicly available SQLite code, we see 0x55 instead which is <code>F_BARRIERFSYNC</code>.</p>
 <p>To summarize, Apple's SQLite doesn't use <code>F_BARRIERFSYNC</code> or <code>F_FULLFSYNC</code> by
 default, and it replaces <code>fcntl(.., F_FULLFSYNC, ..)</code> with <code>fcntl(.., F_BARRIERFSYNC, ..)</code> when <code>PRAGMA fullfsync</code> is enabled.</p>
+<p>This behavior was <a href="https://twitter.com/numist/status/1536830264214638593">confirmed by Scott
+Perry</a> as I was editing
+this post.</p>
 <h2 id="-3">
 
 
-<a href="#Conclusion%3A%20Build%20SQLite%20yourself%20if%20ACID%20is%20important%20on%20macOS" name="Conclusion%3A%20Build%20SQLite%20yourself%20if%20ACID%20is%20important%20on%20macOS">
-    Conclusion: Build SQLite yourself if ACID is important on macOS
+<a href="#How%20important%20is%20this%3F" name="How%20important%20is%20this%3F">
+    How important is this?
     <i class="bi bi-link-45deg hoverable"></i>
 </a></h2>
-<p>As Apple's own documentation states, the only way to provide truly durable
-writes is to use <code>F_FULLFSYNC</code>. Despite this, the bundled version of SQLite
-replaces <code>F_FULLFSYNC</code> with <code>F_BARRIERFSYNC</code> and the only way to enable
-<code>F_FULLFSYNC</code> appears to be to compile your own version of SQLite. The
-SQLite-maintained version will utilize <code>F_FULLFSYNC</code> when <code>PRAGMA fullfsync</code> is
-on.</p>
-<p>I did not test any of these findings on iOS, as it's been years since I have
+<p>For most consumer applications, <code>F_BARRIERFSYNC</code> will be enough to provide
+reasonable durability with the benefit of performing much more quickly. However,
+there are some situations where true ACID compliance is desired. Many (but not
+all) of those situations involve server software.</p>
+<p>With Apple no longer shipping server hardware and the performance of
+<code>F_FULLFSYNC</code> <a href="https://news.ycombinator.com/item?id=30371857">on Apple's drives</a>, it's hard to fault Apple for
+making the decision to use <code>F_BARRIERFSYNC</code> in their version of SQLite. I wish
+they would have opted to do it in a different way, such as a new pragma or
+changing the default <code>fsync()</code> behavior instead of replacing <code>PRAMGA fullfsync</code>.</p>
+<p>It's very confusing when a feature that's <a href="http://www3.sqlite.org/pragma.html#pragma_fullfsync">documented to be specific to
+macOS</a> doesn't behave as documented on macOS. As it stands, if
+a developer wants the documented behavior, the easiest way probably is to build
+SQLite from source.</p>
+<p>I did not test any of these findings on iOS -- it's been years since I have
 tried doing any tracing on a device. I suspect Apple doesn't maintain separate
 versions of SQLite for iOS and macOS, but because their version of SQLite is
 closed source, we cannot verify easily.</p>
-<p>I understand the practicality of this change given the <a href="https://news.ycombinator.com/item?id=30371857">performance
-characteristics of Apple SSDs</a>, but I would have instead preferred
-Apple to replace SQLite's default synchronization behavior with <code>F_BARRIERFSYNC</code>
-and kept <code>PRAGMA fullfsync</code> untouched.</p>
-<p>Regardless of what Apple chooses to do in the future, I encourage Apple to
-publish their versions of SQLite alongside their other open source repositories.
-I can't imagine the changes made to SQLite would be considered proprietary, and
-the ability to understand what differs between SQLite's source code and the
-shipping version in Apple's operating systems is important in understanding what
-guarantees SQLite provides on Apple's hardware.</p>
+<p>Regardless of whether Apple changes how SQLite synchronizes in the future, I
+encourage Apple to publish their updates to SQLite alongside their other open
+source repositories. I can't imagine the changes made to SQLite would be
+considered proprietary, and the ability to understand what differs between
+SQLite's source code and the shipping version in Apple's operating systems is
+important in understanding what guarantees SQLite provides on Apple's hardware.</p>
 
 </div>
 
