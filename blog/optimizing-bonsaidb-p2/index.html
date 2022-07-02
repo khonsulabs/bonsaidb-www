@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="darkreader" content="NO-DARKREADER-PLUGIN" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Optimizing BonsaiDb: Promising progress on new storage layer (Part 2 of ?)</title>
+    <link rel="stylesheet" href="/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.4.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/styles/monokai.min.css">
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/11.3.1/highlight.min.js"></script>
+    <script src="/nodarkreader.min.js"></script>
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/bonsaidb-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/bonsaidb-16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="alternate" type="application/atom+xml" title="The BonsaiDb Blog" href="/blog/atom.xml" />
+    <meta property="og:title"
+        content="Optimizing BonsaiDb: Promising progress on new storage layer (Part 2 of ?)" />
+    <meta property="og:image"
+        content="https://bonsaidb.io/apple-touch-icon.png" />
+    <meta property="og:description"
+        content="BonsaiDb is a
+batteries-included
+database
+aimed at being the most developer-friendly database." />
+    <meta property="og:url" content="https://bonsaidb.io/blog/optimizing-bonsaidb-p2/" />
+    <meta property="og:image:width" content="180" />
+    <meta property="og:image:height" content="180" />
+    <meta property="og:type" content='article' />
+</head>
+
+<body>
+    <nav class="navbar" role="navigation" aria-label="main navigation">
+        <div class="navbar-brand">
+            <a class="navbar-item" href="/">
+                <img src="/bonsaidb-64.png" height="28" />
+                <h1>BonsaiDb</h1>
+            </a>
+            <div class="is-hidden-mobile is-flex-tablet">
+                <a class="navbar-item 
+
+
+
+" href="/">
+                    Getting Started
+                </a>
+                <a class="navbar-item 
+
+
+
+" href="/about/">
+                    What is BonsaiDb?
+                </a>
+                <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                    Blog
+                </a>
+            </div>
+            <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbar-menu">
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+                <span aria-hidden="true"></span>
+            </a>
+        </div>
+
+        <div class="navbar-menu" id="navbar-menu">
+            <div class="navbar-start is-hidden-tablet is-flex-mobile">
+                <div class="">
+                    <a class="navbar-item 
+
+
+
+" href="/">
+                        Getting Started
+                    </a>
+                    <a class="navbar-item 
+
+
+
+" href="/about/">
+                        What is BonsaiDb?
+                    </a>
+                    <a class="navbar-item 
+
+
+is-active
+" href="/blog/">
+                        Blog
+                    </a>
+                </div>
+            </div>
+            <div class="navbar-end">
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/guide/">
+                    <i class="font-icon bi-book"></i> User's Guide</a>
+                <a class="navbar-item" href="https://dev.bonsaidb.io/release/docs/bonsaidb">
+                    <i class="font-icon bi-journal-code"></i>
+                    Documentation</a>
+                <a class="navbar-item" href="https://community.khonsulabs.com/c/open-source/bonsaidb/18">
+                    <i class="font-icon bi-chat"></i>
+                    Forums</a>
+                <a class="navbar-item" href="https://discord.khonsulabs.com">
+                    <i class="font-icon bi-discord"></i>
+                    Discord</a>
+                <a class="navbar-item" href="https://github.com/khonsulabs/bonsaidb">
+                    <i class="font-icon bi-github"></i> Source
+                    Code</a>
+            </div>
+        </div>
+    </nav>
+
+    
+<div class="container content px-4">
+    <h1>Optimizing BonsaiDb: Promising progress on new storage layer (Part 2 of ?)</h1>
+    
+    <p>
+        
+        Written by <a href="https:&#x2F;&#x2F;github.com&#x2F;ecton">Jonathan Johnson</a>.
+        
+        
+        Published 2022-07-01.
+        
+        
+    </p>
+    
+    <blockquote>
+<p><strong>What is BonsaiDb?</strong></p>
+<p><a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a> is a new database aiming to be the most developer-friendly
+Rust database. BonsaiDb has a unique feature set geared at solving many common
+data problems. We have a page dedicated to answering the question: <a href="https://bonsaidb.io/about">What is
+BonsaiDb?</a>.</p>
+</blockquote>
+<p>At the end of the <a href="/blog/optimizing-bonsaidb-p1">last post in this ongoing
+series</a>, I introduced an overview of
+<a href="https://github.com/khonsulabs/sediment">Sediment</a>, the new storage format I was beginning development on that
+I hoped would replace the append-only file format that <a href="https://github.com/khonsulabs/nebari">Nebari</a> uses.</p>
+<p>It's been a month, and as promised, I wanted to share my progress. Sediment is
+still very early in development. All results in this post should be taken with
+healthy skepticism, as there could be bugs that I have not discovered yet that
+force me to change some fundamental aspect of the library. I hope I'm beyond
+those hurdles, but there are some fun and complex problems I have yet to tackle.</p>
+<p>This post is going to be an exploration of Sediment's design. At the end, I will
+show some of the early benchmarking results -- including running the <a href="https://github.com/khonsulabs/nebari/tree/main/benchmarks">Nebari
+benchmark suite</a>.</p>
+<h2 id="">
+
+
+<a href="#The%20Goals%20of%20Sediment" name="The%20Goals%20of%20Sediment">
+    The Goals of Sediment
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The primary speed issues I had identified with <a href="https://github.com/khonsulabs/nebari">Nebari</a> stemmed from two
+design decisions:</p>
+<ul>
+<li>Nebari did not preallocate disk space. Allocating a larger chunk of space and
+overwriting it is faster than appending multiple times to the end of a file
+due to extra filesystem metadata syncing being required each time the file's
+length changes.</li>
+<li>Nebari required two <code>fsync()</code> operations for ACID. My early benchmarking was
+flawed due to using temporary files in <code>/tmp</code> for benchmarking against. On
+Linux these days, <code>/tmp</code> is often powered by the <code>tmpfs</code> filesystem. This
+filesystem does not actually persist data to disk, which means <code>fsync()</code> was
+almost instantaneous. The two-<code>fsync()</code> commit strategy is simply not viable
+if the goal is to be competitive with performance.</li>
+</ul>
+<p>One of the other problems an append-only file format has is the requirement of
+compaction. As a former heavy user of <a href="https://couchdb.apache.org/">CouchDB</a> (the original design
+inspiration for BonsaiDb), I remember struggling to compact databases when I was
+running low on disk space. The problem with compacting a database is that it
+requires rewriting the database to a new file -- an operation that requires free
+disk space. For large databases, that could be a challenge.</p>
+<p>I had goals for BonsaiDb to make compaction less painful, but with the prospect
+of replacing the append-only format, my third goal would be to allow reusing
+disk space.</p>
+<h2 id="-1">
+
+
+<a href="#The%20API%20of%20Sediment" name="The%20API%20of%20Sediment">
+    The API of Sediment
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>During the development of <a href="https://github.com/khonsulabs/nebari">Nebari</a>, I had abstracted nearly every read
+and write operation into something I called a &quot;chunk&quot;. A chunk was the data
+stored with 8 extra bytes: 4 bytes for a CRC32 to verify the data, and 4 bytes
+for the length of the data. A chunk's ID was simply it's location in the file.</p>
+<p>My goal of Sediment's design would be to focus on this primary concern: store
+some arbitrary bytes and be given a unique identifier. That unique ID should be
+able to retrieve or delete the data.</p>
+<p>The only other feature Nebari needed is a way to store the &quot;root&quot; of the B+Tree
+and retrieve it again when opening a database.</p>
+<p>These considerations yielded this API:</p>
+<pre data-lang="rust" style="background-color:#2b303b;color:#c0c5ce;" class="language-rust "><code class="language-rust" data-lang="rust"><span style="color:#65737e;">// Store some data
+</span><span style="color:#b48ead;">let mut</span><span> session = db.</span><span style="color:#96b5b4;">new_session</span><span>();
+</span><span style="color:#b48ead;">let</span><span> grain_id: GrainId = session.</span><span style="color:#96b5b4;">push</span><span>(</span><span style="color:#b48ead;">b</span><span>&quot;</span><span style="color:#a3be8c;">hello world</span><span>&quot;)?;
+</span><span>session.</span><span style="color:#96b5b4;">commit</span><span>()?;
+</span><span>
+</span><span style="color:#65737e;">// Retrieve the data
+</span><span style="color:#b48ead;">let</span><span> data = db.</span><span style="color:#96b5b4;">get</span><span>(grain_id)?.</span><span style="color:#96b5b4;">unwrap</span><span>();
+</span><span>assert_eq!(data.</span><span style="color:#96b5b4;">as_bytes</span><span>(), </span><span style="color:#b48ead;">b</span><span>&quot;</span><span style="color:#a3be8c;">hello world</span><span>&quot;);
+</span><span>
+</span><span style="color:#65737e;">// Archive the data (marks it for deletion)
+</span><span style="color:#b48ead;">let mut</span><span> session = db.</span><span style="color:#96b5b4;">new_session</span><span>();
+</span><span>session.</span><span style="color:#96b5b4;">archive</span><span>(grain_id)?;
+</span><span style="color:#b48ead;">let</span><span> archiving_commit: BatchId = session.</span><span style="color:#96b5b4;">commit</span><span>()?;
+</span><span>
+</span><span style="color:#65737e;">// Free the archived data. Until this is complete, `grain_id` can still 
+</span><span style="color:#65737e;">// retrieve the stored data.
+</span><span>db.</span><span style="color:#96b5b4;">checkpoint_to</span><span>(archiving_commit)?;
+</span></code></pre>
+<p>A <code>GrainId</code> is an opaque 64-bit identifier for stored data, and a
+<code>BatchId</code> is an identifier of a specific commit. Rather than offering an API to
+free data immediately, Sediment uses an internal log that can enable
+replication. Why did I design it this way?</p>
+<p>There is one key distinction between Sediment and nearly every format I've
+compared it against: Sediment does not use <a href="https://en.wikipedia.org/wiki/Write-ahead_logging">write-ahead logging (WAL)</a> or
+journal file. Sediment only requires a single file for its storage, just like
+Nebari did. My decision to do this was in an effort to minimize IO.</p>
+<p>There are many numerous benefits for WAL, but one downside is that data written
+to the database is often written multiple times. First, the new data is written
+to the log. At some future point, the database engine will checkpoint the log,
+and those changes will be applied to the primary data store. This is an extra
+copy that can be avoided by Sediment, as there's no real benefit to keeping a
+separate log for this format.</p>
+<p>The log that Sediment uses simply tracks <code>GrainId</code> allocations and archivals.
+When the log is checkpointed, each archived grain in the log entries that are
+being removed will be free. This simple approach provides enough information to
+implement Sediment's consistency guarantees and could be used to replicate the
+database.</p>
+<h2 id="-2">
+
+
+<a href="#The%20Format%20of%20Sediment" name="The%20Format%20of%20Sediment">
+    The Format of Sediment
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The basic design behind Sediment is to divide the file into blocks of data that
+are pre-allocated and can be relocated to defragment the file. Basins have a
+list of Strata, and Strata have a list of &quot;Grain Maps&quot;.</p>
+<p>A <code>GrainId</code> is a 64-bit identifier that uses 8 bits to identify which Basin the
+grain is located within. The next 8 bits identify the Stratum. The remaining 48
+bits identify the index of the grain within the Stratum.</p>
+<p>Each Stratum has configurable properties:</p>
+<ul>
+<li>Grain Length: How many bytes is each grain allocated?</li>
+<li>Pages per Map: Grain Maps are divided into pages. To support very large
+databases, each map can have multiple pages.</li>
+<li>Grain Map Count: How many grain maps are allocated?</li>
+</ul>
+<p>One challenge this format has is keeping track of which regions of the file are
+currently allocated for Basins, Strata, and Grains. These structures have been
+designed to minimize the amount of data required to load enough state for the
+database to be validated and the file's allocations to be fully tracked.</p>
+<p>The commit log is stored separately from the Basins, Strata, and Grains. The
+file's header points to the most recent page of commit log entries. If a
+database is never checkpointed, there will be extra overhead on loading the
+database to scan the commit log to understand which pages of the file have been
+allocated and which are free. For most practical use cases, there will rarely be
+more than a handful of pages of commit log entries.</p>
+<p>Each header structure is stored twice within the file, and the &quot;inactive&quot; copy
+is overwritten when saved. This copy-on-write behavior combined with the commit
+log allows Sediment to verify that all writes performed during the last commit
+are completely intact when reopening the database. If a CRC or data
+inconsistency is found, the failed commit will be reverted before the database
+is opened.</p>
+<h2 id="-3">
+
+
+<a href="#The%20Architecture%20of%20Sediment" name="The%20Architecture%20of%20Sediment">
+    The Architecture of Sediment
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The two main types in understanding how Sediment works are the <code>Atlas</code> and the
+<code>Committer</code>. The <code>Atlas</code> is responsible for keeping track of the in-memory state
+of the disk structures. The <code>Committer</code> is responsible for persisting changes to
+those structures to disk.</p>
+<p>This current design does not allow multiple processes to share access to a
+Sediment database, as there are in-memory contracts between the <code>Atlas</code> and
+<code>Committer</code>. One example is how file allocations are tracked. The <code>Atlas</code> is
+responsible for allocating disk space for each grain written. Conversely, the
+<code>Committer</code> will update the <code>Atlas</code> when disk space can be reused.</p>
+<p>The <code>Atlas</code> is the least optimized part of Sediment. The problem of determining
+how to allocate a grain is not simple, and my initial implementation is a brute
+force algorithm. It's been <a href="https://github.com/khonsulabs/sediment/issues/4">on my radar</a>, and when
+benchmarking Nebari's insert performance, grain allocation took nearly 70% of
+CPU time. Additionally, the <code>Atlas</code> currently is behind a single mutex. This
+might be good enough, but more complex concurrency management may be something
+to investigate as well.</p>
+<p>Why is grain allocation tricky? The storage format of grains allows allocating
+multiple sequential grains as a single <code>GrainId</code>. For example, if 64-byte value
+is being written, it could be stored in four 16-byte grains or it could be
+stored in 64 1-byte grains. The only limit is that only 255 consecutive grains
+can be allocated for a single value. This gives an incredible amount of
+flexibility, but it also has led to many hours of theorycrafting the best
+allocation algorithms.</p>
+<p>To write data, a &quot;session&quot; is created. The session can be used to write data,
+archive data, checkpoint the database, or update the embedded header. If the
+session is dropped, all reserved grains are available to be reused immediately.</p>
+<p>When the session is committed, the changes are batched with any other pending
+changes from other sessions waiting to be committed. The session's thread checks
+if another commit is already happening. If no other commit is happening, the
+session's thread becomes the commit thread and commits the currently batched
+changes. Otherwise, the thread will wait for a signal that its batch has been
+committed or for another opportunity to become the commit thread.</p>
+<p>This design was intended to allow significant read and write concurrency, and
+I'm happy to report that the benchmarks show promising concurrency results.</p>
+<h2 id="-4">
+
+
+<a href="#Benchmarking%20Sediment" name="Benchmarking%20Sediment">
+    Benchmarking Sediment
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Sediment isn't a general purpose database, nor is it a key-value store. I am not
+aware of any other storage API to benchmark against that can offer a true
+apples-to-apples comparison. Still, I wanted to have some meaningful
+comparisons, so I initially benchmarked single-threaded insert performance
+against SQLite. However, SQLite doesn't offer any multi-threaded concurrency
+options that allow it to batch transactions. I identified <a href="https://github.com/facebook/rocksdb">RocksDB</a> as
+a good candidate, as it has a <a href="https://crates.io/crates/rocksdb">great crate</a> and supports batching
+multithreaded transactions. Here are the results of the single-threaded benchmark:</p>
+<table><thead><tr><th>Backend</th><th>avg</th><th>min</th><th>max</th><th>stddev</th></tr></thead><tbody>
+<tr><td>rocksdb</td><td>2.591ms</td><td>2.386ms</td><td>2.797ms</td><td>54.69us</td></tr>
+<tr><td>sediment</td><td>2.765ms</td><td>2.581ms</td><td>6.020ms</td><td>332.7us</td></tr>
+<tr><td>sqlite</td><td>4.347ms</td><td>4.148ms</td><td>6.944ms</td><td>273.2us</td></tr>
+</tbody></table>
+<p>The <a href="https://github.com/khonsulabs/sediment/blob/8b43f044a8daad85dbdf2218c2a7a7ced6bc9759/benchmarks/benches/inserts.rs">batch insert benchmark</a> measures a variable number of threads
+performing a series of batch commits. Here are the average times to commit each
+batch insert operation with ACID guarantees on my AMD Ryzen 3700X with 8 cores
+and a Samsung SSD 970 EVO Plus:</p>
+<table><thead><tr><th>Backend</th><th>16 threads</th><th>32 threads</th><th>64 threads</th></tr></thead><tbody>
+<tr><td>rocksdb</td><td>6.044ms</td><td>9.194ms</td><td>17.83ms</td></tr>
+<tr><td>sediment</td><td>6.362ms</td><td>7.281ms</td><td>8.247ms</td></tr>
+<tr><td>sqlite</td><td>24.93ms</td><td>46.60ms</td><td>163.2ms</td></tr>
+</tbody></table>
+<p>I was very happy to see that the performance of Sediment scales very nicely even
+with 64 threads concurrently writing to the database -- in spite of my naive
+grain allocation algorithm. The next step was to see how much overhead Nebari
+would add.</p>
+<h2 id="-5">
+
+
+<a href="#Benchmarking%20Nebari%20on%20Sediment" name="Benchmarking%20Nebari%20on%20Sediment">
+    Benchmarking Nebari on Sediment
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>The <a href="https://github.com/khonsulabs/nebari/tree/main/benchmarks">Nebari benchmarks</a> are single-threaded and limited to
+single trees, which made it much easier to quickly incorporate Sediment. There
+are three main operations that are benchmarked: insert, get, and scan. Here are
+the insert benchmark's results, which tests the speed of ACID-compliant
+insertion of a blob of a specified size:</p>
+<table><thead><tr><th>Backend</th><th>1 KB</th><th>1 MB</th><th>64 MB</th></tr></thead><tbody>
+<tr><td>nebari (sediment)</td><td>2.823 ms</td><td>4.124 ms</td><td>183 ms</td></tr>
+<tr><td>nebari (v0.5.3)</td><td>2.678 ms</td><td>6.959 ms</td><td>284.9 ms</td></tr>
+<tr><td>sqlite</td><td>4.182 ms</td><td>7.2 ms</td><td>159 ms</td></tr>
+</tbody></table>
+<p>For 1 KB inserts, the average performance is pretty similar. As mentioned
+earlier, when profiling this benchmark, nearly 70% of the CPU time is spent in
+grain allocation, which has been <a href="https://github.com/khonsulabs/sediment/issues/4">on my refactor list since being
+written</a>. For larger inserts, however, Sediment is
+much more efficient. How about the performance of retrieving a single row out of
+various data set sizes (random ids):</p>
+<table><thead><tr><th>Backend</th><th>1k rows</th><th>10k rows</th><th>1m rows</th></tr></thead><tbody>
+<tr><td>nebari (sediment)</td><td>749.6 ns</td><td>908.7 ns</td><td>9.067 us</td></tr>
+<tr><td>nebari (v0.5.3)</td><td>766.1 ns</td><td>913.2 ns</td><td>9.413 us</td></tr>
+<tr><td>sqlite</td><td>6.944 us</td><td>7.471 us</td><td>8.671 us</td></tr>
+</tbody></table>
+<p>As I expected, there isn't really much variation in performance. What about
+scanning a range of keys (random IDs):</p>
+<table><thead><tr><th>Backend</th><th>32 of 1k rows</th><th>100 of 10k rows</th><th>1k of 1m rows</th></tr></thead><tbody>
+<tr><td>nebari (sediment)</td><td>2.747 us</td><td>72.35 us</td><td>982.4 us</td></tr>
+<tr><td>nebari (v0.5.3)</td><td>2.684 us</td><td>90.02 us</td><td>1.156 ms</td></tr>
+<tr><td>sqlite</td><td>16.67 us</td><td>44.75 us</td><td>414.4 us</td></tr>
+</tbody></table>
+<p>This was one of the most surprising results to me. There is a ~15% speed
+improvement on this <a href="https://github.com/khonsulabs/nebari/issues/11">fairly unoptimized operation</a> on the larger
+data sets. My best guess as to why this operation is faster is that data stored
+in Sediment is packed closer together, which makes it more likely that the
+kernel page cache already has needed data in the cache.</p>
+<p>Overall, these benchmarks have shown that replacing the append-only format with
+Sediment has been a success so far.</p>
+<h2 id="-6">
+
+
+<a href="#Next%20Steps" name="Next%20Steps">
+    Next Steps
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Nebari's multi-tree type, <code>Roots</code>, is not currently compatible with Sediment. To
+finish realizing my goal of a single <code>fsync()</code> ACID transaction, I need to
+update the <code>Roots</code> type to support multi-tree transactions within Sediment.
+Until earlier this week, my vision was to refactor <code>Roots</code> to use a single file
+for all trees by using a B+Tree of B+Trees internally.</p>
+<p>However, with the results of the scan benchmark, I'm believe I'm seeing some
+benefits of keeping &quot;related data&quot; together. I'm currently debating whether I
+want to proceed with the single-file approach or whether I'm going to update the
+current multi-file approach with a new transaction log that can be synchronized
+in parallel with the affected trees.</p>
+<p>I've started maintaining a <a href="https://github.com/orgs/khonsulabs/projects/10">project on GitHub</a> tracking the
+issues I want to complete before I release the next BonsaiDb update. There are
+also a lot of areas left to explore:</p>
+<ul>
+<li>Sediment currently is optimized for 4 KB pages. ZFS, for example, has a 128 KB
+record size by default. Should Sediment offer customizable page sizes, or is
+the 4 KB page size fine even with filesystems that allocate in chunks larger
+than 4 KB? I've seen some mixed advice, so I need to do some extensive
+benchmarking on various filesystems to try to understand the impacts of the
+page size.</li>
+<li>The current pre-allocation strategy is fairly aggressive with a ~1:16 ratio.
+For example, let's say you're writing a 1 MB value to Sediment. The smallest
+grain size that can be used must be able to fit <code>ceil(1 MB / 255)</code>. This means
+that the smallest grain length that would be allocated is 4,096 bytes. Each
+grain map page contains 4,084 grains which means a minimum grain map
+allocation length would be 4 KB * 4,084, which is ~16 MB. If your database is
+10 GB, allocating 16 MB is a no-brainer, but if your database is only 1 MB, a
+16 MB allocation is very aggressive. I want to <a href="https://github.com/khonsulabs/sediment/issues/13">add another
+way</a> to store large values that would not require such an
+agressive preallocation strategy.</li>
+<li>I've tried out using <code>tokio_uring</code> to add <code>io_uring</code> support on Linux, and my
+initial benchmarking results are that there is not much noticable difference
+compared against using <code>std::fs</code>. I need to spend some time profiling to
+understand if I'm doing something silly. I've read that using <code>O_DIRECT</code> with
+<code>io_uring</code> can be very beneficial, but the <code>tokio_uring</code> crate does not
+support specifying additional open flags yet.</li>
+<li>The CEO behind <a href="https://hibernatingrhinos.com/">Hibernating Rhinos</a>, the company
+developing RavenDB, <a href="https://ayende.com/blog/197377-C/re-bonsaidb-performance-update-a-deep-dive-on-file-synchronization">wrote a response to my last post</a>. They've
+had great success with direct IO even without <code>io_uring</code>. The basic idea is
+that by specifying a few flags, you can avoid the kernel's page caching if you
+always write full pages of data that are page-aligned. While I have not tested
+what sorts of gains Sediment can gain by using direct IO, the data structures
+in Sediment have been designed with this potential optimization in mind.</li>
+<li>This new format supports reusing data as well as moving the stored data
+around. The approaches for doing various defragmenting operations are
+currently just theoretical models in my head that need to be explored and
+implemented.</li>
+</ul>
+<p>While this new format is much more complex than the current append-only format,
+I've had enough promising results that I'm proceeding with this new format. My
+next goal is to get the BonsaiDb Commerce Benchmark running atop Sediment --
+that is the benchmark where the current format results in BonsaiDb to be roughly
+2.5x slower than PostgreSQL. I'm optimistic that BonsaiDb can compete based on
+these early results!</p>
+<p>Assuming that the remaining development goes smoothly, I am currently hoping to
+have BonsaiDb v0.5 out sometime in August with support for the new format. I am
+committed to having a painless way to migrate data from the old format to the
+new format, so all current users or people considering trying BonsaiDb need not
+worry!</p>
+<h2 id="-7">
+
+
+<a href="#Getting%20Started%20with%20BonsaiDb" name="Getting%20Started%20with%20BonsaiDb">
+    Getting Started with BonsaiDb
+    <i class="bi bi-link-45deg hoverable"></i>
+</a></h2>
+<p>Our <a href="https://bonsaidb.io/">homepage</a> has basic setup instructions and a list of
+examples. We have started writing a <a href="https://dev.bonsaidb.io/release/guide/">user's
+guide</a>, and we have tried to write <a href="https://docs.rs/bonsaidb/">good
+documentation</a>.</p>
+<p>We would love to hear from you if you have questions or feedback. We have <a href="https://community.khonsulabs.com/">community Discourse forums</a> and a <a href="https://discord.khonsulabs.com">Discord server</a>, but also welcome anyone to <a href="https://github.com/khonsulabs/bonsaidb/issues/new">open an issue</a> with any questions or feedback.</p>
+<p>We dream big with <a href="https://github.com/khonsulabs/bonsaidb">BonsaiDb</a>, and we believe that it can simplify writing and deploying complex, data-driven applications in Rust. We would love <a href="https://github.com/khonsulabs/bonsaidb/labels/good%20first%20issue">additional contributors</a> who have similar passions and ambitions.</p>
+<p>Lastly, if you build something with one of our libraries, we would love to hear about it. Nothing makes us happier than hearing people are building things with our crates!</p>
+
+</div>
+
+<hr />
+<div class="px-4">
+    <aside class="menu" role="navigation">
+        
+        <p class="menu-label">Previous Post</p>
+        <ul class="menu-list">
+            <li>
+                <a href="&#x2F;blog&#x2F;acid-on-apple&#x2F;">SQLite on macOS: Not ACID compliant with the bundled version</a>
+            </li>
+        </ul>
+        
+
+        
+    </aside>
+</div>
+
+
+
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <iframe src="https://github.com/sponsors/ecton/button" title="Sponsor ecton" height="35" width="116"
+                style="border: 0;"></iframe>
+            <p>
+                <strong>BonsaiDb</strong> by <a href="https://khonsulabs.com">Khonsu Labs</a>. The <a
+                    href="https://github.com/khonsulabs/bonsaidb">source code</a> is
+                dual-licensed with
+                <a href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-MIT">MIT</a> and <a
+                    href="https://github.com/khonsulabs/bonsaidb/blob/main/LICENSE-APACHE">Apache License 2.0</a>. The
+                <a href="https://github.com/khonsulabs/bonsaidb-www/">website content</a>
+                is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+            </p>
+        </div>
+    </footer>
+
+    <script src="/site.js"></script>
+</body>
+
+</html>
