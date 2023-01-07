@@ -25,6 +25,7 @@ skip_anchor_prefixes = [
 
 skip_prefixes = [
     "https://minority-game.gooey.rs", # cheap vps I chose not to renew due to unreliability, need to redeploy
+    "https://khonsu.dev",             # dossier server, need to get back to that someday... not surprised it's down.
 ]
 
 [extra]
