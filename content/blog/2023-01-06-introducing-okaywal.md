@@ -20,9 +20,9 @@ logging][wal] (WAL). Today, I released v0.2 of [OkayWAL][okaywal].
 
 ## What is OkayWAL?
 
-OkayWAL is my attempt at making an efficient, general purpose WAL implementation
-for Rust. The primary goal of a WAL is to provide efficient atomic and durable
-data persistence.
+[OkayWAL][okaywal] is my attempt at making an efficient, general purpose WAL
+implementation for Rust. The primary goal of a WAL is to provide efficient
+atomic and durable data persistence.
 
 A WAL typically is used in conjunction with another data store -- what I'll
 refer to as the *primary data store*. Since updating a primary data store can be

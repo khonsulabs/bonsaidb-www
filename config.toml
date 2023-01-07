@@ -23,5 +23,9 @@ skip_anchor_prefixes = [
     "https://github.com/apple/darwin-xnu/blob/2ff845c2e033bd0ff64b5b6aa6063a1f8f65aa32/bsd/sys/fcntl.h",
 ]
 
+skip_prefixes = [
+    "https://minority-game.gooey.us", # cheap vps I chose not to renew due to unreliability, need to redeploy
+]
+
 [extra]
 # Put all your custom variables here
