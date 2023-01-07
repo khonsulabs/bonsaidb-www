@@ -105,7 +105,7 @@ separate log for this format.
 
 The log that Sediment uses simply tracks `GrainId` allocations and archivals.
 When the log is checkpointed, each archived grain in the log entries that are
-being removed will be free. This simple approach provides enough information to
+being removed will be freed. This simple approach provides enough information to
 implement Sediment's consistency guarantees and could be used to replicate the
 database.
 
