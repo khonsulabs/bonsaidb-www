@@ -7,7 +7,7 @@ author_url = "https://github.com/ecton"
 +++
 
 It's been almost 6 months since the [last update on optimizing
-BonsaiDb](../blog/optimizing-bonsaidb-p2). When I last left you, I was
+BonsaiDb](/blog/optimizing-bonsaidb-p2). When I last left you, I was
 optimistic about my in-development "blob storage" layer, [Sediment][sediment].
 
 The tl;dr is that [I struggled to optimize][status] my single-file approach with
