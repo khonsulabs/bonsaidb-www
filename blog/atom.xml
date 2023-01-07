@@ -64,7 +64,7 @@ version inspired by their multi-writer design. After some early benchmarking, I
 ended up throwing out that implementation and switching to a model inspired by
 how PostgreSQL&#x27;s WAL works. Given that it&#x27;s a v0.0.1 release on Crates.io, I
 wouldn&#x27;t take its benchmarks seriously, which is why I&#x27;ve cut off the higher end
-results to keep the comparison against PogreSQL more legible.&lt;&#x2F;p&gt;
+results to keep the comparison against PostgreSQL more legible.&lt;&#x2F;p&gt;
 &lt;p&gt;Second, a note about PostgreSQL. I am connecting to PostgreSQL using the
 &lt;a href=&quot;https:&#x2F;&#x2F;crates.io&#x2F;crates&#x2F;postgres&quot;&gt;postgres&lt;&#x2F;a&gt; crate over unsecured TCP to localhost. The write is to a
 table with a single column: a &lt;code&gt;BYTEA&lt;&#x2F;code&gt; column. From my limited testing, the
