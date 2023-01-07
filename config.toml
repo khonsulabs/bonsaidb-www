@@ -24,7 +24,7 @@ skip_anchor_prefixes = [
 ]
 
 skip_prefixes = [
-    "https://minority-game.gooey.us", # cheap vps I chose not to renew due to unreliability, need to redeploy
+    "https://minority-game.gooey.rs", # cheap vps I chose not to renew due to unreliability, need to redeploy
 ]
 
 [extra]
