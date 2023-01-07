@@ -97,6 +97,12 @@ changes to PostgreSQLs configuration could also optimize its speed for larger
 payloads as well. This is one area I still want to investigate more rather than
 just tweak configurations to chase benchmark results.
 
+Why not include a comparison against SQLite? SQLite doesn't have any mechanism
+for batching multi-threaded writes, as it's designed with single-threaded
+modifications in mind. While comparing against it in single-threaded
+benchmarking is useful, all of the multi-threaded benchmarks would be unfair to
+SQLite as its outside of its intended use case.
+
 ## Should you use OkayWAL?
 
 Overall, I'm very happy with the state of OkayWAL. But, given how new of a
