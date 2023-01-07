@@ -12,7 +12,7 @@
 		<updated>2023-01-06T00:00:00+00:00</updated>
 		<link href="https://bonsaidb.io/blog/introducing-okaywal/" type="text/html"/>
 		<id>https://bonsaidb.io/blog/introducing-okaywal/</id>
-		<content type="html">&lt;p&gt;It&#x27;s been almost 6 months since the &lt;a href=&quot;..&#x2F;blog&#x2F;optimizing-bonsaidb-p2&quot;&gt;last update on optimizing
+		<content type="html">&lt;p&gt;It&#x27;s been almost 6 months since the &lt;a href=&quot;&#x2F;blog&#x2F;optimizing-bonsaidb-p2&quot;&gt;last update on optimizing
 BonsaiDb&lt;&#x2F;a&gt;. When I last left you, I was
 optimistic about my in-development &amp;quot;blob storage&amp;quot; layer, &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;sediment&quot;&gt;Sediment&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
 &lt;p&gt;The tl;dr is that &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;262#issuecomment-1368512986&quot;&gt;I struggled to optimize&lt;&#x2F;a&gt; my single-file approach with
