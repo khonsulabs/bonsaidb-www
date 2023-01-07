@@ -228,7 +228,7 @@ copy that can be avoided by Sediment, as there's no real benefit to keeping a
 separate log for this format.</p>
 <p>The log that Sediment uses simply tracks <code>GrainId</code> allocations and archivals.
 When the log is checkpointed, each archived grain in the log entries that are
-being removed will be free. This simple approach provides enough information to
+being removed will be freed. This simple approach provides enough information to
 implement Sediment's consistency guarantees and could be used to replicate the
 database.</p>
 <h2 id="-2">
@@ -478,6 +478,13 @@ documentation</a>.</p>
         </ul>
         
 
+        
+        <p class="menu-label">Next Post</p>
+        <ul class="menu-list">
+            <li>
+                <a href="&#x2F;blog&#x2F;introducing-okaywal&#x2F;">Introducing OkayWAL: A write-ahead log for Rust</a>
+            </li>
+        </ul>
         
     </aside>
 </div>

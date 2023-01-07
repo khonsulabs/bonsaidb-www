@@ -4,8 +4,128 @@
 	<link href="https://bonsaidb.io/blog/atom.xml" rel="self" type="application/atom+xml"/>
   <link href="https://bonsaidb.io/blog/"/>
 	<generator uri="https://www.getzola.org/">Zola</generator>
-	<updated>2022-07-01T00:00:00+00:00</updated>
+	<updated>2023-01-06T00:00:00+00:00</updated>
 	<id>https://bonsaidb.io/blog/atom.xml</id>
+	<entry xml:lang="en">
+		<title>Introducing OkayWAL: A write-ahead log for Rust</title>
+		<published>2023-01-06T00:00:00+00:00</published>
+		<updated>2023-01-06T00:00:00+00:00</updated>
+		<link href="https://bonsaidb.io/blog/introducing-okaywal/" type="text/html"/>
+		<id>https://bonsaidb.io/blog/introducing-okaywal/</id>
+		<content type="html">&lt;p&gt;It&#x27;s been almost 6 months since the &lt;a href=&quot;..&#x2F;blog&#x2F;optimizing-bonsaidb-p2&quot;&gt;last update on optimizing
+BonsaiDb&lt;&#x2F;a&gt;. When I last left you, I was
+optimistic about my in-development &amp;quot;blob storage&amp;quot; layer, &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;sediment&quot;&gt;Sediment&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;p&gt;The tl;dr is that &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;262#issuecomment-1368512986&quot;&gt;I struggled to optimize&lt;&#x2F;a&gt; my single-file approach with
+Sediment. Specifically, when writing a very small change, the extra overhead of
+having to rewrite a few pages on disk would cause my average &lt;code&gt;fsync&lt;&#x2F;code&gt; time to
+always be significantly longer than writing a small change to PostgreSQL.&lt;&#x2F;p&gt;
+&lt;p&gt;The solution to that problem is what many databases have adopted: &lt;a href=&quot;https:&#x2F;&#x2F;en.wikipedia.org&#x2F;wiki&#x2F;Write-ahead_logging&quot;&gt;write-ahead
+logging&lt;&#x2F;a&gt; (WAL). Today, I released v0.2 of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;okaywal&quot;&gt;OkayWAL&lt;&#x2F;a&gt;.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;what-is-okaywal&quot;&gt;What is OkayWAL?&lt;&#x2F;h2&gt;
+&lt;p&gt;&lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;okaywal&quot;&gt;OkayWAL&lt;&#x2F;a&gt; is my attempt at making an efficient, general purpose WAL
+implementation for Rust. The primary goal of a WAL is to provide efficient
+atomic and durable data persistence.&lt;&#x2F;p&gt;
+&lt;p&gt;A WAL typically is used in conjunction with another data store -- what I&#x27;ll
+refer to as the &lt;em&gt;primary data store&lt;&#x2F;em&gt;. Since updating a primary data store can be
+a lot of work, it can be faster to serialize a set of changes that are needed to
+be applied to the primary data store and write those changes to the WAL first.&lt;&#x2F;p&gt;
+&lt;p&gt;Why would writing the data to a second location be faster? The primary data
+store is likely designed for organized storage and quick retrieval of data.
+Updating the primary data store probably requires updating multiple on-disk data
+structures which probably live on different pages on disk.&lt;&#x2F;p&gt;
+&lt;p&gt;A WAL, however, is designed for one job: persisting bytes to disk atomically as
+quickly as possible. It can take advantage of many strategies to optimize this
+operation, keeping average write times small.&lt;&#x2F;p&gt;
+&lt;p&gt;Data eventually makes its way from the WAL to the primary data store in an
+operation usually referred to as checkpointing. The updates to the primary data
+store can generally be optimized by grouping some or all of the operations being
+checkpointed into a single update to the primary data store.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;how-does-okaywal-perform&quot;&gt;How does OkayWAL perform?&lt;&#x2F;h2&gt;
+&lt;p&gt;As the name implies, it performs &amp;quot;okay.&amp;quot; Because of some close cuts with
+burnout, I&#x27;ve had to remind myself that my goal isn&#x27;t to be the fastest database
+in the world. I just want to be in the same realm as other general purpose
+databases. These benchmark results are from running &lt;code&gt;cargo bench -p benchmarks --all-features&lt;&#x2F;code&gt; inside of &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;okaywal&quot;&gt;the repository&lt;&#x2F;a&gt;. All results are from my
+local development machine running Manjaro Linux on a PCIe Gen 3 NVME ext4 drive.
+As with all benchmark results, you should always test and verify yourselves on
+your own target hardware.&lt;&#x2F;p&gt;
+&lt;p&gt;The only benchmark I currently have is writing a fixed sized payload using a
+variety of thread counts. Here are the graphs showing the average time to
+perform an atomic and durable write of data to OkayWAL, &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;komora-io&#x2F;sharded-log&quot;&gt;sharded-log
+v0.0.1&lt;&#x2F;a&gt;, and PostgreSQL.&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;introducing-okaywal&#x2F;256b.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;introducing-okaywal&amp;#x2F;256b.png&quot; class=&quot;block-image&quot; alt=&quot;Commerce Benchmark Overview from Scaleway&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;introducing-okaywal&#x2F;1kb.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;introducing-okaywal&amp;#x2F;1kb.png&quot; class=&quot;block-image&quot; alt=&quot;Commerce Benchmark Overview from Scaleway&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;introducing-okaywal&#x2F;4kb.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;introducing-okaywal&amp;#x2F;4kb.png&quot; class=&quot;block-image&quot; alt=&quot;Commerce Benchmark Overview from Scaleway&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;&lt;a href=&quot;&#x2F;images&#x2F;introducing-okaywal&#x2F;1mb.png&quot;&gt;&lt;img src=&quot;&amp;#x2F;images&amp;#x2F;introducing-okaywal&amp;#x2F;1mb.png&quot; class=&quot;block-image&quot; alt=&quot;Commerce Benchmark Overview from Scaleway&quot;   &#x2F;&gt;&lt;&#x2F;a&gt;&lt;&#x2F;p&gt;
+&lt;p&gt;First, a note about &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;komora-io&#x2F;sharded-log&quot;&gt;sharded-log&lt;&#x2F;a&gt;, a GPL-licensed write-ahead log
+implementation by the authors of &lt;a href=&quot;https:&#x2F;&#x2F;sled.rs&#x2F;&quot;&gt;Sled&lt;&#x2F;a&gt;. When I was looking for
+write-ahead log implementations in Rust, I saw this crate. Sadly, GPL is not
+compatible with the goals I have of BonsaiDb, so I initially created my own
+version inspired by their multi-writer design. After some early benchmarking, I
+ended up throwing out that implementation and switching to a model inspired by
+how PostgreSQL&#x27;s WAL works. Given that it&#x27;s a v0.0.1 release on Crates.io, I
+wouldn&#x27;t take its benchmarks seriously, which is why I&#x27;ve cut off the higher end
+results to keep the comparison against PogreSQL more legible.&lt;&#x2F;p&gt;
+&lt;p&gt;Second, a note about PostgreSQL. I am connecting to PostgreSQL using the
+&lt;a href=&quot;https:&#x2F;&#x2F;crates.io&#x2F;crates&#x2F;postgres&quot;&gt;postgres&lt;&#x2F;a&gt; crate over unsecured TCP to localhost. The write is to a
+table with a single column: a &lt;code&gt;BYTEA&lt;&#x2F;code&gt; column. From my limited testing, the
+overead of the TCP connection is dwarfed by the overhead of &lt;code&gt;fsync&lt;&#x2F;code&gt;ing the data
+to disk. My PostgreSQL server has had no customizations to its configuration
+beyond whatever my distribution&#x27;s package manager may have made. Additionally,
+PostgreSQL has the added overhead of parsing SQL and performing changes to a
+structured database that supports a wide variety of features. While we are
+observing PostgreSQL&#x27;s WAL performance, PostgreSQL is still doing more work than
+OkayWAL needs to for each write operation.&lt;&#x2F;p&gt;
+&lt;p&gt;Finally, a note about OkayWAL on the 1MB benchmark. The configuration being used
+is still the default configuration, which only preallocates 1MB and checkpoints
+after 768KB has been written. This means that the 1MB benchmark is never
+batching entries, and explains the degradation in performance especially at
+higher threadcounts. A change in the configuration can help this, but in theory,
+changes to PostgreSQLs configuration could also optimize its speed for larger
+payloads as well. This is one area I still want to investigate more rather than
+just tweak configurations to chase benchmark results.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;should-you-use-okaywal&quot;&gt;Should you use OkayWAL?&lt;&#x2F;h2&gt;
+&lt;p&gt;Overall, I&#x27;m very happy with the state of OkayWAL. But, given how new of a
+project it is, I can&#x27;t endorse it for use in production environments yet. If you
+need a write-ahead log for an experimental project, I would love to hear any
+feedback you have on this library&#x27;s design. I don&#x27;t have a roadmap for OkayWAL,
+but I am confident I will stabilize it to a v1.0 release during the course of
+2023.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;how-does-this-fit-in-with-bonsaidb-s-optimizations&quot;&gt;How does this fit in with BonsaiDb&#x27;s optimizations?&lt;&#x2F;h2&gt;
+&lt;p&gt;Last October, after rewriting OkayWAL I was a little burned out. I never lost
+interest in BonsaiDb, but I just couldn&#x27;t find myself motivated to try
+incorporating OkayWAL into &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;sediment&quot;&gt;Sediment&lt;&#x2F;a&gt;. The mountain of work left to
+get the WAL-driven workflow to a point that I could test its performance in
+BonsaiDb is &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;bonsaidb&#x2F;issues&#x2F;262#issuecomment-1368512986&quot;&gt;quite large&lt;&#x2F;a&gt;. I ended up exploring writing a
+&lt;code&gt;#[forbid(unsafe_code)]&lt;&#x2F;code&gt; vm-powered dynamic language, &lt;a href=&quot;https:&#x2F;&#x2F;github.com&#x2F;khonsulabs&#x2F;budlang&quot;&gt;Bud&lt;&#x2F;a&gt;. As someone
+who has always loved writing compilers, it was exactly the right type of
+distraction to rejuvinate me.&lt;&#x2F;p&gt;
+&lt;p&gt;After hosting family for Thanksgiving and subsequently recovering from COVID, I
+starting pondering how to best approach incorporating OkayWAL into Sediment.
+After realizing that Sediment was no longer going to be a single-file database
+given its use of a WAL, I decided to think about whether a multi-file design
+offered any beneftis.&lt;&#x2F;p&gt;
+&lt;p&gt;In the end, I decided upon a new format inspired by the previous design, but
+split into multiple files. As of yesterday, I finally had the full feature set
+required by the existing benchmark I had for Sediment. After fixing one fairly
+obvious oversight in how I was trying to batch transactions, the benchmarks are
+showing promising numbers. Because I have only done very basic testing, I don&#x27;t
+feel comfortable sharing the numbers yet.&lt;&#x2F;p&gt;
+&lt;p&gt;However, the basic summary is that &lt;strong&gt;even in its unoptimized state, Sediment
+appears to finally meet the performance goals I need&lt;&#x2F;strong&gt; to in theory get
+BonsaiDb&#x27;s performance into the same ballpark as other general purpose
+databases. There is still a lot of work before this work will make its way into
+BonsaiDb.&lt;&#x2F;p&gt;
+&lt;p&gt;If I finally have the right combination of strategies, I think it&#x27;s realistic to
+see this new storage system hit BonsaiDb this year. I&#x27;m hopeful that I&#x27;ve
+learned enough on this journey that I will not be left with any major surprises.&lt;&#x2F;p&gt;
+&lt;h2 id=&quot;want-to-follow-along-more-closely&quot;&gt;Want to follow along more closely?&lt;&#x2F;h2&gt;
+&lt;p&gt;I&#x27;ve been streaming in the &lt;code&gt;#coworking&lt;&#x2F;code&gt; channel on &lt;a href=&quot;https:&#x2F;&#x2F;discord.khonsulabs.com&#x2F;&quot;&gt;our community
+Discord&lt;&#x2F;a&gt; server fairly frequently. I often post shorter informal
+updates on Discord as well, and I&#x27;ve also been trying to be &lt;a href=&quot;https:&#x2F;&#x2F;fosstodon.org&#x2F;@ecton&quot;&gt;more active on
+Mastodon&lt;&#x2F;a&gt;. I always am happy to answer any questions and greatly
+appreciate hearing any constructive feedback.&lt;&#x2F;p&gt;
+</content>
+	</entry>
 	<entry xml:lang="en">
 		<title>Optimizing BonsaiDb: Promising progress on new storage layer (Part 2 of ?)</title>
 		<published>2022-07-01T00:00:00+00:00</published>
@@ -112,7 +232,7 @@ copy that can be avoided by Sediment, as there&#x27;s no real benefit to keeping
 separate log for this format.&lt;&#x2F;p&gt;
 &lt;p&gt;The log that Sediment uses simply tracks &lt;code&gt;GrainId&lt;&#x2F;code&gt; allocations and archivals.
 When the log is checkpointed, each archived grain in the log entries that are
-being removed will be free. This simple approach provides enough information to
+being removed will be freed. This simple approach provides enough information to
 implement Sediment&#x27;s consistency guarantees and could be used to replicate the
 database.&lt;&#x2F;p&gt;
 &lt;h2 id=&quot;-2&quot;&gt;
