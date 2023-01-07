@@ -75,7 +75,7 @@ version inspired by their multi-writer design. After some early benchmarking, I
 ended up throwing out that implementation and switching to a model inspired by
 how PostgreSQL's WAL works. Given that it's a v0.0.1 release on Crates.io, I
 wouldn't take its benchmarks seriously, which is why I've cut off the higher end
-results to keep the comparison against PogreSQL more legible.
+results to keep the comparison against PostgreSQL more legible.
 
 Second, a note about PostgreSQL. I am connecting to PostgreSQL using the
 [postgres][postgres] crate over unsecured TCP to localhost. The write is to a
