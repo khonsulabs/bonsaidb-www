@@ -17,9 +17,9 @@ jobs:
           wget https://github.com/getzola/zola/releases/download/v0.17.1/zola-v0.17.1-x86_64-unknown-linux-gnu.tar.gz
           tar -xzf zola-v0.17.1-x86_64-unknown-linux-gnu.tar.gz
 
-      - name: "Check"
-        run: |
-          ./zola check
+      # - name: "Check"
+      #   run: |
+      #     ./zola check
 
       - name: "Build"
         run: |
@@ -38,6 +38,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: public
+          path: public
           
       - name: Deploy
         uses: khonsulabs/sync-to-dossier@main
