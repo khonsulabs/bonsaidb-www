@@ -26,7 +26,7 @@ jobs:
           ./zola build
 
       - name: Deploy
-        environment: khonsu.dev
+        environment: bonsaidb.io
         uses: khonsulabs/sync-to-dossier@main
         with:
           url: ${{ secrets.DOSSIER_URL }}
