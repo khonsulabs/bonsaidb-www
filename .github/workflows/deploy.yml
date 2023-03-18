@@ -46,6 +46,6 @@ jobs:
           url: ${{ secrets.DOSSIER_URL }}
           api-key-id: ${{ secrets.DOSSIER_API_KEY_ID }}
           api-key: ${{ secrets.DOSSIER_API_KEY }}
-          project: dossier
+          project: bonsaidb-www
           from: public/
           to: /
