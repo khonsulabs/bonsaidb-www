@@ -2,15 +2,17 @@
 title = "How fast is BonsaiDb?"
 +++
 
-> **WARNING:** All of these benchmarks are [currently wrong](/blog/durable-writes). Due to
-> breaking changes on `main`, we have not updated the graphs yet. This page will
-> be revised soon.
-
 BonsaiDb's goal for performance is to be comparable to other popular,
 general-purpose, ACID-compliant databases such as SQLite, PostgreSQL, and
 MongoDB. We do not consider performance to be a core focus in development and
 will make decisions that create a better developer experience over raw
 performance.
+
+> This page was written prior [mistakes being discovered](./blog/durable-writes)
+> that impacted transactional write performance. Our goals remain the same, but
+> the conclusions written below are currently not correct. See [this GitHub
+> Issue](https://github.com/khonsulabs/bonsaidb/issues/251) for more information
+> on the project to improve transactional write performance.
 
 ## {{ anchor(text = "What do these benchmarks tell us about BonsaiDb?") }}
 
