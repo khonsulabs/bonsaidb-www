@@ -32,7 +32,7 @@ true` in the `Cargo.toml` prevented the bug from occurring.
 
 When coupled with the burnout I had at the time, I needed a break. At the
 beginning of January, I released the first version of
-[OkayWAL](./2023-01-06-introducing-okaywal.md), and in early February, I
+[OkayWAL](/blog/introducing-okaywal/), and in early February, I
 finished my rewrite of [Sediment][sediment] (more on that later). Still, I knew
 there was a lot of [remaining work][status].
 
